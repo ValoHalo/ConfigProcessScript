@@ -3,6 +3,7 @@
 
 function buildBaseConfig(config) {
   const subscriptionProxies = config.proxies || [];
+  const optionalProviders = new Set(['dlsite', ...applicationGroups.flatMap(app => [app.domain, app.ip].filter(Boolean))]);
   const directDns = ["https://dns.alidns.com/dns-query#直接连接", "https://doh.pub/dns-query#直接连接&h3=false"];
   const proxyDns = ["https://dns.google/dns-query#代理DNS&ecs=8.8.8.8/24&ecs-override=true", "https://dns.quad9.net/dns-query#代理DNS&ecs=9.9.9.9/24&ecs-override=true"];
   const balAnchor = { "type": "load-balance", "strategy": "round-robin", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
@@ -124,7 +125,7 @@ function buildBaseConfig(config) {
       "skip-src-address": ["rule-set:telegram_ip,safe_ip,google_ip,media_ip,direct_ip"]
     },
     "rule-providers": Object.fromEntries(Object.entries(ruleProviderDefinitions)
-      .filter(([name]) => name !== 'dlsite')
+      .filter(([name]) => !optionalProviders.has(name))
       .map(([name, provider]) => [name, JSON.parse(JSON.stringify(provider))])),
     "rules": [
       "DST-PORT,5228-5230,直接连接",

@@ -22,16 +22,29 @@ function test(name, check) { check(); count++; console.log('PASS ' + name); }
 async function main() {
   const input = fixture(), base = evaluate(code, input, {}, 'buildBaseConfig'), current = evaluate(code, input);
   test('Generated full script is current and standalone ES2020', () => { assert.equal(generate(), code); build({ check: true }); espree.parse(code, { ecmaVersion: 2020, sourceType: 'script' }); });
-  test('Personal additions preserve generic base groups and settings', () => {
-    for (const name of ['直接连接', '代理QUIC', '最低延迟', '故障转移']) assert.deepEqual(current['proxy-groups'].find(g => g.name === name), base['proxy-groups'].find(g => g.name === name));
-    for (const key of ['sub-rules', 'proxies', 'sniffer', 'profile', 'experimental', 'ipv6', 'tcp-concurrent', 'unified-delay', 'keep-alive-interval']) assert.deepEqual(current[key], base[key]);
+  test('Personal additions preserve generic group behavior and connection settings', () => {
+    const behavior = group => Object.fromEntries(Object.entries(group).filter(([key]) => !['icon', 'hidden'].includes(key)));
+    for (const name of ['直接连接', '代理QUIC', '最低延迟', '故障转移']) assert.deepEqual(behavior(current['proxy-groups'].find(g => g.name === name)), behavior(base['proxy-groups'].find(g => g.name === name)));
+    for (const key of ['proxies', 'sniffer', 'profile', 'experimental', 'ipv6', 'tcp-concurrent', 'unified-delay', 'keep-alive-interval']) assert.deepEqual(current[key], base[key]);
+    for (const [name, rules] of Object.entries(base['sub-rules'])) assert.deepEqual(current['sub-rules'][name], rules);
     assert.deepEqual(current['proxy-providers'], base['proxy-providers']);
   });
-  test('Base routing order is preserved around personal additions', () => {
-    assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules);
+  test('Application routing preserves personal priorities and aggregate fallbacks', () => {
+    const replaced = new Set(['DST-PORT,5228-5230,直接连接', 'SUB-RULE,(RULE-SET,safe_ip),sub-safe', 'SUB-RULE,(RULE-SET,media_ip),sub-media']);
+    assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules.filter(rule => !replaced.has(rule)));
     assert(current.rules.indexOf('RULE-SET,ads,REJECT') < current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive'));
     assert(current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive') < current.rules.indexOf('DOMAIN,api.onedrive.com,直接连接'));
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
+    const fcm = current.rules.indexOf('SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm');
+    assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < fcm);
+    assert(fcm < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
+    assert(current.rules.includes('DST-PORT,5228-5230,FCM'));
+    const guard = current.rules.indexOf('AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
+    for (const id of ['youtube', 'microsoft', 'apple', 'steam', 'twitter', 'meta', 'line', 'netflix', 'pikpak', 'ehentai']) {
+      const index = current.rules.indexOf('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id);
+      assert(index > guard, id + ': service routing must follow the AI UDP guard');
+      assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'), id + ': service routing must precede aggregate routing');
+    }
   });
   test('Microsoft rules remain exact and academic rules remain suffixes', () => {
     assert(current.rules.includes('DOMAIN,login.microsoftonline.com,直接连接'));

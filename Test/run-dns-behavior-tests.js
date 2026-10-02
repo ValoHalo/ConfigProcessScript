@@ -154,6 +154,9 @@ async function runCase(binary, mode, parentDirectory) {
     for (const [group, name] of Object.entries({ '代理连接': 'HK 01', '代理DNS': '代理连接', '国外AI': 'US 01' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
     const dlsiteGroup = await call('/proxies/' + encodeURIComponent('DLsite'));
     check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
+    const ehentaiGroup = await call('/proxies/' + encodeURIComponent('EHentai'));
+    check('EHentai retains the US default group', () => assert.equal(ehentaiGroup.now, '美国'));
+    for (const [group, name] of Object.entries({ YouTube: '日本', PikPak: '美国' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
@@ -165,6 +168,10 @@ async function runCase(binary, mode, parentDirectory) {
       ['international-gfe.download.nvidia.com', true, 'Download group takes priority over overlapping exact direct rule'],
       ['chatgpt.com', true, 'AI retains Fake-IP'],
       ['www.dlsite.com', true, 'DLsite retains Fake-IP'],
+      ['mypikpak.com', true, 'PikPak retains Fake-IP'],
+      ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
+      ['youtube.com', true, 'YouTube keeps Fake-IP after application splitting'],
+      ['exhentai.org', true, 'Restored EHentai keeps Fake-IP'],
       [adDomain, true, 'Ads stay before the deliberately overlapping direct entry'],
     ];
     for (const [name, expectedFake, label] of fakeCases) {
@@ -208,6 +215,18 @@ async function runCase(binary, mode, parentDirectory) {
     await realQuery('chatgpt.com', 'US 01', foreign);
     await realQuery('www.dlsite.com', 'JP 01', foreign);
     await realQuery('child.learn.microsoft.com', 'HK 01', foreign);
+    await realQuery('hanime1.me', 'US 01', foreign);
+    await realQuery('iwara.tv', 'US 01', foreign);
+    await realQuery('www.youtube.com', 'JP 01', foreign);
+    await realQuery('mypikpak.com', 'US 01', foreign);
+    await realQuery('mtalk.google.com', 'DIRECT', domestic);
+    await realQuery('exhentai.org', 'US 01', foreign);
+    await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
+    await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
+    fx.origin.closeConnections();
+    await delay(30);
+    await realQuery('mtalk.google.com', 'HK 01', domestic);
+    await realQuery('exhentai.org', 'JP 01', foreign);
 
     const beforeAd = fx.seen.length;
     const adAnswer = await call('/dns/query?name=' + encodeURIComponent(adDomain) + '&type=A');

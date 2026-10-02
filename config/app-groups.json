@@ -1,0 +1,78 @@
+[
+  {
+    "name": "FCM",
+    "domain": "googlefcm",
+    "defaultGroup": "直接连接",
+    "enabled": true
+  },
+  {
+    "name": "YouTube",
+    "domain": "youtube",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "TELEGRAM",
+    "domain": "telegram",
+    "existingGroup": true,
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Microsoft",
+    "domain": "microsoft",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Apple",
+    "domain": "apple",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Steam",
+    "domain": "steam",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Twitter",
+    "domain": "twitter",
+    "baseIp": "safe_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Meta",
+    "domain": "meta",
+    "ip": "facebook_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Line",
+    "domain": "line",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Netflix",
+    "domain": "netflix",
+    "baseIp": "media_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "PikPak",
+    "domain": "pikpak",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "EHentai",
+    "domain": "ehentai",
+    "defaultGroup": "美国",
+    "enabled": true
+  }
+]

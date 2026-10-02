@@ -725,6 +725,226 @@
       ],
       "minEntries": 1,
       "maxShrinkRatio": 0.35
+    },
+    "googlefcm": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/googlefcm.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "youtube": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "telegram": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "microsoft": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "apple": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "steam": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "twitter": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "meta": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "line": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/line.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "netflix": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "pikpak": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "ehentai": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ehentai.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35,
+      "add": [
+        "Rules/overrides/ehentai.add.list"
+      ]
+    },
+    "facebook_ip": {
+      "behavior": "ipcidr",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/facebook.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
     }
   }
 }

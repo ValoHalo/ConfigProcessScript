@@ -19,6 +19,15 @@ const ruleProviderDefinitions = {
     "path": "./rules/personal-ai.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/ai.mrs"
   },
+  "apple": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-apple.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/apple.mrs"
+  },
   "direct-lite": {
     "type": "http",
     "interval": 86400,
@@ -64,6 +73,24 @@ const ruleProviderDefinitions = {
     "path": "./rules/personal-download.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/download.mrs"
   },
+  "ehentai": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-ehentai.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/ehentai.mrs"
+  },
+  "facebook_ip": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "ipcidr",
+    "format": "mrs",
+    "path": "./rules/personal-facebook_ip.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/ipcidr/facebook_ip.mrs"
+  },
   "google": {
     "type": "http",
     "interval": 86400,
@@ -82,6 +109,24 @@ const ruleProviderDefinitions = {
     "path": "./rules/personal-google_ip.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/ipcidr/google_ip.mrs"
   },
+  "googlefcm": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-googlefcm.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/googlefcm.mrs"
+  },
+  "line": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-line.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/line.mrs"
+  },
   "media": {
     "type": "http",
     "interval": 86400,
@@ -99,6 +144,42 @@ const ruleProviderDefinitions = {
     "format": "mrs",
     "path": "./rules/personal-media_ip.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/ipcidr/media_ip.mrs"
+  },
+  "meta": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-meta.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/meta.mrs"
+  },
+  "microsoft": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-microsoft.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/microsoft.mrs"
+  },
+  "netflix": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-netflix.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/netflix.mrs"
+  },
+  "pikpak": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-pikpak.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/pikpak.mrs"
   },
   "proxy-lite": {
     "type": "http",
@@ -136,6 +217,24 @@ const ruleProviderDefinitions = {
     "path": "./rules/personal-safe_ip.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/ipcidr/safe_ip.mrs"
   },
+  "steam": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-steam.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/steam.mrs"
+  },
+  "telegram": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-telegram.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/telegram.mrs"
+  },
   "telegram_ip": {
     "type": "http",
     "interval": 86400,
@@ -144,14 +243,112 @@ const ruleProviderDefinitions = {
     "format": "mrs",
     "path": "./rules/personal-telegram_ip.mrs",
     "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/ipcidr/telegram_ip.mrs"
+  },
+  "twitter": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-twitter.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/twitter.mrs"
+  },
+  "youtube": {
+    "type": "http",
+    "interval": 86400,
+    "proxy": "代理连接",
+    "behavior": "domain",
+    "format": "mrs",
+    "path": "./rules/personal-youtube.mrs",
+    "url": "https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Rules/generated/domain/youtube.mrs"
   }
 };
+
+const applicationGroups = [
+  {
+    "name": "FCM",
+    "domain": "googlefcm",
+    "defaultGroup": "直接连接",
+    "enabled": true
+  },
+  {
+    "name": "YouTube",
+    "domain": "youtube",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "TELEGRAM",
+    "domain": "telegram",
+    "existingGroup": true,
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Microsoft",
+    "domain": "microsoft",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Apple",
+    "domain": "apple",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Steam",
+    "domain": "steam",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Twitter",
+    "domain": "twitter",
+    "baseIp": "safe_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Meta",
+    "domain": "meta",
+    "ip": "facebook_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Line",
+    "domain": "line",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "Netflix",
+    "domain": "netflix",
+    "baseIp": "media_ip",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "PikPak",
+    "domain": "pikpak",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
+    "name": "EHentai",
+    "domain": "ehentai",
+    "defaultGroup": "美国",
+    "enabled": true
+  }
+];
 
 // Base configuration adapted from https://github.com/echs-top/proxy (1f35b88941854531a2876382bb29d234850da57b).
 // Maintained here; published rule providers come from config/rule-sources.json.
 
 function buildBaseConfig(config) {
   const subscriptionProxies = config.proxies || [];
+  const optionalProviders = new Set(['dlsite', ...applicationGroups.flatMap(app => [app.domain, app.ip].filter(Boolean))]);
   const directDns = ["https://dns.alidns.com/dns-query#直接连接", "https://doh.pub/dns-query#直接连接&h3=false"];
   const proxyDns = ["https://dns.google/dns-query#代理DNS&ecs=8.8.8.8/24&ecs-override=true", "https://dns.quad9.net/dns-query#代理DNS&ecs=9.9.9.9/24&ecs-override=true"];
   const balAnchor = { "type": "load-balance", "strategy": "round-robin", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
@@ -273,7 +470,7 @@ function buildBaseConfig(config) {
       "skip-src-address": ["rule-set:telegram_ip,safe_ip,google_ip,media_ip,direct_ip"]
     },
     "rule-providers": Object.fromEntries(Object.entries(ruleProviderDefinitions)
-      .filter(([name]) => name !== 'dlsite')
+      .filter(([name]) => !optionalProviders.has(name))
       .map(([name, provider]) => [name, JSON.parse(JSON.stringify(provider))])),
     "rules": [
       "DST-PORT,5228-5230,直接连接",
@@ -532,9 +729,9 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
   const balance = original.find(group => group.type === 'load-balance');
   if (!automatic || !balance) throw new Error('基础配置缺少最低延迟或负载均衡模板');
   const health = provider['health-check'] || {};
-  const generated = [], parents = [], regionGroups = Object.create(null);
+  const generated = [], parents = [], buckets = [], regionGroups = Object.create(null);
   const references = Object.create(null);
-  function createBucket(label, names, icon) {
+  function createBucket(label, names, icon, kind) {
     names = [...new Set(names)];
     if (!names.length) return null;
     const parent = allocate(label), auto = allocate(parent + '|最低延迟'), load = allocate(parent + '|负载均衡');
@@ -548,18 +745,19 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     }
     generated.push({ name: parent, type: 'select', proxies: [auto, load], use: ['节点'], filter: personalNodeFilter([auto, load, ...names]), 'default-selected': auto, ...(icon ? { icon } : {}) }, autoGroup, loadGroup);
     parents.push(parent);
+    buckets.push({ kind, label, parent, children: [auto, load] });
     return parent;
   }
   for (const [region] of definitions) {
     const old = original.find(group => group.name === region + '|故障转移');
-    const parent = createBucket(region, regions[region], old?.icon);
+    const parent = createBucket(region, regions[region], old?.icon, 'region');
     if (parent) regionGroups[region] = parent;
     references[region + '|故障转移'] = parent;
     references[region + '|轮询下载'] = parent;
   }
-  createBucket('低倍率节点', low, automatic.icon);
-  createBucket('高倍率节点', high, balance.icon);
-  createBucket('其他节点', other, automatic.icon);
+  createBucket('其他节点', other, automatic.icon, 'other');
+  createBucket('低倍率节点', low, automatic.icon, 'multiplier');
+  createBucket('高倍率节点', high, balance.icon, 'multiplier');
   for (const group of remaining) {
     if (!Array.isArray(group.proxies) || !group.proxies.some(name => oldRegional.has(name))) continue;
     const menu = [];
@@ -573,7 +771,189 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     if (oldRegional.has(group['default-selected'])) group['default-selected'] = references[group['default-selected']] || group.proxies[0] || 'REJECT';
   }
   config['proxy-groups'] = [...remaining, ...generated];
-  return { regions, regionGroups, references };
+  return { regions, regionGroups, references, buckets };
+}
+
+
+// Application selectors take priority over broad download, security and media categories.
+function configureApplicationGroups(config, nodeGroups, template, options) {
+  const enabled = applicationGroups.filter(app => app.existingGroup || options[app.name]);
+  const groups = config['proxy-groups'];
+  const addProvider = id => {
+    if (!ruleProviderDefinitions[id]) throw new Error('Missing rule provider definition: ' + id);
+    config['rule-providers'][id] = personalClone(ruleProviderDefinitions[id]);
+  };
+  const appRules = [], ipRules = [];
+  for (const app of enabled) {
+    if (!app.existingGroup) {
+      const preferred = nodeGroups.regionGroups[app.defaultGroup] || app.defaultGroup;
+      const selected = groups.some(group => group.name === preferred) ? preferred : '代理连接';
+      groups.push({ ...personalClone(template), name: app.name, proxies: [selected, ...template.proxies.filter(name => name !== selected)], 'default-selected': selected });
+    }
+    addProvider(app.domain);
+    const subRule = 'sub-app-' + app.domain;
+    config['sub-rules'][subRule] = ['AND,((NETWORK,udp),(DST-PORT,443)),代理QUIC', 'MATCH,' + app.name];
+    const domainRule = 'SUB-RULE,(RULE-SET,' + app.domain + '),' + subRule;
+    if (app.name === 'FCM') {
+      const portIndex = config.rules.indexOf('DST-PORT,5228-5230,直接连接');
+      if (portIndex >= 0) config.rules[portIndex] = 'DST-PORT,5228-5230,FCM';
+      const directIndex = config.rules.indexOf('RULE-SET,proxy@direct,直接连接');
+      if (directIndex < 0) throw new Error('Missing direct exception rule for FCM insertion');
+      config.rules.splice(directIndex, 0, domainRule);
+    } else appRules.push(domainRule);
+    if (app.ip) {
+      addProvider(app.ip);
+      ipRules.push('SUB-RULE,(RULE-SET,' + app.ip + ',no-resolve),' + subRule);
+    }
+    if (app.baseIp) {
+      const index = config.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,' + app.baseIp + ')'));
+      if (index < 0) throw new Error('Missing application IP rule: ' + app.baseIp);
+      config.rules[index] = 'SUB-RULE,(RULE-SET,' + app.baseIp + '),' + subRule;
+    }
+  }
+  const appIndex = config.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download');
+  if (appIndex < 0) throw new Error('Missing aggregate download rule for application insertion');
+  config.rules.splice(appIndex, 0, ...appRules);
+  const ipIndex = config.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,safe_ip)'));
+  if (ipIndex < 0) throw new Error('Missing aggregate IP rules for application insertion');
+  config.rules.splice(ipIndex, 0, ...ipRules);
+  const global = groups.find(group => group.name === 'GLOBAL');
+  if (global) global.proxies = [...new Set([...global.proxies, ...enabled.map(app => app.name)])];
+  return enabled;
+}
+
+// Resolve application domains through their selected exit, after personal and AI exceptions.
+function configureApplicationDns(config, enabled, followServices) {
+  if (!enabled.length) return;
+  const dns = config.dns;
+  const fcm = enabled.filter(app => app.name === 'FCM');
+  const other = enabled.filter(app => app.name !== 'FCM');
+  const filters = dns['fake-ip-filter'];
+  const fcmIndex = filters.indexOf('RULE-SET,proxy@direct,real-ip');
+  const appIndex = filters.indexOf('RULE-SET,download,fake-ip');
+  if (fcmIndex < 0 || appIndex < 0) throw new Error('Missing DNS classification for application insertion');
+  filters.splice(appIndex, 0, ...other.map(app => 'RULE-SET,' + app.domain + ',fake-ip'));
+  filters.splice(fcmIndex, 0, ...fcm.map(app => 'RULE-SET,' + app.domain + ',real-ip'));
+  if (!followServices) return;
+  const policies = {};
+  const insert = apps => {
+    for (const app of apps) {
+      const resolvers = app.name === 'FCM' ? dns['direct-nameserver'] : dns.nameserver;
+      policies['rule-set:' + app.domain] = resolvers.map(address => personalDnsThroughGroup(address, app.name));
+    }
+  };
+  let appsInserted = false;
+  for (const [key, value] of Object.entries(dns['nameserver-policy'])) {
+    if (key === 'rule-set:proxy@direct') insert(fcm);
+    if (key.startsWith('rule-set:') && key.slice(9).split(',').includes('download')) {
+      const names = key.slice(9).split(',');
+      if (names.includes('ai')) policies['rule-set:ai'] = value;
+      insert(other);
+      appsInserted = true;
+      const remaining = names.filter(name => name !== 'ai');
+      if (remaining.length) policies['rule-set:' + remaining.join(',')] = value;
+    } else policies[key] = value;
+  }
+  if (!appsInserted) throw new Error('Missing aggregate DNS policy for application insertion');
+  dns['nameserver-policy'] = policies;
+}
+
+
+// Group menus and icons follow the service order, then region and multiplier.
+function configureGroupPresentation(config, nodeGroups) {
+  const qure = name => 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/' + name + '.png';
+  const lige = name => 'https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/' + name + '.png';
+  const icons = Object.assign(Object.create(null), {
+    '代理连接': qure('Proxy'),
+    '直接连接': qure('Direct'),
+    '代理DNS': qure('Server'),
+    '代理QUIC': qure('Static'),
+    '国外AI': qure('ChatGPT'),
+    'YouTube': qure('YouTube'),
+    'GOOGLE': qure('Google_Search'),
+    'TELEGRAM': qure('Telegram'),
+    'Microsoft': qure('Microsoft'),
+    'OneDrive': qure('OneDrive'),
+    'Apple': qure('Apple'),
+    'Steam': qure('Steam'),
+    'Twitter': qure('Twitter'),
+    'Meta': lige('04ProxySoft/meta'),
+    'Line': qure('Line'),
+    'Netflix': qure('Netflix'),
+    'PikPak': lige('03CNSoft/pikpak'),
+    'EHentai': lige('04ProxySoft/exhentai'),
+    'DLsite': 'https://www.dlsite.com/modpub/images/web/common/apple_touch_icon_152x152.png',
+    'FCM': 'https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png',
+    '下载更新': qure('App_Store'),
+    '下载相关': qure('Download'),
+    '风控安全': qure('Lock'),
+    '海外媒体': qure('ForeignMedia'),
+    '最低延迟': qure('Auto'),
+    '故障转移': qure('Available'),
+    'GLOBAL': qure('Global'),
+  });
+  const regionIcons = Object.assign(Object.create(null), {
+    '香港': qure('Hong_Kong'),
+    '日本': qure('Japan'),
+    '美国': qure('United_States'),
+    '新加坡': qure('Singapore'),
+    '台湾': qure('Taiwan'),
+    '德国': qure('Germany'),
+    '英国': qure('United_Kingdom'),
+    '荷兰': lige('01Country/Netherlands'),
+  });
+  const order = [
+    '代理连接', '直接连接', '代理DNS', '代理QUIC',
+    '国外AI', 'YouTube', 'GOOGLE', 'TELEGRAM', 'Microsoft', 'OneDrive',
+    'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak',
+    'EHentai', 'DLsite', 'FCM', '下载更新', '下载相关', '风控安全', '海外媒体',
+  ];
+  if (typeof personalSettings !== 'undefined' && personalSettings.downloads?.name) {
+    const customDownload = personalSettings.downloads.name;
+    if (!order.includes(customDownload)) order.splice(order.indexOf('下载相关'), 0, customDownload);
+    icons[customDownload] = qure('App_Store');
+  }
+  const groups = config['proxy-groups'];
+  const byName = new Map(groups.map(group => [group.name, group]));
+  const buckets = nodeGroups.buckets || [];
+  const bucketNames = new Set(buckets.flatMap(bucket => [bucket.parent, ...bucket.children]));
+  const hiddenLast = ['最低延迟', '故障转移', 'GLOBAL'];
+
+  // Keep additional services before the node menus without guessing from names.
+  for (const group of groups) {
+    if (!order.includes(group.name) && !bucketNames.has(group.name) && !hiddenLast.includes(group.name)) order.push(group.name);
+    if (icons[group.name]) group.icon = icons[group.name];
+    else if (!group.icon || group.icon.includes('mihomo.echs.top/')) group.icon = qure('Stack');
+  }
+  for (const kind of ['region', 'other', 'multiplier']) {
+    for (const bucket of buckets.filter(item => item.kind === kind)) {
+      order.push(bucket.parent, ...bucket.children);
+      const parent = byName.get(bucket.parent);
+      if (parent) parent.icon = bucket.kind === 'region'
+        ? regionIcons[bucket.label] || qure('World_Map')
+        : bucket.kind === 'other' ? qure('World_Map')
+          : qure(bucket.label === '低倍率节点' ? 'Available_1' : 'Airport');
+      for (const [index, name] of bucket.children.entries()) {
+        const child = byName.get(name);
+        if (child) {
+          child.hidden = true;
+          child.icon = qure(index === 0 ? 'Auto' : 'Round_Robin');
+        }
+      }
+    }
+  }
+  order.push(...hiddenLast);
+  for (const name of hiddenLast) if (byName.has(name)) byName.get(name).hidden = true;
+  const rank = new Map(order.map((name, index) => [name, index]));
+  const compare = (left, right) => (rank.get(left) ?? order.length) - (rank.get(right) ?? order.length);
+  groups.sort((left, right) => compare(left.name, right.name));
+  const global = byName.get('GLOBAL');
+  if (Array.isArray(global?.proxies)) {
+    // Reordering the menu must not silently change its initial selected route.
+    if (global['default-selected'] === undefined && global.proxies.length) global['default-selected'] = global.proxies[0];
+    global.proxies.sort(compare);
+  }
+  return config;
 }
 
 
@@ -1104,6 +1484,7 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
 // Apply personal service, grouping and DNS settings to the base configuration.
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 const ruleOptionsEnable = {
+  ...Object.fromEntries(applicationGroups.filter(app => !app.existingGroup).map(app => [app.name, app.enabled])),
   OneDrive: personalSettings.oneDrive,
   DLsite: personalSettings.dlsite.enabled,
   AI固定出口: personalSettings.ai.enabled,
@@ -1118,7 +1499,7 @@ function personalClone(value) {
 function main(subscription) {
   if (!subscription || !Array.isArray(subscription.proxies) || !subscription.proxies.length) throw new Error('需要包含 proxies 的订阅配置');
   let config = buildBaseConfig(personalClone(subscription));
-  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name]);
+  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name, ...applicationGroups.map(app => app.name)]);
   const groups = config['proxy-groups'];
   const required = ['直接连接', '代理连接', '国外AI'];
   for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('基础策略组已变化，需要检查个人配置：' + name);
@@ -1179,10 +1560,13 @@ function main(subscription) {
   groups.splice(aiIndex + 1, 0, ...extraGroups);
   const global = groups.find(group => group.name === 'GLOBAL');
   if (global) global.proxies.push(...extraGroups.map(group => group.name));
+  const enabledApps = configureApplicationGroups(config, nodeGroups, originalService, ruleOptionsEnable);
 
   const dnsSettings = { dnsFollowServices: ruleOptionsEnable.DNS跟随服务 ? { ai: personalSettings.dnsFollowServices.ai && ruleOptionsEnable.AI固定出口, dlsite: personalSettings.dnsFollowServices.dlsite && ruleOptionsEnable.DLsite } : false };
   config = patchDnsExperience(config, personalLists, personalSettings.dns, ruleOptionsEnable.大流量下载直连, personalSettings.downloads.name);
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
+  configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
+  configureGroupPresentation(config, nodeGroups);
   if (personalSettings.preserveClientSettings) {
     for (const key of ['port', 'socks-port', 'mixed-port', 'redir-port', 'tproxy-port', 'allow-lan', 'bind-address', 'tun', 'external-controller', 'external-controller-tls', 'external-controller-unix', 'external-controller-pipe', 'secret', 'external-ui', 'external-ui-url', 'external-doh-server']) delete config[key];
   }

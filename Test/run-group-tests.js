@@ -18,7 +18,11 @@ const sorted = values => [...values].sort();
 const regex = source => new RegExp(source.replace(/^\(\?i\)/, ''), source.startsWith('(?i)') ? 'i' : '');
 const node = name => ({ name, type: 'http', server: '127.0.0.1', port: 9 });
 const subscription = names => ({ proxies: names.map(node) });
-const generate = names => clone(loadScript('Script/mihomoScript.js').main(subscription(names)));
+const generate = (names, options = {}) => {
+  const api = loadScript('Script/mihomoScript.js');
+  Object.assign(api.ruleOptionsEnable, options);
+  return clone(api.main(subscription(names)));
+};
 const groups = cfg => cfg['proxy-groups'];
 const byName = (cfg, name) => groups(cfg).find(group => group.name === name);
 let count = 0;
@@ -55,6 +59,7 @@ function checkBucket(cfg, group, expected) {
     assert.deepEqual(sorted(candidates(cfg, child)), sorted(expected), child.name + ': incorrect provider candidates');
     assert.equal(child['include-all-providers'], undefined);
     assert.equal(child['include-all'], undefined);
+    assert.equal(child.hidden, true, child.name + ': automatic modes belong inside the parent');
     if (type === 'load-balance') assert.equal(child.strategy, 'round-robin');
   }
   assert(expected.length > 0, 'An empty bucket must never be generated');
@@ -197,6 +202,90 @@ function configurationTests() {
     assert(dlsite.proxies.includes('代理连接'));
     checkReferences(cfg);
   });
+  test('Visible menus place switches and applications before regions and multiplier groups', () => {
+    const cfg = generate(['HK 0.5x', 'JP 01', 'US 2x', 'Canada 01']);
+    const visible = groups(cfg).filter(group => !group.hidden).map(group => group.name);
+    assert.deepEqual(visible.slice(0, 4), ['代理连接', '直接连接', '代理DNS', '代理QUIC']);
+    const applications = ['国外AI', 'OneDrive', 'DLsite', 'FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak', 'EHentai', 'TELEGRAM', '下载更新', '下载相关', '风控安全', 'GOOGLE', '海外媒体'];
+    const regions = ['香港', '日本', '美国', '其他节点'];
+    const firstRegion = Math.min(...regions.map(name => visible.indexOf(name)));
+    for (const name of applications) assert(visible.indexOf(name) >= 4 && visible.indexOf(name) < firstRegion, name + ': application must precede regions');
+    for (const name of regions) assert(visible.indexOf(name) > 3 && visible.indexOf(name) < visible.indexOf('低倍率节点'), name + ': region must precede multiplier groups');
+    assert.deepEqual(visible.slice(-2), ['低倍率节点', '高倍率节点']);
+    assert.equal(byName(cfg, '最低延迟').hidden, true);
+    assert.equal(byName(cfg, '故障转移').hidden, true);
+    assert.equal(byName(cfg, 'GLOBAL').hidden, true);
+    checkReferences(cfg);
+  });
+  test('Restored applications expose direct and regional choices with their intended defaults', () => {
+    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
+    for (const name of ['FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak', 'EHentai']) {
+      const group = byName(cfg, name);
+      assert(group, name + ': missing application selector');
+      assert.equal(group.type, 'select');
+      for (const choice of ['直接连接', '代理连接', '香港', '日本', '美国']) assert(group.proxies.includes(choice), name + ': missing manual choice ' + choice);
+      const expected = name === 'FCM' ? '直接连接' : name === 'EHentai' ? '美国' : '代理连接';
+      assert.equal(group.proxies[0], expected, name + ': initial choice');
+    }
+  });
+  test('EHentai falls back to the proxy selector when American nodes are absent', () => {
+    const cfg = generate(['HK 01', 'JP 01']);
+    const group = byName(cfg, 'EHentai');
+    assert.equal(group.proxies[0], '代理连接');
+    assert(!group.proxies.includes('美国'));
+    assert(group.proxies.includes('日本'));
+    checkReferences(cfg);
+  });
+  test('Application switches remove optional rules, providers and DNS references', () => {
+    const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
+    for (const app of definitions.filter(app => !app.existingGroup)) {
+      const cfg = generate(['HK 01', 'JP 01', 'US 01'], { [app.name]: false });
+      if (!app.existingGroup) assert(!byName(cfg, app.name), app.name + ': disabled group remains');
+      assert.equal(cfg['rule-providers'][app.domain], undefined, app.name + ': disabled domain provider remains');
+      assert(!cfg.rules.some(rule => rule.includes('RULE-SET,' + app.domain + ')') || rule.includes('sub-app-' + app.domain)), app.name + ': disabled rule remains');
+      assert.equal(cfg['sub-rules']['sub-app-' + app.domain], undefined, app.name + ': disabled sub-rule remains');
+      assert(!Object.keys(cfg.dns['nameserver-policy']).some(key => key.startsWith('rule-set:') && key.slice(9).split(',').includes(app.domain)), app.name + ': disabled DNS policy remains');
+      assert(!cfg.dns['fake-ip-filter'].some(rule => rule.startsWith('RULE-SET,' + app.domain + ',')), app.name + ': disabled fake-IP rule remains');
+      if (app.ip && !app.baseIp) assert.equal(cfg['rule-providers'][app.ip], undefined, app.name + ': disabled IP provider remains');
+      checkReferences(cfg);
+    }
+    const fcmOff = generate(['HK 01'], { FCM: false });
+    assert(fcmOff.rules.includes('DST-PORT,5228-5230,直接连接'));
+    assert(generate(['HK 01'], { Twitter: false }).rules.includes('SUB-RULE,(RULE-SET,safe_ip),sub-safe'));
+    assert(generate(['HK 01'], { Netflix: false }).rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
+  });
+  test('Application DNS follows the application while retaining personal and AI precedence', () => {
+    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
+    const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
+    const policies = cfg.dns['nameserver-policy'];
+    const keys = Object.keys(policies);
+    const filters = cfg.dns['fake-ip-filter'];
+    for (const app of definitions) {
+      const key = 'rule-set:' + app.domain;
+      assert(policies[key]?.every(address => address.includes('#' + app.name)), app.name + ': DNS does not follow application');
+      assert(keys.indexOf('rule-set:personal-direct') < keys.indexOf(key), app.name + ': personal DNS priority');
+      assert(keys.indexOf(key) < keys.findIndex(value => value.includes('proxy-lite')), app.name + ': aggregate DNS priority');
+      const filter = 'RULE-SET,' + app.domain + ',' + (app.name === 'FCM' ? 'real-ip' : 'fake-ip');
+      assert(filters.includes(filter), app.name + ': missing fake-IP decision');
+      assert(filters.indexOf('RULE-SET,personal-direct,real-ip') < filters.indexOf(filter), app.name + ': personal fake-IP priority');
+      if (app.name !== 'FCM') {
+        assert(keys.indexOf('rule-set:ai') < keys.indexOf(key), app.name + ': AI DNS priority');
+        assert(filters.indexOf('RULE-SET,ai,fake-ip') < filters.indexOf(filter), app.name + ': AI fake-IP priority');
+      }
+    }
+  });
+  test('Disabling service DNS keeps application routing and Fake-IP without binding application resolvers', () => {
+    const names = ['HK 01', 'JP 01', 'US 01'];
+    const enabled = generate(names);
+    const disabled = generate(names, { DNS跟随服务: false });
+    const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
+    assert.deepEqual(disabled.rules, enabled.rules, 'DNS switch must not change application routing');
+    assert.deepEqual(disabled.dns['fake-ip-filter'], enabled.dns['fake-ip-filter'], 'DNS switch must preserve application Fake-IP classification');
+    for (const app of definitions) {
+      assert.equal(disabled.dns['nameserver-policy']['rule-set:' + app.domain], undefined, app.name + ': DNS binding remains disabled');
+    }
+    checkReferences(disabled);
+  });
 }
 
 async function coreTest(binary, label, names) {
@@ -257,6 +346,8 @@ async function coreTest(binary, label, names) {
     assert.deepEqual(sorted(loaded['国外AI'].all), sorted(['REJECT', ...aiCandidates]), 'Core AI choices');
     assert.equal(loaded['国外AI'].now, 'REJECT');
     assert.equal(loaded.DLsite.now, byName(cfg, 'DLsite').proxies[0], 'Core DLsite initial choice');
+    assert.equal(loaded.EHentai.now, byName(cfg, 'EHentai').proxies[0], 'Core EHentai initial choice');
+    assert.equal(loaded.FCM.now, '直接连接', 'Core FCM initial choice');
     const loadedProviders = (await control('/providers/proxies')).providers;
     const providerNodes = new Set(Object.values(loadedProviders).flatMap(provider => (provider.proxies || []).map(proxy => proxy.name)));
     for (const group of groups(cfg)) {

@@ -1,13 +1,13 @@
 [
   {
     "domain": "mtalk.google.com",
-    "expectedPolicy": "直接连接",
-    "expectedRule": "RULE-SET,proxy@direct,直接连接"
+    "expectedPolicy": "FCM",
+    "expectedRule": "SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm"
   },
   {
     "domain": "youtube.com",
-    "expectedPolicy": "海外媒体",
-    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+    "expectedPolicy": "YouTube",
+    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
   },
   {
     "domain": "google.com",
@@ -56,13 +56,13 @@
   },
   {
     "domain": "onedrive.live.com",
-    "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
   },
   {
     "domain": "sub.learn.microsoft.com",
-    "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
   },
   {
     "domain": "arxiv.org",
@@ -96,8 +96,8 @@
   },
   {
     "domain": "store.steampowered.com",
-    "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedPolicy": "Steam",
+    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
   },
   {
     "domain": "dlsite.com",
@@ -126,8 +126,8 @@
   },
   {
     "domain": "twitter.com",
-    "expectedPolicy": "风控安全",
-    "expectedRule": "SUB-RULE,(RULE-SET,safe),sub-safe"
+    "expectedPolicy": "Twitter",
+    "expectedRule": "SUB-RULE,(RULE-SET,twitter),sub-app-twitter"
   },
   {
     "domain": "paypal.com",
@@ -138,5 +138,65 @@
     "domain": "hcaptcha.com",
     "expectedPolicy": "直接连接",
     "expectedRule": "RULE-SET,proxy@direct,直接连接"
+  },
+  {
+    "domain": "telegram.org",
+    "expectedPolicy": "TELEGRAM",
+    "expectedRule": "SUB-RULE,(RULE-SET,telegram),sub-app-telegram"
+  },
+  {
+    "domain": "apple.com",
+    "expectedPolicy": "Apple",
+    "expectedRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+  },
+  {
+    "domain": "facebook.com",
+    "expectedPolicy": "Meta",
+    "expectedRule": "SUB-RULE,(RULE-SET,meta),sub-app-meta"
+  },
+  {
+    "domain": "line.me",
+    "expectedPolicy": "Line",
+    "expectedRule": "SUB-RULE,(RULE-SET,line),sub-app-line"
+  },
+  {
+    "domain": "netflix.com",
+    "expectedPolicy": "Netflix",
+    "expectedRule": "SUB-RULE,(RULE-SET,netflix),sub-app-netflix"
+  },
+  {
+    "domain": "mypikpak.com",
+    "expectedPolicy": "PikPak",
+    "expectedRule": "SUB-RULE,(RULE-SET,pikpak),sub-app-pikpak"
+  },
+  {
+    "domain": "e-hentai.org",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "domain": "exhentai.org",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "domain": "ehgt.org",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "domain": "hath.network",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "domain": "hanime1.me",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "domain": "iwara.tv",
+    "expectedPolicy": "EHentai",
+    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
   }
 ]

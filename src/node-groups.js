@@ -59,9 +59,9 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
   const balance = original.find(group => group.type === 'load-balance');
   if (!automatic || !balance) throw new Error('基础配置缺少最低延迟或负载均衡模板');
   const health = provider['health-check'] || {};
-  const generated = [], parents = [], regionGroups = Object.create(null);
+  const generated = [], parents = [], buckets = [], regionGroups = Object.create(null);
   const references = Object.create(null);
-  function createBucket(label, names, icon) {
+  function createBucket(label, names, icon, kind) {
     names = [...new Set(names)];
     if (!names.length) return null;
     const parent = allocate(label), auto = allocate(parent + '|最低延迟'), load = allocate(parent + '|负载均衡');
@@ -75,18 +75,19 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     }
     generated.push({ name: parent, type: 'select', proxies: [auto, load], use: ['节点'], filter: personalNodeFilter([auto, load, ...names]), 'default-selected': auto, ...(icon ? { icon } : {}) }, autoGroup, loadGroup);
     parents.push(parent);
+    buckets.push({ kind, label, parent, children: [auto, load] });
     return parent;
   }
   for (const [region] of definitions) {
     const old = original.find(group => group.name === region + '|故障转移');
-    const parent = createBucket(region, regions[region], old?.icon);
+    const parent = createBucket(region, regions[region], old?.icon, 'region');
     if (parent) regionGroups[region] = parent;
     references[region + '|故障转移'] = parent;
     references[region + '|轮询下载'] = parent;
   }
-  createBucket('低倍率节点', low, automatic.icon);
-  createBucket('高倍率节点', high, balance.icon);
-  createBucket('其他节点', other, automatic.icon);
+  createBucket('其他节点', other, automatic.icon, 'other');
+  createBucket('低倍率节点', low, automatic.icon, 'multiplier');
+  createBucket('高倍率节点', high, balance.icon, 'multiplier');
   for (const group of remaining) {
     if (!Array.isArray(group.proxies) || !group.proxies.some(name => oldRegional.has(name))) continue;
     const menu = [];
@@ -100,5 +101,5 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     if (oldRegional.has(group['default-selected'])) group['default-selected'] = references[group['default-selected']] || group.proxies[0] || 'REJECT';
   }
   config['proxy-groups'] = [...remaining, ...generated];
-  return { regions, regionGroups, references };
+  return { regions, regionGroups, references, buckets };
 }

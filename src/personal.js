@@ -1,6 +1,7 @@
 // Apply personal service, grouping and DNS settings to the base configuration.
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 const ruleOptionsEnable = {
+  ...Object.fromEntries(applicationGroups.filter(app => !app.existingGroup).map(app => [app.name, app.enabled])),
   OneDrive: personalSettings.oneDrive,
   DLsite: personalSettings.dlsite.enabled,
   AI固定出口: personalSettings.ai.enabled,
@@ -15,7 +16,7 @@ function personalClone(value) {
 function main(subscription) {
   if (!subscription || !Array.isArray(subscription.proxies) || !subscription.proxies.length) throw new Error('需要包含 proxies 的订阅配置');
   let config = buildBaseConfig(personalClone(subscription));
-  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name]);
+  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name, ...applicationGroups.map(app => app.name)]);
   const groups = config['proxy-groups'];
   const required = ['直接连接', '代理连接', '国外AI'];
   for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('基础策略组已变化，需要检查个人配置：' + name);
@@ -76,10 +77,13 @@ function main(subscription) {
   groups.splice(aiIndex + 1, 0, ...extraGroups);
   const global = groups.find(group => group.name === 'GLOBAL');
   if (global) global.proxies.push(...extraGroups.map(group => group.name));
+  const enabledApps = configureApplicationGroups(config, nodeGroups, originalService, ruleOptionsEnable);
 
   const dnsSettings = { dnsFollowServices: ruleOptionsEnable.DNS跟随服务 ? { ai: personalSettings.dnsFollowServices.ai && ruleOptionsEnable.AI固定出口, dlsite: personalSettings.dnsFollowServices.dlsite && ruleOptionsEnable.DLsite } : false };
   config = patchDnsExperience(config, personalLists, personalSettings.dns, ruleOptionsEnable.大流量下载直连, personalSettings.downloads.name);
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
+  configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
+  configureGroupPresentation(config, nodeGroups);
   if (personalSettings.preserveClientSettings) {
     for (const key of ['port', 'socks-port', 'mixed-port', 'redir-port', 'tproxy-port', 'allow-lan', 'bind-address', 'tun', 'external-controller', 'external-controller-tls', 'external-controller-unix', 'external-controller-pipe', 'secret', 'external-ui', 'external-ui-url', 'external-doh-server']) delete config[key];
   }

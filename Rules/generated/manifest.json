@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "configSha256": "8e0068d96a24581ff107049aae84bc28fd207f7a789a22867f3e67831d05a032",
+  "configSha256": "f77a1fb34ed017acdd230b7b4d6120d53c6e65443c95eea78fb651ea95afd029",
   "components": {
     "google-cn-exclusions": {
       "behavior": "domain",
@@ -482,6 +482,40 @@
       "mrs": {
         "path": "domain/ai.mrs",
         "sha256": "91b22942c9da47e45f4fffcb4b90aa6a4f3f18658404f54102b6d90c69475ad3"
+      }
+    },
+    "apple": {
+      "behavior": "domain",
+      "count": 1585,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.list",
+              "format": "text"
+            }
+          ],
+          "count": 1585
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.list",
+          "format": "text",
+          "sha256": "31f242fb6d39685828cd506fc68dc2e0ba942db9a961e22fa270047f4fb54484",
+          "count": 1792
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/apple.list",
+        "sha256": "72b6ec088e354766221cef08264ecbc5e09e3d3680087ab2ec261281160e13f9"
+      },
+      "mrs": {
+        "path": "domain/apple.mrs",
+        "sha256": "d2f62b44bcfbea572606560dbc640326f7091f62d49e43dd88e52a1ede1e5ec6"
       }
     },
     "direct-lite": {
@@ -1098,6 +1132,80 @@
         "sha256": "2f92b6b3ebf0028998f90a93ea6e963dc3946a3f00c111aec0a7e48f03f825c8"
       }
     },
+    "ehentai": {
+      "behavior": "domain",
+      "count": 10,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ehentai.list",
+              "format": "text"
+            }
+          ],
+          "count": 8
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ehentai.list",
+          "format": "text",
+          "sha256": "b0465da3d078db69bef733acbfd6a81ba5eb527b281ab45dfc93fab02e956e0e",
+          "count": 8
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/ehentai.add.list",
+          "sha256": "2dc54c5960b1661d6052bd91aa7dbe98cac400f114e2ecdfd19b1bc1354e5b34",
+          "count": 2
+        }
+      ],
+      "remove": [],
+      "output": {
+        "path": "domain/ehentai.list",
+        "sha256": "e2adc1446324ca425a905ef614bb299518ad3b4b7f7d1b8373b087a2f065bfcf"
+      },
+      "mrs": {
+        "path": "domain/ehentai.mrs",
+        "sha256": "34b567dd1f88efdbaec34db413ea0964ea4cadb6dbb13de3eaccf3367bce21c3"
+      }
+    },
+    "facebook_ip": {
+      "behavior": "ipcidr",
+      "count": 120,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/facebook.list",
+              "format": "text"
+            }
+          ],
+          "count": 120
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/facebook.list",
+          "format": "text",
+          "sha256": "e6c8a8cd3b54b5c93dbc129fba8a834798ca530a1f7d34271906313f704adc08",
+          "count": 120
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "ipcidr/facebook_ip.list",
+        "sha256": "b0083e035ca54f607698327739bba9f06f03f9232651c6103e9324f2060c7523"
+      },
+      "mrs": {
+        "path": "ipcidr/facebook_ip.mrs",
+        "sha256": "53c524e14667196ddd2eeb1e5cff77abfa3a73a8440a97b86e8f8b006e688800"
+      }
+    },
     "google": {
       "behavior": "domain",
       "count": 630,
@@ -1231,6 +1339,74 @@
       "mrs": {
         "path": "ipcidr/google_ip.mrs",
         "sha256": "9c71c42431d8fa4aa33591cdf46e60b3a98ba91d384f2df9e243adaa1c177afe"
+      }
+    },
+    "googlefcm": {
+      "behavior": "domain",
+      "count": 12,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/googlefcm.list",
+              "format": "text"
+            }
+          ],
+          "count": 12
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/googlefcm.list",
+          "format": "text",
+          "sha256": "ff576e511b10883408360734a909a90b7e99224d87b2a80db6e35ffd5d97934c",
+          "count": 12
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/googlefcm.list",
+        "sha256": "5888af989b3ac8423b2e967437086ec58a0542856df84618ba6724061453b676"
+      },
+      "mrs": {
+        "path": "domain/googlefcm.mrs",
+        "sha256": "7196a82539722cdaa8454f821a8ac903b9df89d6f25009667f0ffa083b006cd9"
+      }
+    },
+    "line": {
+      "behavior": "domain",
+      "count": 20,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/line.list",
+              "format": "text"
+            }
+          ],
+          "count": 20
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/line.list",
+          "format": "text",
+          "sha256": "d186050204edc162d7f460ec76083f37e6b80131a143eb0f639fa0a219d43361",
+          "count": 20
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/line.list",
+        "sha256": "5f47208f3ea385ec8ee1e53431a3e3fd9ec2b3ec0456453b0145255c60f706e2"
+      },
+      "mrs": {
+        "path": "domain/line.mrs",
+        "sha256": "cb553fec05e5d082ce502db4d518b594ea66eb481e0db31905ce395ebee640e4"
       }
     },
     "media": {
@@ -1372,6 +1548,160 @@
       "mrs": {
         "path": "ipcidr/media_ip.mrs",
         "sha256": "3fba174fdae1efe489d9b489126fa48e8a340f6d1f96b1478afad0c43781c14a"
+      }
+    },
+    "meta": {
+      "behavior": "domain",
+      "count": 550,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.list",
+              "format": "text"
+            }
+          ],
+          "count": 550
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.list",
+          "format": "text",
+          "sha256": "593b4be4c45dacbf80499b2c83c181e5f6f1164f6b8bd781bd1bb58467e5fab9",
+          "count": 557
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/meta.list",
+        "sha256": "c8d7965fde50504c6970eca6ca701063c50062e4818d0d136ef79264163865ab"
+      },
+      "mrs": {
+        "path": "domain/meta.mrs",
+        "sha256": "e2691a840bca1d93595a7b1c591a719fc74192cb6c4d0019da2493f04ff19a9f"
+      }
+    },
+    "microsoft": {
+      "behavior": "domain",
+      "count": 599,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.list",
+              "format": "text"
+            }
+          ],
+          "count": 637
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.list",
+              "format": "text"
+            }
+          ],
+          "count": 599,
+          "removed": 38,
+          "partialOverlap": 1
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.list",
+          "format": "text",
+          "sha256": "cadec82f5d6e37bf705dc460fc5150fd2c7e59f34415b6de2d4d810ae1959b7a",
+          "count": 748
+        },
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.list",
+          "format": "text",
+          "sha256": "f5d67e6e0c8799bd292c8a012d579c8af37ee6a0af771299dd6500db4d1202fd",
+          "count": 64
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/microsoft.list",
+        "sha256": "1f462eafb2e22ccbef18a7e720d36a432a3b65d644bc24e1150079bf498d7fae"
+      },
+      "mrs": {
+        "path": "domain/microsoft.mrs",
+        "sha256": "21f076f04f26a167aa8ca0949b7f246f98553ef0515f549d75053f5d607ab71d"
+      }
+    },
+    "netflix": {
+      "behavior": "domain",
+      "count": 24,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
+              "format": "text"
+            }
+          ],
+          "count": 24
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
+          "format": "text",
+          "sha256": "980ec18a1c566850622523310feb9ed38cd562c82e697c3da7f756b816f337d8",
+          "count": 24
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/netflix.list",
+        "sha256": "994bd248e4fb016c92ddaf62cda7b851550d921f75ed0f9ac83d5cd80d8a188f"
+      },
+      "mrs": {
+        "path": "domain/netflix.mrs",
+        "sha256": "a6fea26ce2168e069fe865f269e86e5e031a51b5b3855fe297e1bc004a3170bd"
+      }
+    },
+    "pikpak": {
+      "behavior": "domain",
+      "count": 7,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.list",
+              "format": "text"
+            }
+          ],
+          "count": 7
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.list",
+          "format": "text",
+          "sha256": "a0ad3b0278f3b720e37133d0641c634549b785e1264a5d5f740defdf5c487b21",
+          "count": 7
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/pikpak.list",
+        "sha256": "78193acbfc12f2634c6d5e4428a9cb42809a2096d7b572ec2556a8dc7f90892d"
+      },
+      "mrs": {
+        "path": "domain/pikpak.mrs",
+        "sha256": "1d985bb9ac2e7071e825138500294570b125a0163377bb8604920ab60c9c8e58"
       }
     },
     "proxy-lite": {
@@ -1852,6 +2182,74 @@
         "sha256": "e8fc8a292d91cf630475a1e759d52acf81cf38bc7283329253be5914dc23630f"
       }
     },
+    "steam": {
+      "behavior": "domain",
+      "count": 59,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.list",
+              "format": "text"
+            }
+          ],
+          "count": 59
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.list",
+          "format": "text",
+          "sha256": "63e7cfe27eedb6660abd763618129cf46e3a39ebf436886bfb8a8eedde5b49bb",
+          "count": 60
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/steam.list",
+        "sha256": "adf1fb68d6c20e96b7f7de909ed0936f4a7a109ac6482714eea56c45aa1d45ab"
+      },
+      "mrs": {
+        "path": "domain/steam.mrs",
+        "sha256": "56b220668f0eb9c2f014aa993e1f947eff2828fb8c010aea6b07a0f72f3cc7b3"
+      }
+    },
+    "telegram": {
+      "behavior": "domain",
+      "count": 21,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.list",
+              "format": "text"
+            }
+          ],
+          "count": 21
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.list",
+          "format": "text",
+          "sha256": "2448b2699519cd258b10232fcacd01e89b7db04c8ce7fc860a4962518370a329",
+          "count": 21
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/telegram.list",
+        "sha256": "80ac89276c1939e23041eb0fa8c52a97407c891280fa8179a4ae6cfb1d40c758"
+      },
+      "mrs": {
+        "path": "domain/telegram.mrs",
+        "sha256": "ffa4d1d3e8649965e529c1c570d8add75a0d6f70aa8503ece8add841ce48c0e7"
+      }
+    },
     "telegram_ip": {
       "behavior": "ipcidr",
       "count": 11,
@@ -1896,6 +2294,74 @@
       "mrs": {
         "path": "ipcidr/telegram_ip.mrs",
         "sha256": "811aa2340e0509f5fd9ed56cfa09dff60167cb1bd865eb186b00731132b7768d"
+      }
+    },
+    "twitter": {
+      "behavior": "domain",
+      "count": 24,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.list",
+              "format": "text"
+            }
+          ],
+          "count": 24
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.list",
+          "format": "text",
+          "sha256": "7bc17d19d2fa089b36993e56275eb0eb7355963f3e90a711364086442fd369c0",
+          "count": 24
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/twitter.list",
+        "sha256": "50f50161502d7ae9cb41a7d8caee1aba819f441f4ed77e9ca5185366e45748b1"
+      },
+      "mrs": {
+        "path": "domain/twitter.mrs",
+        "sha256": "b287eac1d2a97da62e17cffddf55e0296665a289a41fba774fdba7397e6ea3f7"
+      }
+    },
+    "youtube": {
+      "behavior": "domain",
+      "count": 177,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.list",
+              "format": "text"
+            }
+          ],
+          "count": 177
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.list",
+          "format": "text",
+          "sha256": "e95f241fa4357918fc1066390c352aad750b571ddea15e3421d30c84e947ac10",
+          "count": 178
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/youtube.list",
+        "sha256": "1ead04ea73d2732dcba5b46ec064a4633093da363af01633d21e1b96bfc35a59"
+      },
+      "mrs": {
+        "path": "domain/youtube.mrs",
+        "sha256": "79d34c6ab101c55439ae4a45a36cd5de8b95e3f4b79d7faa57c038300d94954b"
       }
     }
   }
