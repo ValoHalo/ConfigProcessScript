@@ -1,0 +1,10 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/ad_add_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
+# BiliBili PCDN
+# +.mcdn.bilivideo.cn
+# +.mcdn.bilivideo.com
+# 彩云天气
+ad.cyapi.cn
+abyss.cyapi.cn
+gather.colorfulclouds.net

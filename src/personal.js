@@ -1,4 +1,4 @@
-// Only personal additions override the Echsfxy configuration.
+// Apply personal service, grouping and DNS settings to the base configuration.
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 const ruleOptionsEnable = {
   OneDrive: personalSettings.oneDrive,
@@ -14,10 +14,11 @@ function personalClone(value) {
 
 function main(subscription) {
   if (!subscription || !Array.isArray(subscription.proxies) || !subscription.proxies.length) throw new Error('需要包含 proxies 的订阅配置');
-  let config = echsfxyMain(personalClone(subscription));
+  let config = buildBaseConfig(personalClone(subscription));
+  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name]);
   const groups = config['proxy-groups'];
-  const required = ['直接连接', '代理连接', '国外AI', personalSettings.dlsite.defaultGroup];
-  for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('上游策略组已变化，需要检查个人配置：' + name);
+  const required = ['直接连接', '代理连接', '国外AI'];
+  for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('基础策略组已变化，需要检查个人配置：' + name);
   const aiGroup = groups.find(group => group.name === '国外AI');
   const originalService = personalClone(aiGroup);
   const extraGroups = [];
@@ -35,14 +36,9 @@ function main(subscription) {
   for (const key of ['microsoft-direct', 'extra-direct', 'academic-direct']) for (const rule of personalLists[key]) earlyRules.push(rule + ',直接连接');
 
   if (ruleOptionsEnable.AI固定出口) {
-    const provider = config['proxy-providers']['节点'];
-    const excluded = provider['exclude-filter'] ? new RegExp(provider['exclude-filter'].replace(/^\(\?i\)/, ''), 'i') : null;
     const candidates = [];
     for (const region of personalSettings.ai.regions) {
-      const regional = groups.find(group => group.name === region + '|故障转移');
-      if (!regional?.filter) throw new Error('上游地区匹配已变化：' + region);
-      const filter = new RegExp(regional.filter.replace(/^\(\?i\)/, ''), 'i');
-      for (const proxy of provider.payload) if (filter.test(proxy.name) && !(excluded && excluded.test(proxy.name)) && !candidates.includes(proxy.name)) candidates.push(proxy.name);
+      for (const name of nodeGroups.regions[region] || []) if (!candidates.includes(name)) candidates.push(name);
     }
     aiGroup.type = 'select';
     aiGroup.proxies = ['REJECT'];
@@ -55,18 +51,23 @@ function main(subscription) {
     delete aiGroup['include-all'];
   }
   if (ruleOptionsEnable.DLsite) {
-    const group = { ...originalService, name: 'DLsite', proxies: [personalSettings.dlsite.defaultGroup, ...originalService.proxies.filter(name => name !== personalSettings.dlsite.defaultGroup)], 'default-selected': personalSettings.dlsite.defaultGroup };
-    group.icon = groups.find(item => item.name === personalSettings.dlsite.defaultGroup).icon;
+    const configured = personalSettings.dlsite.defaultGroup;
+    const preferred = nodeGroups.regionGroups[configured] || nodeGroups.references[configured] || configured;
+    const defaultGroup = groups.some(group => group.name === preferred) ? preferred : 'REJECT';
+    const group = { ...originalService, name: 'DLsite', proxies: [defaultGroup, ...originalService.proxies.filter(name => name !== defaultGroup)], 'default-selected': defaultGroup };
+    const preferredGroup = groups.find(item => item.name === defaultGroup);
+    if (preferredGroup?.icon) group.icon = preferredGroup.icon;
     extraGroups.push(group);
-    config['rule-providers'].dlsite = { type: 'http', interval: 86400, proxy: '代理连接', behavior: 'domain', format: 'mrs', url: managedProviders.dlsite.originalUrl, path: './rules/dlsite.mrs' };
+    if (!ruleProviderDefinitions.dlsite) throw new Error('Missing rule provider definition: dlsite');
+    config['rule-providers'].dlsite = personalClone(ruleProviderDefinitions.dlsite);
     earlyRules.push('RULE-SET,dlsite,DLsite');
   }
   const insertion = config.rules.indexOf('RULE-SET,ads,REJECT');
-  if (insertion < 0) throw new Error('上游规则顺序已变化，需要检查个人规则插入位置');
+  if (insertion < 0) throw new Error('基础规则顺序已变化，需要检查个人规则插入位置');
   config.rules.splice(insertion + 1, 0, ...earlyRules);
   if (ruleOptionsEnable.AI固定出口) {
     const aiRule = config.rules.indexOf('SUB-RULE,(RULE-SET,ai),sub-ai');
-    if (aiRule < 0) throw new Error('上游 AI 规则已变化，需要检查固定出口');
+    if (aiRule < 0) throw new Error('基础 AI 规则已变化，需要检查固定出口');
     // Mihomo can skip a selected node without UDP support. Stop before another
     // service or the catch-all can send this traffic through a different exit.
     config.rules.splice(aiRule + 1, 0, 'AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
@@ -81,16 +82,6 @@ function main(subscription) {
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
   if (personalSettings.preserveClientSettings) {
     for (const key of ['port', 'socks-port', 'mixed-port', 'redir-port', 'tproxy-port', 'allow-lan', 'bind-address', 'tun', 'external-controller', 'external-controller-tls', 'external-controller-unix', 'external-controller-pipe', 'secret', 'external-ui', 'external-ui-url', 'external-doh-server']) delete config[key];
-  }
-  if (rulesBaseUrl) {
-    for (const [name, provider] of Object.entries(config['rule-providers'])) {
-      const managed = managedProviders[name];
-      if (managed && provider.url === managed.originalUrl) {
-        provider.url = rulesBaseUrl + '/' + managed.behavior + '/' + name + '.mrs';
-        provider.path = './rules/personal-' + name + '.mrs';
-        delete provider['path-in-bundle'];
-      }
-    }
   }
   return config;
 }

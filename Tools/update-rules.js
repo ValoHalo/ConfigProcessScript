@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 
-// Configuration: {version:1, rulesets:{id:{behavior:'domain'|'ipcidr',
-// sources:[{url,format:'text'|'yaml'|'classical-text'}], add:[path], remove:[path], minEntries:1}}}
-// Optional maxShrinkRatio defaults to 0.35. Paths are relative to the repository.
+// Version 2 recipes use ordered add/prune-covered steps and reusable components.
+// Personal remove files remain strict: subtracting holes from a covering rule fails.
+// Version 1 sources arrays remain supported. Paths are relative to the repository.
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
@@ -18,6 +18,7 @@ const YAML = require('yaml');
 
 const execFileAsync = promisify(execFile);
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
+const localTextHash = (body) => sha256(body.toString('utf8').replace(/\r\n/g, '\n'));
 const lexical = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 function normalizeDomain(value, literalDomains = []) {
   if (literalDomains.some((literal) => literal.toLowerCase() === value.toLowerCase())) return value.toLowerCase();
@@ -144,11 +145,21 @@ function deduplicateCIDRs(entries) {
     const last = kept.at(-1);
     if (last && last.family === range.family && last.start <= range.start && last.end >= range.end) continue;
     kept.push(range);
+    // Merge only aligned siblings. This reduces size without filling gaps or
+    // widening either IPv4 or IPv6 coverage.
+    while (kept.length > 1) {
+      const right = kept.at(-1);
+      const left = kept.at(-2);
+      if (left.family !== right.family || left.prefix !== right.prefix || !left.prefix || left.end + 1n !== right.start) break;
+      const combinedSize = (right.end - left.start + 1n);
+      if (left.start % combinedSize !== 0n) break;
+      kept.splice(-2, 2, { family: left.family, prefix: left.prefix - 1, start: left.start, end: right.end, text: printIP(left.start, left.family) + '/' + (left.prefix - 1) });
+    }
   }
   return kept.map((range) => range.text);
 }
 
-function parseEntries(body, format, behavior, label, allowEmpty = false, literalDomains = []) {
+function parseEntries(body, format, behavior, label, allowEmpty = false, literalDomains = [], domainMode) {
   let text;
   try {
     text = new TextDecoder('utf-8', { fatal: true }).decode(body).replace(/^\uFEFF/, '');
@@ -163,7 +174,28 @@ function parseEntries(body, format, behavior, label, allowEmpty = false, literal
     const data = document.toJS({ maxAliasCount: 100 });
     if (!data || !Array.isArray(data.payload)) throw new Error(label + ': YAML must contain a payload array');
     values = data.payload;
-  } else values = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line && !line.startsWith('#'));
+  } else if (format === 'github-meta' || format === 'faas-ip') {
+    let data;
+    try { data = JSON.parse(text); } catch { throw new Error(label + ': invalid JSON'); }
+    const strings = (value) => Array.isArray(value) ? value.flatMap(strings) : value && typeof value === 'object' ? Object.values(value).flatMap(strings) : typeof value === 'string' ? [value] : [];
+    if (format === 'github-meta') {
+      if (behavior !== 'domain' || !data?.domains || typeof data.domains !== 'object') throw new Error(label + ': GitHub metadata must contain domains');
+      values = ['website', 'copilot', 'packages', 'actions', 'codespaces', 'actions_inbound'].flatMap((key) => strings(data.domains[key])).map((value) => value.startsWith('*.') ? '+.' + value.slice(2) : value);
+    } else {
+      if (behavior !== 'ipcidr' || !data || typeof data !== 'object') throw new Error(label + ': invalid FaaS IP metadata');
+      values = Object.values(data).flatMap((value) => strings(value?.result));
+    }
+  } else {
+    values = text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line && !line.startsWith('#'));
+    if (format === 'dnsmasq') {
+      if (behavior !== 'domain') throw new Error(label + ': dnsmasq requires domain behavior');
+      values = values.map((line) => {
+        const match = /^server=\/([^/]+)\/[^\s]+$/.exec(line);
+        if (!match) throw new Error(label + ': invalid dnsmasq server rule: ' + line);
+        return '+.' + match[1];
+      });
+    }
+  }
   if (format === 'classical-text') {
     if (behavior !== 'domain') throw new Error(label + ': classical-text only accepts domain rules');
     values = values.map((line) => {
@@ -179,7 +211,9 @@ function parseEntries(body, format, behavior, label, allowEmpty = false, literal
       throw new Error(label + ': invalid entry ' + (index + 1));
     }
     try {
-      return behavior === 'domain' ? normalizeDomain(value.trim(), literalDomains) : parseCIDR(value.trim()).text;
+      let entry = value.trim();
+      if (behavior === 'domain' && domainMode === 'suffix' && !entry.startsWith('+.')) entry = '+.' + entry.replace(/^\*\./, '');
+      return behavior === 'domain' ? normalizeDomain(entry, literalDomains) : parseCIDR(entry).text;
     } catch (error) {
       throw new Error(label + ': ' + error.message);
     }
@@ -211,6 +245,81 @@ function mergeEntries(entries, removals, behavior) {
     }
     return true;
   });
+}
+
+// A reversed-label trie keeps large domain-set pruning proportional to domain
+// depth, rather than comparing every entry with every exclusion.
+function domainIndex(entries) {
+  const root = { children: new Map() };
+  for (const entry of entries) {
+    const parsed = domainParts(entry);
+    let node = root;
+    for (const label of parsed.labels.reverse()) {
+      if (!node.children.has(label)) node.children.set(label, { children: new Map() });
+      node = node.children.get(label);
+    }
+    node[parsed.suffix ? 'suffix' : 'exact'] = true;
+  }
+  function matches(entry, overlap) {
+    const parsed = domainParts(entry);
+    const labels = parsed.labels.reverse();
+    function visit(node, depth) {
+      if (node.suffix) return true;
+      if (depth === labels.length) return Boolean(node.exact && !parsed.suffix || overlap && (node.exact || parsed.suffix && node.children.size));
+      const label = labels[depth];
+      if (overlap && label === '*') return [...node.children.values()].some((child) => visit(child, depth + 1));
+      const exact = node.children.get(label);
+      const wildcard = label === '*' ? null : node.children.get('*');
+      return Boolean(exact && visit(exact, depth + 1) || wildcard && visit(wildcard, depth + 1));
+    }
+    return visit(root, 0);
+  }
+  return { covers: (entry) => matches(entry, false), overlaps: (entry) => matches(entry, true) };
+}
+
+function pruneCovered(entries, removals, behavior) {
+  const normalized = mergeEntries(entries, [], behavior);
+  let removed = 0;
+  let partialOverlap = 0;
+  let covers;
+  let overlaps;
+  if (behavior === 'domain') {
+    const index = domainIndex(removals);
+    covers = index.covers;
+    overlaps = index.overlaps;
+  } else {
+    const ranges = deduplicateCIDRs(removals).map(parseCIDR);
+    const candidates = (entry) => {
+      const range = parseCIDR(entry);
+      let low = 0;
+      let high = ranges.length;
+      while (low < high) {
+        const middle = (low + high) >>> 1;
+        const item = ranges[middle];
+        if (item.family < range.family || item.family === range.family && item.end < range.start) low = middle + 1;
+        else high = middle;
+      }
+      const first = ranges[low];
+      return { range, first: first?.family === range.family ? first : null };
+    };
+    covers = (entry) => { const { range, first } = candidates(entry); return Boolean(first && first.start <= range.start && first.end >= range.end); };
+    overlaps = (entry) => { const { range, first } = candidates(entry); return Boolean(first && first.start <= range.end); };
+  }
+  return {
+    entries: normalized.filter((entry) => {
+      if (covers(entry)) { removed++; return false; }
+      if (overlaps(entry)) partialOverlap++;
+      return true;
+    }),
+    diagnostics: { removed, partialOverlap },
+  };
+}
+
+function requestHeaders(url) {
+  const target = new URL(url);
+  const headers = { 'User-Agent': 'ConfigProcessScript-RuleUpdater/2.0', 'Accept-Encoding': 'identity', Connection: 'close' };
+  if (target.origin === 'https://api.github.com' && process.env.GITHUB_TOKEN) headers.Authorization = 'Bearer ' + process.env.GITHUB_TOKEN;
+  return headers;
 }
 
 async function requestOnce(url, options) {
@@ -266,7 +375,7 @@ async function requestOnce(url, options) {
     return await Promise.race([
       new Promise((resolve, reject) => {
         const protocol = target.protocol === 'https:' ? https : http;
-        request = protocol.request(target, { agent: agent || false, headers: { 'User-Agent': 'ConfigProcessScript-RuleUpdater/1.0', 'Accept-Encoding': 'identity', Connection: 'close' } }, (response) => {
+        request = protocol.request(target, { agent: agent || false, headers: requestHeaders(target) }, (response) => {
           const chunks = [];
           let bytes = 0;
           response.on('data', (chunk) => {
@@ -346,28 +455,95 @@ function withinRoot(root, filename) {
 }
 
 function validateConfig(config) {
-  if (config.version !== 1 || !config.rulesets || typeof config.rulesets !== 'object' || Array.isArray(config.rulesets)) {
-    throw new Error('Expected version: 1 and a rulesets object');
+  if (![1, 2].includes(config.version) || !config.rulesets || typeof config.rulesets !== 'object' || Array.isArray(config.rulesets)) {
+    throw new Error('Expected version: 1 or 2 and a rulesets object');
   }
   const entries = Object.entries(config.rulesets).sort(([a], [b]) => lexical(a, b));
   if (!entries.length) throw new Error('No rulesets configured');
-  if (new Set(entries.map(([id]) => id.toLowerCase())).size !== entries.length) throw new Error('Ruleset IDs must be unique ignoring case');
-  for (const [id, rule] of entries) {
+  if (config.components !== undefined && (config.version !== 2 || !config.components || typeof config.components !== 'object' || Array.isArray(config.components))) throw new Error('components requires a version 2 object');
+  const definitions = [...Object.entries(config.components || {}), ...entries];
+  if (new Set(definitions.map(([id]) => id.toLowerCase())).size !== definitions.length) throw new Error('Ruleset/component IDs must be unique ignoring case');
+  const byId = new Map(definitions);
+  for (const [id, rule] of definitions) {
     if (!/^[a-z0-9][a-z0-9._!@-]*$/i.test(id) || id.endsWith('.') || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(id)) throw new Error('Invalid ruleset ID: ' + id);
     if (!rule || !['domain', 'ipcidr'].includes(rule.behavior)) throw new Error(id + ': behavior must be domain or ipcidr');
-    if (!Array.isArray(rule.sources) || !rule.sources.every((source) => source && ['text', 'yaml', 'classical-text'].includes(source.format))) throw new Error(id + ': invalid sources');
-    if (!Number.isInteger(rule.minEntries) || rule.minEntries < 1) throw new Error(id + ': minEntries must be a positive integer');
+    if (config.version === 1 ? !Array.isArray(rule.sources) : !Array.isArray(rule.steps) || rule.sources !== undefined) throw new Error(id + ': invalid sources/steps');
+    if (Object.hasOwn(config.rulesets, id) && (!Number.isInteger(rule.minEntries) || rule.minEntries < 1)) throw new Error(id + ': minEntries must be a positive integer');
     if (rule.maxShrinkRatio !== undefined && (typeof rule.maxShrinkRatio !== 'number' || !(rule.maxShrinkRatio >= 0) || !(rule.maxShrinkRatio <= 1))) throw new Error(id + ': invalid maxShrinkRatio');
-    for (const source of rule.sources) {
-      const url = new URL(source.url);
-      if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash) throw new Error(id + ': unsafe source URL');
+    for (const step of stepsOf(rule)) {
+      if (!step || !['add', 'prune-covered'].includes(step.op) || !Array.isArray(step.sources)) throw new Error(id + ': invalid recipe step');
+      for (const source of step.sources) {
+      if (!source || typeof source !== 'object' || ['url', 'file', 'ref', 'entries'].filter((key) => Object.hasOwn(source, key)).length !== 1) throw new Error(id + ': source must select exactly one of url, file, ref, entries');
+      if (source.ref !== undefined) {
+        if (!byId.has(source.ref)) throw new Error(id + ': unknown reference ' + source.ref);
+        if (byId.get(source.ref).behavior !== rule.behavior) throw new Error(id + ': reference behavior mismatch: ' + source.ref);
+        if (Object.keys(source).length !== 1) throw new Error(id + ': a reference cannot have parsing options');
+        continue;
+      }
+      if (source.entries !== undefined) {
+        if (!Array.isArray(source.entries) || !source.entries.every((value) => typeof value === 'string') || Object.keys(source).length !== 1) throw new Error(id + ': invalid inline entries');
+        continue;
+      }
+      if (!['text', 'yaml', 'classical-text', 'dnsmasq', 'github-meta', 'faas-ip'].includes(source.format)) throw new Error(id + ': invalid source format');
+      if (source.file !== undefined && (typeof source.file !== 'string' || !source.file || source.format !== 'text')) throw new Error(id + ': local sources require a text file');
+      if (source.url !== undefined) {
+        const url = new URL(source.url);
+        if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash) throw new Error(id + ': unsafe source URL');
+      }
+      if (source.domainMode !== undefined && (source.domainMode !== 'suffix' || rule.behavior !== 'domain')) throw new Error(id + ': invalid domainMode');
       if (source.allowLiteralDomains !== undefined && (!Array.isArray(source.allowLiteralDomains) || rule.behavior !== 'domain' || !source.allowLiteralDomains.every((literal) => typeof literal === 'string' && literal.length > 0 && literal.length <= 253 && literal === literal.trim() && !/[\x00-\x1f\x7f\\/:@?#%,]/.test(literal)))) throw new Error(id + ': invalid allowLiteralDomains whitelist');
+      }
     }
     for (const key of ['add', 'remove']) {
       if (rule[key] !== undefined && (!Array.isArray(rule[key]) || !rule[key].every((filename) => typeof filename === 'string' && filename))) throw new Error(id + ': ' + key + ' must be an array of paths');
     }
   }
+  const visited = new Set();
+  const pending = new Set();
+  function visit(id) {
+    if (pending.has(id)) throw new Error('Recipe reference cycle: ' + [...pending, id].join(' -> '));
+    if (visited.has(id)) return;
+    pending.add(id);
+    for (const source of stepsOf(byId.get(id)).flatMap((step) => step.sources)) if (source.ref !== undefined) visit(source.ref);
+    pending.delete(id);
+    visited.add(id);
+  }
+  for (const [id] of definitions) visit(id);
   return entries;
+}
+
+const stepsOf = (rule) => rule.steps || [{ op: 'add', sources: rule.sources }];
+const sourceIdentity = (source) => JSON.stringify({ ...source, ...(source.file ? { file: source.file.replaceAll('\\', '/') } : {}) });
+const describeRecord = ({ sha256: hash, count, ...identity }) => identity;
+const sourceKey = (source, behavior) => JSON.stringify([sourceIdentity(source), behavior]);
+const recipeHash = (config) => sha256(JSON.stringify(config));
+
+function recipeInputs(config) {
+  const definitions = new Map([...Object.entries(config.components || {}), ...Object.entries(config.rulesets)]);
+  const result = new Map();
+  function collect(id) {
+    if (result.has(id)) return result.get(id);
+    const sources = new Map();
+    for (const source of stepsOf(definitions.get(id)).flatMap((step) => step.sources)) {
+      for (const input of source.ref !== undefined ? collect(source.ref) : [source]) sources.set(sourceIdentity(input), input);
+    }
+    const inputs = [...sources.values()];
+    result.set(id, inputs);
+    return inputs;
+  }
+  for (const [id] of definitions) collect(id);
+  return result;
+}
+
+async function checkOverrides(root, id, rule, record) {
+  for (const key of ['add', 'remove']) {
+    const filenames = rule[key] || [];
+    if (!Array.isArray(record[key]) || record[key].length !== filenames.length) throw new Error(id + ': generated ' + key + ' configuration is out of date');
+    for (let index = 0; index < filenames.length; index++) {
+      const override = record[key][index];
+      if (override.path !== filenames[index].replaceAll('\\', '/') || override.sha256 !== localTextHash(await fs.readFile(withinRoot(root, filenames[index])))) throw new Error(id + ': generated override is out of date: ' + filenames[index]);
+    }
+  }
 }
 
 async function readJSON(filename, optional = false) {
@@ -378,6 +554,15 @@ async function readJSON(filename, optional = false) {
 }
 
 async function loadSource(source, behavior, options) {
+  if (source.entries) {
+    const entries = parseEntries(Buffer.from(source.entries.join('\n')), 'text', behavior, 'inline source', true);
+    return { entries, record: { ...source, count: entries.length } };
+  }
+  if (source.file) {
+    const body = await fs.readFile(withinRoot(options.root, source.file));
+    const entries = parseEntries(body, source.format, behavior, source.file, true, source.allowLiteralDomains, source.domainMode);
+    return { entries, record: { ...source, file: source.file.replaceAll('\\', '/'), sha256: localTextHash(body), count: entries.length } };
+  }
   const key = sha256(source.url);
   const bodyPath = path.join(options.cache, key + '.txt');
   const metaPath = path.join(options.cache, key + '.json');
@@ -388,38 +573,45 @@ async function loadSource(source, behavior, options) {
     body = await fs.readFile(bodyPath);
     if (meta.sha256 !== sha256(body)) throw new Error('Cached source checksum mismatch: ' + source.url);
   } else body = await download(source.url, options);
-  const entries = parseEntries(body, source.format, behavior, source.url, false, source.allowLiteralDomains);
+  const entries = parseEntries(body, source.format, behavior, source.url, false, source.allowLiteralDomains, source.domainMode);
   const hash = sha256(body);
   if (!options.offline) {
     await fs.writeFile(bodyPath, body);
     await fs.writeFile(metaPath, JSON.stringify({ version: 1, url: source.url, sha256: hash }, null, 2) + '\n');
   }
-  return { entries, record: { url: source.url, format: source.format, ...(source.allowLiteralDomains ? { allowLiteralDomains: source.allowLiteralDomains } : {}), sha256: hash, count: entries.length } };
+  return { entries, record: { ...source, sha256: hash, count: entries.length } };
 }
 
 async function checkGenerated(root, config) {
   const generated = path.join(root, 'Rules', 'generated');
   const manifest = await readJSON(path.join(generated, 'manifest.json'));
   const rules = validateConfig(config);
-  if (manifest.version !== 1 || !manifest.rulesets) throw new Error('Invalid generated manifest');
+  if (![1, 2].includes(manifest.version) || !manifest.rulesets) throw new Error('Invalid generated manifest');
+  if (config.version === 2 && (manifest.version !== 2 || manifest.configSha256 !== recipeHash(config))) throw new Error('Generated recipe configuration is out of date');
   if (Object.keys(manifest.rulesets).sort().join('\n') !== rules.map(([id]) => id).join('\n')) throw new Error('Generated rulesets do not match configuration');
+  if (config.version === 2) {
+    if (Object.keys(manifest.components || {}).sort().join('\n') !== Object.keys(config.components || {}).sort().join('\n')) throw new Error('Generated components do not match configuration');
+    const inputs = recipeInputs(config);
+    for (const [id, rule] of [...Object.entries(config.components || {}), ...rules]) {
+      const record = manifest.components[id] || manifest.rulesets[id];
+      if (!Array.isArray(record.sources) || JSON.stringify(record.sources.map((source) => sourceIdentity(describeRecord(source)))) !== JSON.stringify(inputs.get(id).map(sourceIdentity))) throw new Error(id + ': generated source identity does not match the recipe');
+      if (!Array.isArray(record.steps) || JSON.stringify(record.steps.map(({ count, removed, partialOverlap, ...step }) => step)) !== JSON.stringify(stepsOf(rule))) throw new Error(id + ': generated steps do not match the recipe');
+      if (record.behavior !== rule.behavior) throw new Error(id + ': generated behavior mismatch');
+      for (const source of record.sources) if (source.file && localTextHash(await fs.readFile(withinRoot(root, source.file))) !== source.sha256) throw new Error('Generated local source is out of date: ' + source.file);
+      if (Object.hasOwn(config.components || {}, id)) await checkOverrides(root, id, rule, record);
+    }
+  }
   for (const [id, rule] of rules) {
     const record = manifest.rulesets[id];
     const filename = rule.behavior + '/' + id + '.list';
     if (record.behavior !== rule.behavior || record.output.path !== filename) throw new Error(id + ': generated behavior/path mismatch');
-    const describeSource = (source) => ({ url: source.url, format: source.format, ...(source.allowLiteralDomains ? { allowLiteralDomains: source.allowLiteralDomains } : {}) });
-    if (JSON.stringify(record.sources.map(describeSource)) !== JSON.stringify(rule.sources.map(describeSource))) throw new Error(id + ': generated source configuration is out of date');
-    for (const key of ['add', 'remove']) {
-      const filenames = rule[key] || [];
-      if (record[key].length !== filenames.length) throw new Error(id + ': generated ' + key + ' configuration is out of date');
-      for (let index = 0; index < filenames.length; index++) {
-        const override = record[key][index];
-        if (override.path !== filenames[index].replaceAll('\\', '/') || override.sha256 !== sha256(await fs.readFile(withinRoot(root, filenames[index])))) throw new Error(id + ': generated override is out of date: ' + filenames[index]);
-      }
+    if (config.version === 1) {
+      if (JSON.stringify(record.sources.map(describeRecord)) !== JSON.stringify(rule.sources)) throw new Error(id + ': generated source configuration is out of date');
     }
+    await checkOverrides(root, id, rule, record);
     const body = await fs.readFile(withinRoot(generated, filename));
     if (sha256(body) !== record.output.sha256) throw new Error(id + ': generated list checksum mismatch');
-    const entries = parseEntries(body, 'text', rule.behavior, filename, false, rule.sources.flatMap((source) => source.allowLiteralDomains || []));
+    const entries = parseEntries(body, 'text', rule.behavior, filename, false, record.sources.flatMap((source) => source.allowLiteralDomains || []));
     if (record.count !== entries.length || entries.length < rule.minEntries) throw new Error(id + ': generated entry count mismatch');
     const normalized = mergeEntries(entries, [], rule.behavior).join('\n') + '\n';
     if (normalized !== body.toString('utf8')) throw new Error(id + ': generated list is not normalized');
@@ -458,11 +650,13 @@ async function updateRules(input = {}) {
   try {
     await lock.writeFile(String(process.pid) + '\n');
     const oldManifest = await readJSON(path.join(destination, 'manifest.json'), true);
-    const manifest = { version: 1, rulesets: {} };
+    const manifest = config.version === 2 ? { version: 2, configSha256: recipeHash(config), components: {}, rulesets: {} } : { version: 1, rulesets: {} };
+    const definitions = new Map([...Object.entries(config.components || {}), ...rules]);
     const sourceJobs = new Map();
-    for (const [, rule] of rules) {
-      for (const source of rule.sources) {
-        const key = JSON.stringify([source, rule.behavior]);
+    for (const [, rule] of definitions) {
+      for (const source of stepsOf(rule).flatMap((step) => step.sources)) {
+        if (source.ref !== undefined) continue;
+        const key = sourceKey(source, rule.behavior);
         sourceJobs.set(key, { key, source, behavior: rule.behavior });
       }
     }
@@ -470,15 +664,46 @@ async function updateRules(input = {}) {
       return [job.key, await loadSource(job.source, job.behavior, options)];
     });
     const sources = new Map(loaded);
-    await fs.mkdir(stage, { recursive: true });
-    for (const [id, rule] of rules) {
-      const records = rule.sources.map((source) => sources.get(JSON.stringify([source, rule.behavior])));
+    const built = new Map();
+    async function build(id) {
+      if (built.has(id)) return built.get(id);
+      const rule = definitions.get(id);
+      const records = new Map();
+      const stepRecords = [];
+      let composed = [];
+      for (const step of stepsOf(rule)) {
+        let values = [];
+        for (const source of step.sources) {
+          if (source.ref !== undefined) {
+            const referenced = await build(source.ref);
+            values = values.concat(referenced.entries);
+            for (const record of referenced.record.sources) {
+              const { sha256: hash, count, ...identity } = record;
+              records.set(sourceIdentity(identity), record);
+            }
+          } else {
+            const loadedSource = sources.get(sourceKey(source, rule.behavior));
+            values = values.concat(loadedSource.entries);
+            records.set(sourceIdentity(source), loadedSource.record);
+          }
+        }
+        if (step.op === 'add') {
+          composed = mergeEntries([...composed, ...values], [], rule.behavior);
+          stepRecords.push({ ...step, count: composed.length });
+        } else {
+          const result = pruneCovered(composed, values, rule.behavior);
+          composed = result.entries;
+          stepRecords.push({ ...step, count: composed.length, ...result.diagnostics });
+        }
+      }
       const maxShrink = rule.maxShrinkRatio ?? 0.35;
+      const previousRecord = oldManifest?.rulesets?.[id] || oldManifest?.components?.[id];
       if (!options.allowShrink) {
-        for (const source of records) {
-          const previousSource = oldManifest?.rulesets?.[id]?.sources?.find((previous) => previous.url === source.record.url && previous.format === source.record.format);
-          if (previousSource?.count && source.record.count < previousSource.count * (1 - maxShrink)) {
-            throw new Error(id + ': suspicious shrink in source from ' + previousSource.count + ' to ' + source.record.count + ' rules; inspect changes and use --allow-shrink only when intended');
+        const identityOfRecord = ({ sha256: hash, count, ...identity }) => sourceIdentity(identity);
+        for (const source of records.values()) {
+          const previousSource = previousRecord?.sources?.find((previous) => identityOfRecord(previous) === identityOfRecord(source));
+          if (previousSource?.count && source.count < previousSource.count * (1 - maxShrink)) {
+            throw new Error(id + ': suspicious shrink in source from ' + previousSource.count + ' to ' + source.count + ' rules; inspect changes and use --allow-shrink only when intended');
           }
         }
       }
@@ -491,21 +716,31 @@ async function updateRules(input = {}) {
           const body = await fs.readFile(withinRoot(root, filename));
           const parsed = parseEntries(body, 'text', rule.behavior, filename, true);
           entries.push(...parsed);
-          target.push({ path: filename.replaceAll('\\', '/'), sha256: sha256(body), count: parsed.length });
+          target.push({ path: filename.replaceAll('\\', '/'), sha256: localTextHash(body), count: parsed.length });
         }
       }
-      const entries = mergeEntries([...records.flatMap((record) => record.entries), ...addEntries], removeEntries, rule.behavior);
-      if (entries.length < rule.minEntries) throw new Error(id + ': only ' + entries.length + ' rules, below minEntries ' + rule.minEntries);
-      const previous = oldManifest?.rulesets?.[id]?.count;
+      const entries = mergeEntries([...composed, ...addEntries], removeEntries, rule.behavior);
+      if (rule.minEntries && entries.length < rule.minEntries) throw new Error(id + ': only ' + entries.length + ' rules, below minEntries ' + rule.minEntries);
+      const previous = previousRecord?.count;
       if (!options.allowShrink && previous && entries.length < previous * (1 - maxShrink)) {
         throw new Error(id + ': suspicious shrink from ' + previous + ' to ' + entries.length + ' rules; inspect changes and use --allow-shrink only when intended');
       }
+      const record = { behavior: rule.behavior, count: entries.length, ...(config.version === 2 ? { steps: stepRecords } : {}), sources: [...records.values()], add: additions, remove: removals };
+      const result = { entries, record };
+      built.set(id, result);
+      if (config.components?.[id]) manifest.components[id] = record;
+      return result;
+    }
+    for (const [id] of definitions) await build(id);
+    await fs.mkdir(stage, { recursive: true });
+    for (const [id, rule] of rules) {
+      const { entries, record } = built.get(id);
       const outputPath = rule.behavior + '/' + id + '.list';
       const output = entries.join('\n') + '\n';
       const filename = path.join(stage, outputPath);
       await fs.mkdir(path.dirname(filename), { recursive: true });
       await fs.writeFile(filename, output);
-      const record = { behavior: rule.behavior, count: entries.length, sources: records.map((source) => source.record), add: additions, remove: removals, output: { path: outputPath, sha256: sha256(output) } };
+      record.output = { path: outputPath, sha256: sha256(output) };
       if (options.mihomo) {
         const mrsPath = rule.behavior + '/' + id + '.mrs';
         const mrsFilename = path.join(stage, mrsPath);
@@ -564,4 +799,4 @@ async function main(argv) {
 }
 
 if (require.main === module) main(process.argv.slice(2)).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { updateRules, checkGenerated, normalizeDomain, parseCIDR, parseEntries, mergeEntries, coversDomain, download };
+module.exports = { updateRules, checkGenerated, validateConfig, normalizeDomain, parseCIDR, parseEntries, mergeEntries, pruneCovered, coversDomain, download, requestHeaders, localTextHash };

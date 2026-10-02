@@ -28,11 +28,11 @@ function patchDnsExperience(config, lists, options, downloadEnabled, downloadGro
     throw new Error('DNS 域名清单包含不支持的规则类型：' + type);
   }))];
   const providers = config['rule-providers'];
-  if (providers['personal-direct'] || providers['personal-download']) throw new Error('个人 DNS 规则集与上游重名');
+  if (providers['personal-direct'] || providers['personal-download']) throw new Error('个人 DNS 规则集与基础配置重名');
   providers['personal-direct'] = { type: 'inline', behavior: 'domain', payload: payload([...lists['microsoft-direct'], ...lists['extra-direct'], ...lists['academic-direct']]) };
   if (downloadEnabled) providers['personal-download'] = { type: 'inline', behavior: 'domain', payload: payload(lists.downloads) };
   const filterIndex = dns['fake-ip-filter'].indexOf('RULE-SET,ads,fake-ip');
-  if (dns['fake-ip-filter-mode'] !== 'rule' || filterIndex < 0) throw new Error('上游 Fake-IP 结构已变化，需要检查个人 DNS 规则');
+  if (dns['fake-ip-filter-mode'] !== 'rule' || filterIndex < 0) throw new Error('基础配置的 Fake-IP 规则不支持个人 DNS 分类');
   dns['fake-ip-filter'].splice(filterIndex + 1, 0,
     ...(downloadEnabled ? ['RULE-SET,personal-download,fake-ip'] : []),
     'RULE-SET,personal-direct,real-ip');
@@ -54,7 +54,7 @@ function patchDnsExperience(config, lists, options, downloadEnabled, downloadGro
     policies['rule-set:personal-direct'] = [...dns['direct-nameserver']];
     inserted = true;
   }
-  if (!inserted) throw new Error('上游广告 DNS 规则已变化，需要检查个人 DNS 顺序');
+  if (!inserted) throw new Error('基础配置缺少广告 DNS 规则，无法确定个人 DNS 顺序');
   dns['nameserver-policy'] = policies;
   return config;
 }

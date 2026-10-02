@@ -54,7 +54,8 @@ async function main() {
     const settings = JSON.parse(fs.readFileSync('Rules/personal/settings.json', 'utf8'));
     const ordered = [];
     for (const region of settings.ai.regions) {
-      const group = config['proxy-groups'].find(g => g.name === region + '|故障转移');
+      const group = config['proxy-groups'].find(g => g.type === 'select' && (g.name === region || g.name.startsWith(region + '（分组')));
+      if (!group) continue;
       const match = new RegExp(group.filter.replace(/^\(\?i\)/, ''), 'i');
       for (const name of availableNames) if (match.test(name) && !ordered.includes(name)) ordered.push(name);
     }

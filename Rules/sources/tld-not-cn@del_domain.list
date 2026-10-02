@@ -1,0 +1,14 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/tld-not-cn@del_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
++.ai
++.io
++.app
++.la
++.im
++.fm
++.am
++.sh
++.cm
++.dev
++.page

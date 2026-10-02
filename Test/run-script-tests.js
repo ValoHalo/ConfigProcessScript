@@ -6,30 +6,29 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const espree = require('espree');
 const { getQuickJS } = require('quickjs-emscripten');
-const { generate, build, personalList } = require('../Tools/build-scripts');
+const { generate, build, personalList, validateProviderReferences } = require('../Tools/build-scripts');
 const root = path.resolve(__dirname, '..');
 const code = fs.readFileSync(path.join(root, 'Script/mihomoScript.js'), 'utf8');
-const original = fs.readFileSync(path.join(root, 'vendor/echsfxy/mihomo.js'), 'utf8');
 const fixture = () => ({ proxies: ['HK 01', 'US 01', 'JP 01', 'US 02'].map((name, i) => ({ name, type: 'ss', server: 'node' + i + '.example.net', port: 443, cipher: 'aes-128-gcm', password: 'fixture' })) });
 const clone = value => JSON.parse(JSON.stringify(value));
-function evaluate(source, input, options = {}) {
+function evaluate(source, input, options = {}, entry = 'main') {
   const ctx = vm.createContext({ input: clone(input) });
-  vm.runInContext(source + '\n' + (source === original ? '' : 'Object.assign(ruleOptionsEnable,' + JSON.stringify(options) + ');') + '\nresult = main(input);', ctx, { timeout: 4000 });
+  vm.runInContext(source + '\nObject.assign(ruleOptionsEnable,' + JSON.stringify(options) + ');\nresult = ' + entry + '(input);', ctx, { timeout: 4000 });
   return clone(ctx.result);
 }
 let count = 0;
 function test(name, check) { check(); count++; console.log('PASS ' + name); }
 
 async function main() {
-  const input = fixture(), upstream = evaluate(original, input), current = evaluate(code, input);
+  const input = fixture(), base = evaluate(code, input, {}, 'buildBaseConfig'), current = evaluate(code, input);
   test('Generated full script is current and standalone ES2020', () => { assert.equal(generate(), code); build({ check: true }); espree.parse(code, { ecmaVersion: 2020, sourceType: 'script' }); });
-  test('Unchanged Echsfxy groups and generic settings follow upstream', () => {
-    for (const group of upstream['proxy-groups']) if (!['国外AI', 'GLOBAL'].includes(group.name)) assert.deepEqual(current['proxy-groups'].find(g => g.name === group.name), group);
-    for (const key of ['sub-rules', 'proxies', 'sniffer', 'profile', 'experimental', 'ipv6', 'tcp-concurrent', 'unified-delay', 'keep-alive-interval']) assert.deepEqual(current[key], upstream[key]);
-    assert.deepEqual(current['proxy-providers'], upstream['proxy-providers']);
+  test('Personal additions preserve generic base groups and settings', () => {
+    for (const name of ['直接连接', '代理QUIC', '最低延迟', '故障转移']) assert.deepEqual(current['proxy-groups'].find(g => g.name === name), base['proxy-groups'].find(g => g.name === name));
+    for (const key of ['sub-rules', 'proxies', 'sniffer', 'profile', 'experimental', 'ipv6', 'tcp-concurrent', 'unified-delay', 'keep-alive-interval']) assert.deepEqual(current[key], base[key]);
+    assert.deepEqual(current['proxy-providers'], base['proxy-providers']);
   });
-  test('Upstream routing order is preserved around personal additions', () => {
-    assert.deepEqual(current.rules.filter(rule => upstream.rules.includes(rule)), upstream.rules);
+  test('Base routing order is preserved around personal additions', () => {
+    assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules);
     assert(current.rules.indexOf('RULE-SET,ads,REJECT') < current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive'));
     assert(current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive') < current.rules.indexOf('DOMAIN,api.onedrive.com,直接连接'));
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
@@ -51,7 +50,7 @@ async function main() {
   });
   test('DLsite is a normal selector defaulting to Japan', () => {
     const group = current['proxy-groups'].find(g => g.name === 'DLsite');
-    assert.equal(group.type, 'select'); assert.equal(group.proxies[0], '日本|故障转移');
+    assert.equal(group.type, 'select'); assert.equal(group.proxies[0], '日本');
     assert.equal(group['include-all-providers'], true); assert(group.proxies.includes('代理连接'));
     assert(!group.proxies.includes('REJECT'));
   });
@@ -63,7 +62,7 @@ async function main() {
   test('OneDrive option controls process routing and process detection', () => {
     assert.equal(current['find-process-mode'], 'strict');
     const off = evaluate(code, input, { OneDrive: false });
-    assert.equal(off['find-process-mode'], upstream['find-process-mode']);
+    assert.equal(off['find-process-mode'], base['find-process-mode']);
     assert(!off.rules.some(rule => rule.startsWith('PROCESS-NAME,')));
   });
   test('Disabling optional services removes their rules, groups and DNS policies', () => {
@@ -71,11 +70,14 @@ async function main() {
     assert(!off['proxy-groups'].some(g => ['DLsite', '下载更新'].includes(g.name)));
     assert.equal(off['rule-providers'].dlsite, undefined);
     assert(!Object.keys(off.dns['nameserver-policy']).some(k => k.includes('dlsite')));
-    assert.deepEqual(off['proxy-groups'].find(g => g.name === '国外AI'), upstream['proxy-groups'].find(g => g.name === '国外AI'));
+    const normal = off['proxy-groups'].find(g => g.name === '国外AI');
+    assert.equal(normal['include-all-providers'], true);
+    assert(normal.proxies.includes('日本') && normal.proxies.includes('美国'));
+    assert(!normal.proxies.includes('REJECT'));
   });
-  test('DNS preserves upstream resolvers without forcing an unrelated ECS subnet', () => {
-    for (const key of ['default-nameserver', 'direct-nameserver', 'prefer-h3', 'enhanced-mode', 'fake-ip-filter-mode']) assert.deepEqual(current.dns[key], upstream.dns[key]);
-    assert.deepEqual(current.dns.nameserver, upstream.dns.nameserver.map(address => address.replace(/&ecs=[^&]+/g, '').replace(/&ecs-override=[^&]+/g, '')));
+  test('DNS preserves base resolvers without forcing an unrelated ECS subnet', () => {
+    for (const key of ['default-nameserver', 'direct-nameserver', 'prefer-h3', 'enhanced-mode', 'fake-ip-filter-mode']) assert.deepEqual(current.dns[key], base.dns[key]);
+    assert.deepEqual(current.dns.nameserver, base.dns.nameserver.map(address => address.replace(/&ecs=[^&]+/g, '').replace(/&ecs-override=[^&]+/g, '')));
     assert(current.dns['nameserver-policy']['rule-set:ai'].every(s => s.includes('#国外AI')));
     assert(current.dns['nameserver-policy']['rule-set:dlsite'].every(s => s.includes('#DLsite')));
     assert(!Object.keys(current.dns['nameserver-policy']).some(k => k.includes('ai,') || k.includes(',ai')));
@@ -101,7 +103,7 @@ async function main() {
     custom.dns = { 'proxy-server-nameserver': ['https://private.example.net/dns-query#DIRECT&ecs=192.0.2.0/24&ecs-override=true'] };
     assert(evaluate(code, custom).dns['proxy-server-nameserver'][0].includes('ecs=192.0.2.0/24&ecs-override=true'));
     const legacy = evaluate(code.replace('"ecsMode": "resolver-default"', '"ecsMode": "upstream"'), input);
-    assert.deepEqual(legacy.dns.nameserver, upstream.dns.nameserver);
+    assert.deepEqual(legacy.dns.nameserver, base.dns.nameserver);
   });
   test('Client controls listener, controller and TUN settings', () => {
     for (const key of ['tun', 'allow-lan', 'mixed-port', 'external-controller', 'secret']) assert.equal(current[key], undefined);
@@ -113,16 +115,61 @@ async function main() {
     assert.throws(() => personalList('DOMAIN,example.com,DIRECT', 'test', ['DOMAIN']));
   });
   const dir = fs.mkdtempSync(path.join(root, '.test-runtime/build-'));
-  for (const file of ['src', 'config', 'vendor', 'Rules/personal']) fs.cpSync(path.join(root, file), path.join(dir, file), { recursive: true });
-  test('Publication uses this repository and leaves upstream snapshot unchanged', () => {
+  for (const file of ['src', 'config', 'Rules/personal']) fs.cpSync(path.join(root, file), path.join(dir, file), { recursive: true });
+  test('Publication derives every provider from this repository manifest', () => {
     fs.writeFileSync(path.join(dir, 'config/project.json'), JSON.stringify({ repository: 'example/config', branch: 'main' }));
     const published = evaluate(generate(dir), input);
-    for (const provider of Object.values(published['rule-providers'])) if (provider.type === 'http') assert(provider.url.startsWith('https://raw.githubusercontent.com/example/config/main/Rules/generated/'));
-    assert.equal(fs.readFileSync(path.join(dir, 'vendor/echsfxy/mihomo.js'), 'utf8'), original);
+    const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'config/rule-sources.json'), 'utf8'));
+    const httpProviders = Object.entries(published['rule-providers']).filter(([, provider]) => provider.type === 'http');
+    assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).sort());
+    for (const [id, provider] of httpProviders) {
+      assert.equal(provider.url, 'https://raw.githubusercontent.com/example/config/main/Rules/generated/' + manifest.rulesets[id].behavior + '/' + id + '.mrs');
+      assert.equal(provider.path, './rules/personal-' + id + '.mrs');
+      assert.equal(provider.format, 'mrs');
+      assert.equal(provider.interval, 86400);
+      assert.equal(provider.proxy, '代理连接');
+    }
   });
-  test('Unexpected upstream change prevents generating a release', () => {
-    fs.appendFileSync(path.join(dir, 'vendor/echsfxy/mihomo.js'), '\n// changed');
-    assert.throws(() => generate(dir), /hash differs/);
+  test('Base providers and service providers are independent for each execution', () => {
+    const ctx = vm.createContext({ input: fixture() });
+    vm.runInContext(code + '\nfirst = main(input); first["rule-providers"].ads.url = "modified"; first["rule-providers"].dlsite.path = "modified"; second = main(input); base = buildBaseConfig(input);', ctx, { timeout: 4000 });
+    assert.deepEqual(clone(ctx.second), current);
+    assert.equal(ctx.base['rule-providers'].dlsite, undefined);
+  });
+  test('Missing routing and DNS providers prevent generating a release', () => {
+    const file = path.join(dir, 'config/rule-sources.json');
+    const originalManifest = fs.readFileSync(file, 'utf8');
+    try {
+      for (const id of ['telegram_ip', 'dnsmasq-china-lite', 'dlsite']) {
+        const manifest = JSON.parse(originalManifest);
+        delete manifest.rulesets[id];
+        fs.writeFileSync(file, JSON.stringify(manifest));
+        assert.throws(() => generate(dir), new RegExp('Missing rule provider definition: ' + id));
+      }
+      const manifest = JSON.parse(originalManifest);
+      manifest.rulesets.ads.behavior = 'unknown';
+      fs.writeFileSync(file, JSON.stringify(manifest));
+      assert.throws(() => generate(dir), /Invalid published rule provider: ads/);
+    } finally { fs.writeFileSync(file, originalManifest); }
+  });
+  test('References in sub-rules, DNS filters, policies and sniffer lists are checked', () => {
+    for (const field of [
+      { rules: ['AND,((NETWORK,UDP),(RULE-SET,missing)),REJECT'] },
+      { 'sub-rules': { example: ['RULE-SET,missing,REJECT'] } },
+      { dns: { 'fake-ip-filter': ['RULE-SET,missing,real-ip'] } },
+      { dns: { 'nameserver-policy': { 'rule-set:known,missing': ['rcode://success'] } } },
+      { sniffer: { 'skip-domain': ['rule-set:known,missing'] } },
+    ]) assert.throws(() => validateProviderReferences({ 'rule-providers': { known: {} }, ...field }), /Missing rule provider definition: missing/);
+  });
+  test('Unconfigured and invalid publication repositories fail clearly', () => {
+    const file = path.join(dir, 'config/project.json');
+    const originalProject = fs.readFileSync(file, 'utf8');
+    try {
+      for (const project of [null, { repository: null, branch: 'main' }, { repository: 'https://github.com/example/config', branch: 'main' }, { repository: '../config', branch: 'main' }, { repository: 'example/..', branch: 'main' }, { repository: 'example/config', branch: '../main' }, { repository: 'example/config', branch: null }]) {
+        fs.writeFileSync(file, JSON.stringify(project));
+        assert.throws(() => generate(dir), /Invalid publication repository or branch/);
+      }
+    } finally { fs.writeFileSync(file, originalProject); }
   });
   const QuickJS = await getQuickJS();
   for (const options of [{}, { OneDrive: false }, { DLsite: false }, { AI固定出口: false }, { 大流量下载直连: false }, { DNS跟随服务: false }]) {

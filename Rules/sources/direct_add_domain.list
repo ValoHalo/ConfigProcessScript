@@ -1,0 +1,10 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/direct_add_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
+# github加速
++.gh-proxy.org
++.ghfast.top 
+# zashboard
++.ipip.net
+# my domain
++.echs.top

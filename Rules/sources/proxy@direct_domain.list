@@ -1,0 +1,31 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/proxy@direct_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
+# googlefcm
+mtalk.google.com
+mtalk4.google.com
+alt1-mtalk.google.com
+alt2-mtalk.google.com
+alt3-mtalk.google.com
+alt4-mtalk.google.com
+alt5-mtalk.google.com
+alt6-mtalk.google.com
+alt7-mtalk.google.com
+alt8-mtalk.google.com
+mtalk-dev.google.com
+mtalk-staging.google.com
+
+# Cloudflare 人机验证
+a.nel.cloudflare.com
+challenges.cloudflare.com
+stun.cloudflare.com
+static.cloudflareinsights.com
+
+# hCaptcha 人机验证
++.hcaptcha.com
+
+# onedrive下载
+*.sharepoint.com
+
+# apple连通性测试
++.captive.apple.com

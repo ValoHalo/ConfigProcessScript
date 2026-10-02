@@ -13,10 +13,11 @@
     "test:probe": "node Test/run-probe-tests.js",
     "test:routing": "node Test/run-rule-routing-tests.js",
     "rules:update": "node Tools/update-rules.js",
-    "check": "npm run check:generated && npm test && npm run test:dns && npm run test:rules && npm run test:probe",
+    "check": "npm run check:generated && npm test && npm run test:groups && npm run test:dns && npm run test:rules && npm run test:probe",
     "test:ai-udp": "node Test/run-ai-udp-tests.js",
     "test:live": "node Test/run-live-checks.js",
-    "test:dns-behavior": "node Test/run-dns-behavior-tests.js"
+    "test:dns-behavior": "node Test/run-dns-behavior-tests.js",
+    "test:groups": "node Test/run-group-tests.js"
   },
   "dependencies": {
     "yaml": "^2.9.0"

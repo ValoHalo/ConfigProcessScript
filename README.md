@@ -1,6 +1,6 @@
 # ConfigProcessScript
 
-基于 [Echsfxy 普通版 Mihomo 脚本](https://github.com/echs-top/proxy)，叠加个人规则与功能。
+参考 [Echsfxy](https://github.com/echs-top/proxy) 的规则分类方案，直接维护规则来源、配置脚本与个人功能；自动更新只处理规则数据。
 
 ## 使用
 

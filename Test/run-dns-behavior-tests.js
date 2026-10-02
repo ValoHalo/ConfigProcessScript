@@ -153,7 +153,7 @@ async function runCase(binary, mode, parentDirectory) {
     check('All generated and inline rule sets decode', () => assert(expectedProviders.every(name => providers[name]?.ruleCount > 0)));
     for (const [group, name] of Object.entries({ '代理连接': 'HK 01', '代理DNS': '代理连接', '国外AI': 'US 01' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
     const dlsiteGroup = await call('/proxies/' + encodeURIComponent('DLsite'));
-    check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本|故障转移'));
+    check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],

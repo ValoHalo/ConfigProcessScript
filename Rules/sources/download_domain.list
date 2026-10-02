@@ -1,0 +1,29 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/download_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
+# github下载
+media.githubusercontent.com
+# raw.githubusercontent.com
+codeload.github.com
+objects.githubusercontent.com
+# GoogleDrive
+drive.usercontent.google.com
+drive-data-export.usercontent.google.com
+drive-data-export-eu.usercontent.google.com
+# Python/Rust
+files.pythonhosted.org
+static.crates.io
+# debian
++.deb.debian.org
+security.debian.org
+cdimage.debian.org
+# Alpine
+dl-cdn.alpinelinux.org
+packages.wolfi.dev
+# pikpak
++.dlandroid.rcv.sandai.net
++.hub5idx.v6.shub.sandai.net
++.hub5pn.wap.sandai.net
++.hub5pnc.sandai.net
++.hub5pr.v6.phub.sandai.net
++.hubciddata.sandai.net

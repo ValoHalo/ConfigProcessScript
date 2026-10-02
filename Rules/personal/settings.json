@@ -8,7 +8,7 @@
   },
   "dlsite": {
     "enabled": true,
-    "defaultGroup": "日本|故障转移"
+    "defaultGroup": "日本"
   },
   "downloads": {
     "enabled": true,

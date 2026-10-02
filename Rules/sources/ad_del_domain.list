@@ -1,0 +1,7 @@
+# Initial source: echs-top/proxy at 1f35b88941854531a2876382bb29d234850da57b
+# Original file: work/list/ad_del_domain.list
+# Maintained locally; this file is not refreshed from the original repository.
+# miui云服务
+a0.app.xiaomi.com
+# 短链接
++.t.co

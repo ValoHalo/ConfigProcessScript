@@ -8,6 +8,7 @@ permissions:
 jobs:
   check:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -31,5 +32,6 @@ jobs:
       - run: npm ci
       - run: python3 Tools/fetch-mihomo.py --output .test-runtime/tools/mihomo
       - run: npm run test:routing -- --mihomo .test-runtime/tools/mihomo
+      - run: npm run test:groups -- --mihomo .test-runtime/tools/mihomo
       - run: npm run test:ai-udp -- --mihomo .test-runtime/tools/mihomo
       - run: npm run test:dns-behavior -- --mihomo .test-runtime/tools/mihomo

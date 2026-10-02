@@ -1,12 +1,184 @@
 {
-  "version": 1,
+  "version": 2,
+  "components": {
+    "google-cn-exclusions": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/google-cn.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "entries": [
+                "+.cn"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tld-proxy": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/wwqgtxx/clash-rules/release/tld-not-cn.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "file": "Rules/sources/tld-not-cn@del_domain.list",
+              "format": "text"
+            }
+          ]
+        }
+      ]
+    },
+    "proxy": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
+              "format": "text"
+            },
+            {
+              "url": "https://api.github.com/meta",
+              "format": "github-meta"
+            },
+            {
+              "ref": "tld-proxy"
+            },
+            {
+              "file": "Rules/sources/proxy_add_domain.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "file": "Rules/sources/proxy_del_domain.list",
+              "format": "text"
+            }
+          ]
+        }
+      ]
+    },
+    "direct": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/private.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/cn-lite.list",
+              "format": "text"
+            },
+            {
+              "url": "https://static-file-global.353355.xyz/rules/cn-additional-list-clash.yaml",
+              "format": "yaml"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/apple-cn.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/microsoft-cn.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/games-cn.list",
+              "format": "text"
+            },
+            {
+              "file": "Rules/sources/direct_add_domain.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "file": "Rules/sources/direct_del_domain.list",
+              "format": "text"
+            }
+          ]
+        }
+      ]
+    },
+    "dnsmasq-china": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf",
+              "format": "dnsmasq",
+              "domainMode": "suffix"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "rulesets": {
     "ads": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ads.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.yaml",
+              "format": "yaml"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
+              "format": "yaml"
+            },
+            {
+              "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
+              "format": "text",
+              "domainMode": "suffix"
+            },
+            {
+              "file": "Rules/sources/ad_add_domain.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "file": "Rules/sources/ad_del_domain.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -20,10 +192,33 @@
     },
     "proxy@direct": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy@direct.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "file": "Rules/sources/proxy@direct_domain.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/apple-cn.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/microsoft-cn.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "entries": [
+                "+.cn"
+              ]
+            }
+          ]
         }
       ],
       "add": [
@@ -37,10 +232,32 @@
     },
     "ai": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ai.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/ai.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-gemini.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-cn.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -54,10 +271,23 @@
     },
     "download": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/download.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/docker.list",
+              "format": "text"
+            },
+            {
+              "file": "Rules/sources/download_domain.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -71,10 +301,63 @@
     },
     "safe": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/safe.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "file": "Rules/sources/safe_domain.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-finance.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-finance@cn.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/paypal.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-cryptocurrency.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/stripe.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/reddit.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "entries": [
+                "+.cn"
+              ]
+            }
+          ]
         }
       ],
       "add": [
@@ -88,10 +371,31 @@
     },
     "google": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/google.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-play.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "ref": "google-cn-exclusions"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -105,10 +409,37 @@
     },
     "media": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/media.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.list",
+              "format": "text"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.list",
+              "format": "text"
+            },
+            {
+              "entries": [
+                "+.cn"
+              ]
+            }
+          ]
         }
       ],
       "add": [
@@ -122,10 +453,31 @@
     },
     "proxy-lite": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy-lite.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "ref": "proxy"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "ref": "ads"
+            },
+            {
+              "ref": "ai"
+            },
+            {
+              "ref": "google"
+            },
+            {
+              "ref": "media"
+            }
+          ]
         }
       ],
       "add": [
@@ -139,10 +491,28 @@
     },
     "direct-lite": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/direct-lite.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "ref": "direct"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "ref": "ads"
+            },
+            {
+              "ref": "proxy@direct"
+            },
+            {
+              "ref": "proxy"
+            }
+          ]
         }
       ],
       "add": [
@@ -156,10 +526,31 @@
     },
     "dnsmasq-china-lite": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/dnsmasq-china-lite.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "ref": "dnsmasq-china"
+            }
+          ]
+        },
+        {
+          "op": "prune-covered",
+          "sources": [
+            {
+              "ref": "ads"
+            },
+            {
+              "ref": "proxy@direct"
+            },
+            {
+              "ref": "proxy"
+            },
+            {
+              "ref": "direct"
+            }
+          ]
         }
       ],
       "add": [
@@ -173,10 +564,15 @@
     },
     "telegram_ip": {
       "behavior": "ipcidr",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/telegram.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://core.telegram.org/resources/cidr.txt",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -190,10 +586,15 @@
     },
     "safe_ip": {
       "behavior": "ipcidr",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/safe.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/twitter.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -207,10 +608,15 @@
     },
     "google_ip": {
       "behavior": "ipcidr",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/google.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://www.gstatic.com/ipranges/goog.txt",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -224,10 +630,15 @@
     },
     "media_ip": {
       "behavior": "ipcidr",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/media.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/netflix.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
@@ -241,10 +652,47 @@
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/direct.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/privateip.list",
+              "format": "text"
+            },
+            {
+              "url": "https://gaoyifan.github.io/china-operator-ip/china46.txt",
+              "format": "text"
+            },
+            {
+              "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
+              "format": "text"
+            },
+            {
+              "url": "https://ispip.clang.cn/all_cn_apnic.txt",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/metowolf/iplist/master/data/special/china.txt",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/zhufengme/block_cn_files/master/cn_ip_list.txt",
+              "format": "text"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
+              "format": "faas-ip"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
+              "format": "faas-ip"
+            },
+            {
+              "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
+              "format": "faas-ip"
+            }
+          ]
         }
       ],
       "add": [
@@ -258,10 +706,15 @@
     },
     "dlsite": {
       "behavior": "domain",
-      "sources": [
+      "steps": [
         {
-          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dlsite.list",
-          "format": "text"
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dlsite.list",
+              "format": "text"
+            }
+          ]
         }
       ],
       "add": [
