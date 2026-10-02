@@ -22,6 +22,36 @@ function test(name, check) { check(); count++; console.log('PASS ' + name); }
 async function main() {
   const input = fixture(), base = evaluate(code, input, {}, 'buildBaseConfig'), current = evaluate(code, input);
   test('Generated full script is current and standalone ES2020', () => { assert.equal(generate(), code); build({ check: true }); espree.parse(code, { ecmaVersion: 2020, sourceType: 'script' }); });
+  test('Bettbox options are editable static booleans with descriptions', () => {
+    const ast = espree.parse(code, { ecmaVersion: 2020, sourceType: 'script', range: true });
+    const declarations = ast.body.filter(node => node.type === 'VariableDeclaration').flatMap(node => node.declarations);
+    const marker = declarations.find(node => node.id.name === 'Compatible_With_Bettbox');
+    assert(code.slice(0, 2000).includes('Compatible_With_Bettbox'), 'Bettbox only scans the first 2000 characters');
+    assert.equal(marker.init.properties[0].key.name, 'ruleOptionsEnable');
+    assert.equal(marker.init.properties[0].value.value, true);
+    const options = declarations.find(node => node.id.name === 'ruleOptionsEnable');
+    assert.equal(options.init.type, 'ObjectExpression');
+    assert(options.range[0] < declarations.find(node => node.id.name === 'ruleProviderDefinitions').range[0]);
+    for (const entry of options.init.properties) {
+      assert.equal(entry.type, 'Property');
+      assert.equal(entry.computed, false);
+      assert.equal(entry.value.type, 'Literal');
+      assert.equal(typeof entry.value.value, 'boolean');
+      assert(code.slice(entry.range[1]).split('\n')[0].includes('//'), entry.key.name + ': missing switch description');
+    }
+    const context = vm.createContext({});
+    vm.runInContext(code + '\nmetadata = { options: ruleOptionsEnable, icons: Object.fromEntries(serviceConfigs.map(service => [service.name, service.icon])) };', context);
+    for (const key of Object.keys(context.metadata.options)) assert.match(context.metadata.icons[key], /^https:\/\//, key + ': missing Bettbox switch icon');
+    // The generated booleans also remain editable as ordinary script settings.
+    const edited = code.replace(/(EHentai:\s*)true(,\s*\/\/)/, '$1false$2');
+    assert.notEqual(edited, code);
+    const result = evaluate(edited, input);
+    assert(!result['proxy-groups'].some(group => group.name === 'EHentai'));
+    assert.equal(result['rule-providers'].ehentai, undefined);
+    assert(!Object.keys(result.dns['nameserver-policy']).some(key => key.includes('ehentai')));
+    // Bettbox stores custom-options separately and assigns them before main.
+    assert.deepEqual(evaluate(code, input, { EHentai: false }), result);
+  });
   test('Personal additions preserve generic group behavior and connection settings', () => {
     const behavior = group => Object.fromEntries(Object.entries(group).filter(([key]) => !['icon', 'hidden'].includes(key)));
     for (const name of ['直接连接', '代理QUIC', '最低延迟', '故障转移']) assert.deepEqual(behavior(current['proxy-groups'].find(g => g.name === name)), behavior(base['proxy-groups'].find(g => g.name === name)));

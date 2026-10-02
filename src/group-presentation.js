@@ -1,8 +1,7 @@
-// Group menus and icons follow the service order, then region and multiplier.
-function configureGroupPresentation(config, nodeGroups) {
+function personalGroupIcons() {
   const qure = name => 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/' + name + '.png';
   const lige = name => 'https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/' + name + '.png';
-  const icons = Object.assign(Object.create(null), {
+  return Object.assign(Object.create(null), {
     '代理连接': qure('Proxy'),
     '直接连接': qure('Direct'),
     '代理DNS': qure('Server'),
@@ -31,6 +30,20 @@ function configureGroupPresentation(config, nodeGroups) {
     '故障转移': qure('Available'),
     'GLOBAL': qure('Global'),
   });
+}
+
+// Bettbox reads this metadata when rendering the script's custom switches.
+const serviceConfigs = Object.entries(ruleOptionsEnable).map(([name]) => {
+  const aliases = { AI固定出口: '国外AI', 大流量下载直连: '下载更新', DNS跟随服务: '代理DNS' };
+  const icons = personalGroupIcons();
+  return { name, icon: icons[aliases[name] || name] };
+});
+
+// Group menus and icons follow the service order, then region and multiplier.
+function configureGroupPresentation(config, nodeGroups) {
+  const qure = name => 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/' + name + '.png';
+  const lige = name => 'https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/' + name + '.png';
+  const icons = personalGroupIcons();
   const regionIcons = Object.assign(Object.create(null), {
     '香港': qure('Hong_Kong'),
     '日本': qure('Japan'),

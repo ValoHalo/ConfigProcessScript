@@ -1,14 +1,4 @@
 // Apply personal service, grouping and DNS settings to the base configuration.
-const Compatible_With_Bettbox = { ruleOptionsEnable: true };
-const ruleOptionsEnable = {
-  ...Object.fromEntries(applicationGroups.filter(app => !app.existingGroup).map(app => [app.name, app.enabled])),
-  OneDrive: personalSettings.oneDrive,
-  DLsite: personalSettings.dlsite.enabled,
-  AI固定出口: personalSettings.ai.enabled,
-  大流量下载直连: personalSettings.downloads.enabled,
-  DNS跟随服务: true,
-};
-
 function personalClone(value) {
   return JSON.parse(JSON.stringify(value));
 }
