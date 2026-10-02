@@ -157,7 +157,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
     const ehentaiGroup = await call('/proxies/' + encodeURIComponent('EHentai'));
     check('EHentai retains the US default group', () => assert.equal(ehentaiGroup.now, '美国'));
-    for (const [group, name] of Object.entries({ YouTube: '日本', PikPak: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
+    for (const [group, name] of Object.entries({ YouTube: '日本', PikPak: '美国', Microsoft: '日本', Steam: '美国', GOOGLE: '日本', 海外媒体: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
@@ -173,7 +173,23 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
       ['youtube.com', true, 'YouTube keeps Fake-IP after application splitting'],
       ['exhentai.org', true, 'Restored EHentai keeps Fake-IP'],
-      ['apple.com', true, 'Apple keeps Fake-IP with its application selector enabled or disabled'],
+      ['apple.com', true, 'Apple root keeps proxy classification with its selector enabled or disabled'],
+      ['www.apple.com', optionalApps, 'Apple selector overrides general direct exceptions only when enabled'],
+      ['apps.apple.com', optionalApps, 'Apple apps follow the application switch'],
+      ['music.apple.com', optionalApps, 'Apple music follows the application switch'],
+      ['download.microsoft.com', true, 'Microsoft overrides general direct exceptions'],
+      ['developer.microsoft.com', true, 'Microsoft developer retains Fake-IP'],
+      ['steamcloudsweden.blob.core.windows.net', true, 'Steam uses Fake-IP before Microsoft Azure parent'],
+      ['steamugcquincy.blob.core.windows.net', true, 'Steam UGC uses Fake-IP before Microsoft Azure parent'],
+      ['drive.usercontent.google.com', true, 'Google Drive remains selectable'],
+      ['drive-data-export.usercontent.google.com', true, 'Google Drive export remains selectable'],
+      ['drive-data-export-eu.usercontent.google.com', true, 'Google Drive EU export remains selectable'],
+      ['youtubei.googleapis.com', true, 'YouTube API overrides Google parent'],
+      ['yt3.googleusercontent.com', true, 'YouTube images override Google parent'],
+      ['o4504926511693824.ingest.sentry.io', true, 'PikPak exact domain overrides the Sentry direct exception'],
+      ['copilot.microsoft.com', true, 'AI stays ahead of Microsoft'],
+      ['grok.x.com', true, 'AI stays ahead of Twitter'],
+      ['meta.ai', true, 'AI stays ahead of Meta'],
       ['facebook.com', true, 'Meta keeps Fake-IP with its application selector enabled or disabled'],
       ['line.me', true, 'Line keeps Fake-IP with its application selector enabled or disabled'],
       ['netflix.com', true, 'Netflix keeps Fake-IP under overseas media'],
@@ -219,7 +235,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     await realQuery('international-gfe.download.nvidia.com', 'HK 01', domestic);
     await realQuery('chatgpt.com', 'US 01', foreign);
     await realQuery('www.dlsite.com', 'JP 01', foreign);
-    await realQuery('child.learn.microsoft.com', 'HK 01', foreign);
+    await realQuery('child.learn.microsoft.com', 'JP 01', foreign);
     await realQuery('hanime1.me', 'US 01', foreign);
     await realQuery('iwara.tv', 'US 01', foreign);
     await realQuery('www.youtube.com', 'JP 01', foreign);
@@ -229,7 +245,16 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     await realQuery('apple.com', optionalApps ? 'JP 01' : 'HK 01', foreign);
     await realQuery('facebook.com', optionalApps ? 'US 01' : 'HK 01', foreign);
     await realQuery('line.me', optionalApps ? 'JP 01' : 'HK 01', foreign);
-    await realQuery('netflix.com', 'HK 01', foreign);
+    await realQuery('netflix.com', 'US 01', foreign);
+    await realQuery('nflxvideo.net', 'US 01', foreign);
+    await realQuery('nflxso.net', 'US 01', foreign);
+    for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, optionalApps ? 'JP 01' : 'DIRECT', optionalApps ? foreign : domestic);
+    for (const domain of ['download.microsoft.com', 'developer.microsoft.com']) await realQuery(domain, 'JP 01', foreign);
+    for (const domain of ['steamcloudsweden.blob.core.windows.net', 'steamugcquincy.blob.core.windows.net']) await realQuery(domain, 'US 01', foreign);
+    for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
+    for (const domain of ['youtubei.googleapis.com', 'yt3.googleusercontent.com']) await realQuery(domain, 'JP 01', foreign);
+    await realQuery('o4504926511693824.ingest.sentry.io', 'US 01', foreign);
+    for (const domain of ['copilot.microsoft.com', 'grok.x.com', 'meta.ai']) await realQuery(domain, 'US 01', foreign);
     await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
     await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
     fx.origin.closeConnections();

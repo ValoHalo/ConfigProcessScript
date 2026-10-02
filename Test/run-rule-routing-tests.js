@@ -12,17 +12,25 @@ const { loadScript } = require('./lib/loader');
 const { fixtures, freePort } = require('./lib/network-fixtures');
 const { cleanProxyEnvironment } = require('./lib/bettbox-core');
 
-async function runCase(binary, options, enabledApplications) {
+async function runCase(binary, options, mode) {
+  const enabledApplications = mode === 'optional';
   const directory = path.resolve('.test-runtime', 'rule-routing-' + crypto.randomUUID());
   fs.mkdirSync(directory, { recursive: true });
   const fx = await fixtures();
   let fixturesClosed = false;
   try {
   const allCases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/routing-cases.json'), 'utf8'));
-  const cases = enabledApplications ? allCases.filter(item => item.enabledPolicy).map(item => ({ ...item, expectedPolicy: item.enabledPolicy, expectedRule: item.enabledRule })) : allCases;
+  const cases = enabledApplications ? allCases.filter(item => item.enabledPolicy).map(item => ({ ...item, expectedPolicy: item.enabledPolicy, expectedRule: item.enabledRule })) : allCases.filter(item => mode === 'ip' ? item.ip : item.domain);
+  if (enabledApplications) cases.push(allCases.find(item => item.domain === 'unlisted-fcm-port-7f180e9f.com'));
   const api = loadScript('Script/mihomoScript.js');
   Object.assign(api.ruleOptionsEnable, options);
   const cfg = api.main(fx.subscription());
+  if (mode !== 'ip') {
+    // Exercise domain priority over the real FCM fallback without binding a
+    // system service port: every request uses this isolated fixture port.
+    assert(cfg.rules.includes('DST-PORT,5228-5230,FCM'));
+    cfg.rules = cfg.rules.map(rule => rule === 'DST-PORT,5228-5230,FCM' ? 'DST-PORT,' + fx.origin.port + ',FCM' : rule);
+  }
   const sources = JSON.parse(fs.readFileSync('config/rule-sources.json', 'utf8')).rulesets;
   fs.mkdirSync(path.join(directory, 'rules'), { recursive: true });
   // Load all generated sets, including optional services, into the real decoder.
@@ -95,15 +103,15 @@ async function runCase(binary, options, enabledApplications) {
         assert(connection, target + ': connection metadata missing');
         assert(connection.chains.includes(item.expectedPolicy), `${target}: expected ${item.expectedPolicy}, got ${connection.chains.join(' -> ')}`);
         const parts = item.expectedRule.split(',');
-        const expectedType = { 'RULE-SET': 'RuleSet', 'DOMAIN': 'Domain', 'DOMAIN-SUFFIX': 'DomainSuffix', 'SUB-RULE': 'SubRules' }[parts[0]];
-        const expectedPayload = parts[0] === 'SUB-RULE' ? item.expectedRule.slice(9, item.expectedRule.lastIndexOf(',')) : parts[1];
+        const expectedType = { 'RULE-SET': 'RuleSet', 'DOMAIN': 'Domain', 'DOMAIN-SUFFIX': 'DomainSuffix', 'SUB-RULE': 'SubRules', 'DST-PORT': 'DstPort' }[parts[0]];
+        const expectedPayload = parts[0] === 'SUB-RULE' ? item.expectedRule.slice(9, item.expectedRule.lastIndexOf(',')) : parts[0] === 'DST-PORT' ? String(fx.origin.port) : parts[1];
         assert.equal(connection.rule, expectedType, target + ': rule type');
         assert.equal(connection.rulePayload, expectedPayload, target + ': rule payload');
         results.push({ ...item, chains: connection.chains, rule: connection.rule, rulePayload: connection.rulePayload });
         console.log('PASS ' + target + ' -> ' + item.expectedPolicy);
       } finally { request?.destroy(); response?.destroy(); }
     }
-    if (process.platform === 'win32' && !enabledApplications) {
+    if (process.platform === 'win32' && mode === 'default') {
       const copiedNode = path.join(directory, 'OneDrive.exe');
       fs.copyFileSync(process.execPath, copiedNode);
       const clientCode = `const http=require('node:http'); const req=http.get({hostname:'127.0.0.1',port:${port},path:'http://chatgpt.com:${fx.origin.port}/hold',headers:{Host:'chatgpt.com:${fx.origin.port}'},agent:false},res=>{res.once('data',()=>process.stdout.write('ready'));res.resume()});req.on('error',()=>process.exit(1));req.setTimeout(4000,()=>process.exit(1));`;
@@ -124,13 +132,13 @@ async function runCase(binary, options, enabledApplications) {
         }
       } finally { fs.unlinkSync(copiedNode); }
     }
-    console.log(`Loaded ${Object.keys(sources).length} MRS sets; ${results.length} real-rule routes passed (${enabledApplications ? 'optional applications enabled' : 'defaults'}).`);
+    console.log(`Loaded ${Object.keys(sources).length} MRS sets; ${results.length} real-rule routes passed (${mode}).`);
     completed = true;
   } finally {
     if (child && child.exitCode === null && child.pid) { const exited = once(child, 'exit'); child.kill(); await exited; }
     await fx.close();
     fixturesClosed = true;
-    fs.writeFileSync(path.resolve('.test-runtime/rule-routing' + (enabledApplications ? '-optional' : '') + '-results.json'), JSON.stringify({ results, passed: completed }, null, 2));
+    fs.writeFileSync(path.resolve('.test-runtime/rule-routing-' + mode + '-results.json'), JSON.stringify({ results, passed: completed }, null, 2));
     fs.writeFileSync(path.join(directory, 'core.log'), logs);
     fs.unlinkSync(path.join(directory, 'config.yaml'));
   }
@@ -142,7 +150,8 @@ async function main() {
   const args = process.argv.slice(2);
   if (args.length !== 2 || args[0] !== '--mihomo') throw new Error('Usage: --mihomo <official Mihomo executable>');
   const binary = path.resolve(args[1]);
-  await runCase(binary, {}, false);
-  await runCase(binary, { Apple: true, Meta: true, Line: true }, true);
+  await runCase(binary, {}, 'default');
+  await runCase(binary, { Apple: true, Meta: true, Line: true }, 'optional');
+  await runCase(binary, {}, 'ip');
 }
 main().catch(error => { console.error(error.stack); process.exitCode = 1; });

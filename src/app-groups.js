@@ -20,10 +20,8 @@ function configureApplicationGroups(config, nodeGroups, template, options) {
     if (app.name === 'FCM') {
       const portIndex = config.rules.indexOf('DST-PORT,5228-5230,直接连接');
       if (portIndex >= 0) config.rules[portIndex] = 'DST-PORT,5228-5230,FCM';
-      const directIndex = config.rules.indexOf('RULE-SET,proxy@direct,直接连接');
-      if (directIndex < 0) throw new Error('Missing direct exception rule for FCM insertion');
-      config.rules.splice(directIndex, 0, domainRule);
-    } else appRules.push(domainRule);
+    }
+    appRules.push(domainRule);
     if (app.ip) {
       addProvider(app.ip);
       ipRules.push('SUB-RULE,(RULE-SET,' + app.ip + ',no-resolve),' + subRule);
@@ -34,8 +32,8 @@ function configureApplicationGroups(config, nodeGroups, template, options) {
       config.rules[index] = 'SUB-RULE,(RULE-SET,' + app.baseIp + '),' + subRule;
     }
   }
-  const appIndex = config.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download');
-  if (appIndex < 0) throw new Error('Missing aggregate download rule for application insertion');
+  const appIndex = config.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google');
+  if (appIndex < 0) throw new Error('Missing Google rule for application insertion');
   config.rules.splice(appIndex, 0, ...appRules);
   const ipIndex = config.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,safe_ip)'));
   if (ipIndex < 0) throw new Error('Missing aggregate IP rules for application insertion');
@@ -47,36 +45,27 @@ function configureApplicationGroups(config, nodeGroups, template, options) {
 
 // Resolve application domains through their selected exit, after personal and AI exceptions.
 function configureApplicationDns(config, enabled, followServices) {
-  if (!enabled.length) return;
   const dns = config.dns;
-  const fcm = enabled.filter(app => app.name === 'FCM');
-  const other = enabled.filter(app => app.name !== 'FCM');
   const filters = dns['fake-ip-filter'];
-  const fcmIndex = filters.indexOf('RULE-SET,proxy@direct,real-ip');
-  const appIndex = filters.indexOf('RULE-SET,download,fake-ip');
-  if (fcmIndex < 0 || appIndex < 0) throw new Error('Missing DNS classification for application insertion');
-  filters.splice(appIndex, 0, ...other.map(app => 'RULE-SET,' + app.domain + ',fake-ip'));
-  filters.splice(fcmIndex, 0, ...fcm.map(app => 'RULE-SET,' + app.domain + ',real-ip'));
+  const appIndex = filters.indexOf('RULE-SET,google,fake-ip');
+  if (appIndex < 0) throw new Error('Missing Google DNS classification for application insertion');
+  filters.splice(appIndex, 0, ...enabled.map(app => 'RULE-SET,' + app.domain + ',' + (app.name === 'FCM' ? 'real-ip' : 'fake-ip')));
   if (!followServices) return;
   const policies = {};
-  const insert = apps => {
-    for (const app of apps) {
-      const resolvers = app.name === 'FCM' ? dns['direct-nameserver'] : dns.nameserver;
-      policies['rule-set:' + app.domain] = resolvers.map(address => personalDnsThroughGroup(address, app.name));
-    }
-  };
+  const through = (resolvers, group) => resolvers.map(address => personalDnsThroughGroup(address, group));
   let appsInserted = false;
   for (const [key, value] of Object.entries(dns['nameserver-policy'])) {
-    if (key === 'rule-set:proxy@direct') insert(fcm);
-    if (key.startsWith('rule-set:') && key.slice(9).split(',').includes('download')) {
-      const names = key.slice(9).split(',');
-      if (names.includes('ai')) policies['rule-set:ai'] = value;
-      insert(other);
+    if (key === 'rule-set:google') {
+      for (const app of enabled) {
+        const resolvers = app.name === 'FCM' ? dns['direct-nameserver'] : dns.nameserver;
+        policies['rule-set:' + app.domain] = through(resolvers, app.name);
+      }
       appsInserted = true;
-      const remaining = names.filter(name => name !== 'ai');
-      if (remaining.length) policies['rule-set:' + remaining.join(',')] = value;
+      policies[key] = through(dns.nameserver, 'GOOGLE');
+    } else if (key === 'rule-set:media') {
+      policies[key] = through(dns.nameserver, '海外媒体');
     } else policies[key] = value;
   }
-  if (!appsInserted) throw new Error('Missing aggregate DNS policy for application insertion');
+  if (!appsInserted) throw new Error('Missing Google DNS policy for application insertion');
   dns['nameserver-policy'] = policies;
 }

@@ -209,5 +209,106 @@
     "ip": "23.246.0.1",
     "expectedPolicy": "海外媒体",
     "expectedRule": "SUB-RULE,(RULE-SET,media_ip),sub-media"
+  },
+  {
+    "domain": "www.apple.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "enabledPolicy": "Apple",
+    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+  },
+  {
+    "domain": "apps.apple.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "enabledPolicy": "Apple",
+    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+  },
+  {
+    "domain": "music.apple.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "enabledPolicy": "Apple",
+    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+  },
+  {
+    "domain": "download.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "developer.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "steamcloudsweden.blob.core.windows.net",
+    "expectedPolicy": "Steam",
+    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+  },
+  {
+    "domain": "steamugcquincy.blob.core.windows.net",
+    "expectedPolicy": "Steam",
+    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+  },
+  {
+    "domain": "drive.usercontent.google.com",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+  },
+  {
+    "domain": "drive-data-export.usercontent.google.com",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+  },
+  {
+    "domain": "drive-data-export-eu.usercontent.google.com",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+  },
+  {
+    "domain": "youtubei.googleapis.com",
+    "expectedPolicy": "YouTube",
+    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+  },
+  {
+    "domain": "yt3.googleusercontent.com",
+    "expectedPolicy": "YouTube",
+    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+  },
+  {
+    "domain": "o4504926511693824.ingest.sentry.io",
+    "expectedPolicy": "PikPak",
+    "expectedRule": "SUB-RULE,(RULE-SET,pikpak),sub-app-pikpak"
+  },
+  {
+    "domain": "nflxvideo.net",
+    "expectedPolicy": "海外媒体",
+    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+  },
+  {
+    "domain": "nflxso.net",
+    "expectedPolicy": "海外媒体",
+    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+  },
+  {
+    "domain": "copilot.microsoft.com",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "grok.x.com",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "meta.ai",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "unlisted-fcm-port-7f180e9f.com",
+    "expectedPolicy": "FCM",
+    "expectedRule": "DST-PORT,5228-5230,FCM"
   }
 ]

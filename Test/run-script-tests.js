@@ -68,13 +68,21 @@ async function main() {
     const fcm = current.rules.indexOf('SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm');
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < fcm);
     assert(fcm < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
-    assert(current.rules.includes('DST-PORT,5228-5230,FCM'));
+    const portFallback = current.rules.indexOf('DST-PORT,5228-5230,FCM');
+    assert(portFallback > current.rules.indexOf('RULE-SET,direct-lite,直接连接'));
+    assert(portFallback < current.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,telegram_ip,')));
     const guard = current.rules.indexOf('AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
-    for (const id of ['youtube', 'microsoft', 'steam', 'twitter', 'pikpak', 'ehentai']) {
+    for (const id of ['googlefcm', 'youtube', 'telegram', 'microsoft', 'steam', 'twitter', 'pikpak', 'ehentai']) {
       const index = current.rules.indexOf('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id);
       assert(index > guard, id + ': service routing must follow the AI UDP guard');
-      assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'), id + ': service routing must precede aggregate routing');
+      assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google'), id + ': service routing must precede Google parent domains');
+      assert(index < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'), id + ': service routing must precede general direct exceptions');
     }
+  });
+  test('Steam and Google outrank broader infrastructure and download categories', () => {
+    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,steam),sub-app-steam') < current.rules.indexOf('SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft'));
+    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
+    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google') < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'));
   });
   test('Apple, Meta and Line are opt-in while Netflix stays under overseas media', () => {
     const enabled = evaluate(code, input, { Apple: true, Meta: true, Line: true });

@@ -273,11 +273,27 @@ function configurationTests() {
       const filter = 'RULE-SET,' + app.domain + ',' + (app.name === 'FCM' ? 'real-ip' : 'fake-ip');
       assert(filters.includes(filter), app.name + ': missing fake-IP decision');
       assert(filters.indexOf('RULE-SET,personal-direct,real-ip') < filters.indexOf(filter), app.name + ': personal fake-IP priority');
-      if (app.name !== 'FCM') {
-        assert(keys.indexOf('rule-set:ai') < keys.indexOf(key), app.name + ': AI DNS priority');
-        assert(filters.indexOf('RULE-SET,ai,fake-ip') < filters.indexOf(filter), app.name + ': AI fake-IP priority');
-      }
+      assert(keys.indexOf('rule-set:ai') < keys.indexOf(key), app.name + ': AI DNS priority');
+      assert(filters.indexOf('RULE-SET,ai,fake-ip') < filters.indexOf(filter), app.name + ': AI fake-IP priority');
+      assert(keys.indexOf(key) < keys.indexOf('rule-set:proxy@direct'), app.name + ': direct exception DNS priority');
+      assert(filters.indexOf(filter) < filters.indexOf('RULE-SET,proxy@direct,real-ip'), app.name + ': direct exception Fake-IP priority');
     }
+  });
+  test('Google and overseas media DNS follow their selectors after more specific applications', () => {
+    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
+    const policies = cfg.dns['nameserver-policy'];
+    const keys = Object.keys(policies);
+    const filters = cfg.dns['fake-ip-filter'];
+    for (const [id, group] of [['google', 'GOOGLE'], ['media', '海外媒体']]) {
+      assert(policies['rule-set:' + id].every(address => address.includes('#' + group)));
+      assert(!keys.some(key => key !== 'rule-set:' + id && key.startsWith('rule-set:') && key.slice(9).split(',').includes(id)));
+    }
+    assert(keys.indexOf('rule-set:youtube') < keys.indexOf('rule-set:google'));
+    assert(keys.indexOf('rule-set:google') < keys.indexOf('rule-set:proxy@direct'));
+    assert(keys.indexOf('rule-set:steam') < keys.indexOf('rule-set:microsoft'));
+    assert(filters.indexOf('RULE-SET,youtube,fake-ip') < filters.indexOf('RULE-SET,google,fake-ip'));
+    assert(filters.indexOf('RULE-SET,google,fake-ip') < filters.indexOf('RULE-SET,proxy@direct,real-ip'));
+    assert(filters.indexOf('RULE-SET,steam,fake-ip') < filters.indexOf('RULE-SET,microsoft,fake-ip'));
   });
   test('Disabling service DNS keeps application routing and Fake-IP without binding application resolvers', () => {
     const names = ['HK 01', 'JP 01', 'US 01'];
