@@ -146,23 +146,29 @@
   },
   {
     "domain": "apple.com",
-    "expectedPolicy": "Apple",
-    "expectedRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "enabledPolicy": "Apple",
+    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
   },
   {
     "domain": "facebook.com",
-    "expectedPolicy": "Meta",
-    "expectedRule": "SUB-RULE,(RULE-SET,meta),sub-app-meta"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "enabledPolicy": "Meta",
+    "enabledRule": "SUB-RULE,(RULE-SET,meta),sub-app-meta"
   },
   {
     "domain": "line.me",
-    "expectedPolicy": "Line",
-    "expectedRule": "SUB-RULE,(RULE-SET,line),sub-app-line"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "enabledPolicy": "Line",
+    "enabledRule": "SUB-RULE,(RULE-SET,line),sub-app-line"
   },
   {
     "domain": "netflix.com",
-    "expectedPolicy": "Netflix",
-    "expectedRule": "SUB-RULE,(RULE-SET,netflix),sub-app-netflix"
+    "expectedPolicy": "海外媒体",
+    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
   },
   {
     "domain": "mypikpak.com",
@@ -198,5 +204,10 @@
     "domain": "iwara.tv",
     "expectedPolicy": "EHentai",
     "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+  },
+  {
+    "ip": "23.246.0.1",
+    "expectedPolicy": "海外媒体",
+    "expectedRule": "SUB-RULE,(RULE-SET,media_ip),sub-media"
   }
 ]

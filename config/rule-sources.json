@@ -879,22 +879,6 @@
       "minEntries": 1,
       "maxShrinkRatio": 0.35
     },
-    "netflix": {
-      "behavior": "domain",
-      "steps": [
-        {
-          "op": "add",
-          "sources": [
-            {
-              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
-              "format": "text"
-            }
-          ]
-        }
-      ],
-      "minEntries": 1,
-      "maxShrinkRatio": 0.35
-    },
     "pikpak": {
       "behavior": "domain",
       "steps": [

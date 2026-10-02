@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "configSha256": "f77a1fb34ed017acdd230b7b4d6120d53c6e65443c95eea78fb651ea95afd029",
+  "configSha256": "0e210ea0fda8b41b01512ab61e5b2c96c4d8e87efbbd09aadeac90c84f9cf63e",
   "components": {
     "google-cn-exclusions": {
       "behavior": "domain",
@@ -1634,40 +1634,6 @@
       "mrs": {
         "path": "domain/microsoft.mrs",
         "sha256": "21f076f04f26a167aa8ca0949b7f246f98553ef0515f549d75053f5d607ab71d"
-      }
-    },
-    "netflix": {
-      "behavior": "domain",
-      "count": 24,
-      "steps": [
-        {
-          "op": "add",
-          "sources": [
-            {
-              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
-              "format": "text"
-            }
-          ],
-          "count": 24
-        }
-      ],
-      "sources": [
-        {
-          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.list",
-          "format": "text",
-          "sha256": "980ec18a1c566850622523310feb9ed38cd562c82e697c3da7f756b816f337d8",
-          "count": 24
-        }
-      ],
-      "add": [],
-      "remove": [],
-      "output": {
-        "path": "domain/netflix.list",
-        "sha256": "994bd248e4fb016c92ddaf62cda7b851550d921f75ed0f9ac83d5cd80d8a188f"
-      },
-      "mrs": {
-        "path": "domain/netflix.mrs",
-        "sha256": "a6fea26ce2168e069fe865f269e86e5e031a51b5b3855fe297e1bc004a3170bd"
       }
     },
     "pikpak": {

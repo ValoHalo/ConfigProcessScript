@@ -17,7 +17,6 @@ function personalGroupIcons() {
     'Twitter': qure('Twitter'),
     'Meta': lige('04ProxySoft/meta'),
     'Line': qure('Line'),
-    'Netflix': qure('Netflix'),
     'PikPak': lige('03CNSoft/pikpak'),
     'EHentai': lige('04ProxySoft/exhentai'),
     'DLsite': 'https://www.dlsite.com/modpub/images/web/common/apple_touch_icon_152x152.png',
@@ -56,9 +55,9 @@ function configureGroupPresentation(config, nodeGroups) {
   });
   const order = [
     '代理连接', '直接连接', '代理DNS', '代理QUIC',
-    '国外AI', 'YouTube', 'GOOGLE', 'TELEGRAM', 'Microsoft', 'OneDrive',
-    'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak',
-    'EHentai', 'DLsite', 'FCM', '下载更新', '下载相关', '风控安全', '海外媒体',
+    '国外AI', 'YouTube', '海外媒体', 'GOOGLE', 'TELEGRAM', 'Microsoft', 'OneDrive',
+    'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak',
+    'EHentai', 'DLsite', 'FCM', '下载更新', '下载相关', '风控安全',
   ];
   if (typeof personalSettings !== 'undefined' && personalSettings.downloads?.name) {
     const customDownload = personalSettings.downloads.name;

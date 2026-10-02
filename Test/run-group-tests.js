@@ -206,7 +206,9 @@ function configurationTests() {
     const cfg = generate(['HK 0.5x', 'JP 01', 'US 2x', 'Canada 01']);
     const visible = groups(cfg).filter(group => !group.hidden).map(group => group.name);
     assert.deepEqual(visible.slice(0, 4), ['代理连接', '直接连接', '代理DNS', '代理QUIC']);
-    const applications = ['国外AI', 'OneDrive', 'DLsite', 'FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak', 'EHentai', 'TELEGRAM', '下载更新', '下载相关', '风控安全', 'GOOGLE', '海外媒体'];
+    const applications = ['国外AI', 'OneDrive', 'DLsite', 'FCM', 'YouTube', '海外媒体', 'Microsoft', 'Steam', 'Twitter', 'PikPak', 'EHentai', 'TELEGRAM', '下载更新', '下载相关', '风控安全', 'GOOGLE'];
+    assert.equal(visible[visible.indexOf('YouTube') + 1], '海外媒体');
+    for (const name of ['Apple', 'Meta', 'Line', 'Netflix']) assert(!visible.includes(name));
     const regions = ['香港', '日本', '美国', '其他节点'];
     const firstRegion = Math.min(...regions.map(name => visible.indexOf(name)));
     for (const name of applications) assert(visible.indexOf(name) >= 4 && visible.indexOf(name) < firstRegion, name + ': application must precede regions');
@@ -218,8 +220,8 @@ function configurationTests() {
     checkReferences(cfg);
   });
   test('Restored applications expose direct and regional choices with their intended defaults', () => {
-    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
-    for (const name of ['FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'Netflix', 'PikPak', 'EHentai']) {
+    const cfg = generate(['HK 01', 'JP 01', 'US 01'], { Apple: true, Meta: true, Line: true });
+    for (const name of ['FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak', 'EHentai']) {
       const group = byName(cfg, name);
       assert(group, name + ': missing application selector');
       assert.equal(group.type, 'select');
@@ -238,8 +240,11 @@ function configurationTests() {
   });
   test('Application switches remove optional rules, providers and DNS references', () => {
     const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
+    const allEnabled = Object.fromEntries(definitions.map(app => [app.name, true]));
+    const baseline = generate(['HK 01', 'JP 01', 'US 01'], allEnabled);
     for (const app of definitions.filter(app => !app.existingGroup)) {
-      const cfg = generate(['HK 01', 'JP 01', 'US 01'], { [app.name]: false });
+      assert(byName(baseline, app.name), app.name + ': enabled baseline is required');
+      const cfg = generate(['HK 01', 'JP 01', 'US 01'], { ...allEnabled, [app.name]: false });
       if (!app.existingGroup) assert(!byName(cfg, app.name), app.name + ': disabled group remains');
       assert.equal(cfg['rule-providers'][app.domain], undefined, app.name + ': disabled domain provider remains');
       assert(!cfg.rules.some(rule => rule.includes('RULE-SET,' + app.domain + ')') || rule.includes('sub-app-' + app.domain)), app.name + ': disabled rule remains');
@@ -252,10 +257,10 @@ function configurationTests() {
     const fcmOff = generate(['HK 01'], { FCM: false });
     assert(fcmOff.rules.includes('DST-PORT,5228-5230,直接连接'));
     assert(generate(['HK 01'], { Twitter: false }).rules.includes('SUB-RULE,(RULE-SET,safe_ip),sub-safe'));
-    assert(generate(['HK 01'], { Netflix: false }).rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
+    assert(generate(['HK 01']).rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
   });
   test('Application DNS follows the application while retaining personal and AI precedence', () => {
-    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
+    const cfg = generate(['HK 01', 'JP 01', 'US 01'], { Apple: true, Meta: true, Line: true });
     const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
     const policies = cfg.dns['nameserver-policy'];
     const keys = Object.keys(policies);
@@ -276,8 +281,8 @@ function configurationTests() {
   });
   test('Disabling service DNS keeps application routing and Fake-IP without binding application resolvers', () => {
     const names = ['HK 01', 'JP 01', 'US 01'];
-    const enabled = generate(names);
-    const disabled = generate(names, { DNS跟随服务: false });
+    const enabled = generate(names, { Apple: true, Meta: true, Line: true });
+    const disabled = generate(names, { Apple: true, Meta: true, Line: true, DNS跟随服务: false });
     const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
     assert.deepEqual(disabled.rules, enabled.rules, 'DNS switch must not change application routing');
     assert.deepEqual(disabled.dns['fake-ip-filter'], enabled.dns['fake-ip-filter'], 'DNS switch must preserve application Fake-IP classification');

@@ -16,10 +16,10 @@ const { cleanProxyEnvironment } = require('./lib/bettbox-core');
 const projectRoot = path.resolve(__dirname, '..');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-function buildConfig(subscription, mode) {
+function buildConfig(subscription, mode, options) {
   const source = fs.readFileSync(path.join(projectRoot, 'Script/mihomoScript.js'), 'utf8');
-  const context = vm.createContext({ subscription, mode });
-  vm.runInContext(source + '\npersonalSettings.dns.ecsMode = mode; output = main(subscription);', context, { timeout: 4000 });
+  const context = vm.createContext({ subscription, mode, options });
+  vm.runInContext(source + '\npersonalSettings.dns.ecsMode = mode; Object.assign(ruleOptionsEnable, options); output = main(subscription);', context, { timeout: 4000 });
   return JSON.parse(JSON.stringify(context.output));
 }
 
@@ -82,8 +82,9 @@ function controller(port, secret) {
   });
 }
 
-async function runCase(binary, mode, parentDirectory) {
-  const directory = path.join(parentDirectory, mode);
+async function runCase(binary, mode, parentDirectory, options = {}) {
+  const optionalApps = Boolean(options.Apple);
+  const directory = path.join(parentDirectory, mode + (optionalApps ? '-optional-apps' : ''));
   fs.mkdirSync(directory, { recursive: true });
   const nodeDomain = 'private-node.example.test';
   const fx = await fixtures({ dnsAddress: name => name === nodeDomain ? '127.0.0.1' : '203.0.113.7' });
@@ -95,7 +96,7 @@ async function runCase(binary, mode, parentDirectory) {
   let child, logs = '';
   const configPath = path.join(directory, 'config.yaml');
   try {
-    const config = buildConfig(subscription, mode);
+    const config = buildConfig(subscription, mode, options);
     const dnsPort = await freePort(), controlPort = await freePort(), secret = crypto.randomUUID();
     const call = controller(controlPort, secret);
     // Use every checked-in MRS file in the real decoder. Inline personal sets
@@ -156,7 +157,7 @@ async function runCase(binary, mode, parentDirectory) {
     check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
     const ehentaiGroup = await call('/proxies/' + encodeURIComponent('EHentai'));
     check('EHentai retains the US default group', () => assert.equal(ehentaiGroup.now, '美国'));
-    for (const [group, name] of Object.entries({ YouTube: '日本', PikPak: '美国' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
+    for (const [group, name] of Object.entries({ YouTube: '日本', PikPak: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
@@ -172,6 +173,10 @@ async function runCase(binary, mode, parentDirectory) {
       ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
       ['youtube.com', true, 'YouTube keeps Fake-IP after application splitting'],
       ['exhentai.org', true, 'Restored EHentai keeps Fake-IP'],
+      ['apple.com', true, 'Apple keeps Fake-IP with its application selector enabled or disabled'],
+      ['facebook.com', true, 'Meta keeps Fake-IP with its application selector enabled or disabled'],
+      ['line.me', true, 'Line keeps Fake-IP with its application selector enabled or disabled'],
+      ['netflix.com', true, 'Netflix keeps Fake-IP under overseas media'],
       [adDomain, true, 'Ads stay before the deliberately overlapping direct entry'],
     ];
     for (const [name, expectedFake, label] of fakeCases) {
@@ -221,6 +226,10 @@ async function runCase(binary, mode, parentDirectory) {
     await realQuery('mypikpak.com', 'US 01', foreign);
     await realQuery('mtalk.google.com', 'DIRECT', domestic);
     await realQuery('exhentai.org', 'US 01', foreign);
+    await realQuery('apple.com', optionalApps ? 'JP 01' : 'HK 01', foreign);
+    await realQuery('facebook.com', optionalApps ? 'US 01' : 'HK 01', foreign);
+    await realQuery('line.me', optionalApps ? 'JP 01' : 'HK 01', foreign);
+    await realQuery('netflix.com', 'HK 01', foreign);
     await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
     await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
     fx.origin.closeConnections();
@@ -251,7 +260,7 @@ async function runCase(binary, mode, parentDirectory) {
       assert(privateRecords.length, 'Private node must actually resolve before proxy connect');
       assert(privateRecords.every(record => record.route === 'DIRECT' && record.ecs.some(ecs => ecs.family === 1 && ecs.prefix === 24 && ecs.address === '192.0.2.0')));
     });
-    return { mode, passed: true, checks };
+    return { mode, options, passed: true, checks };
   } catch (error) {
     error.message += '\nDNS core log: ' + logs.slice(-3500);
     throw error;
@@ -272,11 +281,12 @@ async function main() {
   const results = [];
   try {
     for (const mode of ['resolver-default', 'upstream']) results.push(await runCase(binary, mode, directory));
+    results.push(await runCase(binary, 'resolver-default', directory, { Apple: true, Meta: true, Line: true }));
     const passed = results.every(result => result.passed);
     const checks = results.reduce((sum, result) => sum + result.checks.length, 0);
     console.log(JSON.stringify({ passed, checks, results }, null, 2));
   } finally {
-    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 2 && results.every(result => result.passed), results }, null, 2));
+    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 3 && results.every(result => result.passed), results }, null, 2));
   }
 }
 main().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

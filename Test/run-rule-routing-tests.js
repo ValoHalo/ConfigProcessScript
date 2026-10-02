@@ -12,17 +12,16 @@ const { loadScript } = require('./lib/loader');
 const { fixtures, freePort } = require('./lib/network-fixtures');
 const { cleanProxyEnvironment } = require('./lib/bettbox-core');
 
-async function main() {
-  const args = process.argv.slice(2);
-  if (args.length !== 2 || args[0] !== '--mihomo') throw new Error('Usage: --mihomo <official Mihomo executable>');
-  const binary = path.resolve(args[1]);
+async function runCase(binary, options, enabledApplications) {
   const directory = path.resolve('.test-runtime', 'rule-routing-' + crypto.randomUUID());
   fs.mkdirSync(directory, { recursive: true });
   const fx = await fixtures();
   let fixturesClosed = false;
   try {
-  const cases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/routing-cases.json'), 'utf8'));
+  const allCases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/routing-cases.json'), 'utf8'));
+  const cases = enabledApplications ? allCases.filter(item => item.enabledPolicy).map(item => ({ ...item, expectedPolicy: item.enabledPolicy, expectedRule: item.enabledRule })) : allCases;
   const api = loadScript('Script/mihomoScript.js');
+  Object.assign(api.ruleOptionsEnable, options);
   const cfg = api.main(fx.subscription());
   const sources = JSON.parse(fs.readFileSync('config/rule-sources.json', 'utf8')).rulesets;
   fs.mkdirSync(path.join(directory, 'rules'), { recursive: true });
@@ -35,7 +34,7 @@ async function main() {
   const port = await freePort(), controller = await freePort(), secret = crypto.randomUUID();
   Object.assign(cfg, { 'mixed-port': port, 'allow-lan': false, 'bind-address': '127.0.0.1', 'external-controller': '127.0.0.1:' + controller, secret, tun: { enable: false }, ntp: { enable: false }, 'external-ui': '', 'external-ui-url': '', ipv6: false });
   cfg.dns = { enable: true, ipv6: false, 'use-hosts': true, nameserver: ['127.0.0.1:' + fx.udpPort] };
-  for (const item of cases) cfg.hosts[item.domain] = '127.0.0.1';
+  for (const item of cases) if (item.domain) cfg.hosts[item.domain] = '127.0.0.1';
   for (const group of cfg['proxy-groups']) { group.interval = 0; group.lazy = true; }
   fs.writeFileSync(path.join(directory, 'config.yaml'), YAML.stringify(cfg));
   let child, logs = '';
@@ -78,10 +77,11 @@ async function main() {
     }
     assert(Object.keys(sources).every(id => providers[id]?.ruleCount > 0), 'All generated MRS sets must decode');
     for (const item of cases) {
+      const target = item.domain || item.ip;
       let request, response;
       try {
         await new Promise((resolve, reject) => {
-          request = http.get({ hostname: '127.0.0.1', port, path: `http://${item.domain}:${fx.origin.port}/hold`, headers: { Host: item.domain + ':' + fx.origin.port }, agent: false }, result => {
+          request = http.get({ hostname: '127.0.0.1', port, path: `http://${target}:${fx.origin.port}/hold`, headers: { Host: target + ':' + fx.origin.port }, agent: false }, result => {
             response = result;
             response.on('error', () => {});
             response.once('data', () => resolve());
@@ -91,19 +91,19 @@ async function main() {
           request.setTimeout(4000, () => request.destroy(new Error('Route request timed out')));
         });
         const active = await control('/connections');
-        const connection = active.connections.find(c => c.metadata.host === item.domain);
-        assert(connection, item.domain + ': connection metadata missing');
-        assert(connection.chains.includes(item.expectedPolicy), `${item.domain}: expected ${item.expectedPolicy}, got ${connection.chains.join(' -> ')}`);
+        const connection = active.connections.find(c => item.domain ? c.metadata.host === item.domain : c.metadata.destinationIP === item.ip);
+        assert(connection, target + ': connection metadata missing');
+        assert(connection.chains.includes(item.expectedPolicy), `${target}: expected ${item.expectedPolicy}, got ${connection.chains.join(' -> ')}`);
         const parts = item.expectedRule.split(',');
         const expectedType = { 'RULE-SET': 'RuleSet', 'DOMAIN': 'Domain', 'DOMAIN-SUFFIX': 'DomainSuffix', 'SUB-RULE': 'SubRules' }[parts[0]];
         const expectedPayload = parts[0] === 'SUB-RULE' ? item.expectedRule.slice(9, item.expectedRule.lastIndexOf(',')) : parts[1];
-        assert.equal(connection.rule, expectedType, item.domain + ': rule type');
-        assert.equal(connection.rulePayload, expectedPayload, item.domain + ': rule payload');
+        assert.equal(connection.rule, expectedType, target + ': rule type');
+        assert.equal(connection.rulePayload, expectedPayload, target + ': rule payload');
         results.push({ ...item, chains: connection.chains, rule: connection.rule, rulePayload: connection.rulePayload });
-        console.log('PASS ' + item.domain + ' -> ' + item.expectedPolicy);
+        console.log('PASS ' + target + ' -> ' + item.expectedPolicy);
       } finally { request?.destroy(); response?.destroy(); }
     }
-    if (process.platform === 'win32') {
+    if (process.platform === 'win32' && !enabledApplications) {
       const copiedNode = path.join(directory, 'OneDrive.exe');
       fs.copyFileSync(process.execPath, copiedNode);
       const clientCode = `const http=require('node:http'); const req=http.get({hostname:'127.0.0.1',port:${port},path:'http://chatgpt.com:${fx.origin.port}/hold',headers:{Host:'chatgpt.com:${fx.origin.port}'},agent:false},res=>{res.once('data',()=>process.stdout.write('ready'));res.resume()});req.on('error',()=>process.exit(1));req.setTimeout(4000,()=>process.exit(1));`;
@@ -124,18 +124,25 @@ async function main() {
         }
       } finally { fs.unlinkSync(copiedNode); }
     }
-    console.log(`Loaded ${Object.keys(sources).length} MRS sets; ${results.length} real-rule routes passed.`);
+    console.log(`Loaded ${Object.keys(sources).length} MRS sets; ${results.length} real-rule routes passed (${enabledApplications ? 'optional applications enabled' : 'defaults'}).`);
     completed = true;
   } finally {
     if (child && child.exitCode === null && child.pid) { const exited = once(child, 'exit'); child.kill(); await exited; }
     await fx.close();
     fixturesClosed = true;
-    fs.writeFileSync(path.resolve('.test-runtime/rule-routing-results.json'), JSON.stringify({ results, passed: completed }, null, 2));
+    fs.writeFileSync(path.resolve('.test-runtime/rule-routing' + (enabledApplications ? '-optional' : '') + '-results.json'), JSON.stringify({ results, passed: completed }, null, 2));
     fs.writeFileSync(path.join(directory, 'core.log'), logs);
     fs.unlinkSync(path.join(directory, 'config.yaml'));
   }
   } finally {
     if (!fixturesClosed) await fx.close();
   }
+}
+async function main() {
+  const args = process.argv.slice(2);
+  if (args.length !== 2 || args[0] !== '--mihomo') throw new Error('Usage: --mihomo <official Mihomo executable>');
+  const binary = path.resolve(args[1]);
+  await runCase(binary, {}, false);
+  await runCase(binary, { Apple: true, Meta: true, Line: true }, true);
 }
 main().catch(error => { console.error(error.stack); process.exitCode = 1; });

@@ -60,7 +60,7 @@ async function main() {
     assert.deepEqual(current['proxy-providers'], base['proxy-providers']);
   });
   test('Application routing preserves personal priorities and aggregate fallbacks', () => {
-    const replaced = new Set(['DST-PORT,5228-5230,直接连接', 'SUB-RULE,(RULE-SET,safe_ip),sub-safe', 'SUB-RULE,(RULE-SET,media_ip),sub-media']);
+    const replaced = new Set(['DST-PORT,5228-5230,直接连接', 'SUB-RULE,(RULE-SET,safe_ip),sub-safe']);
     assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules.filter(rule => !replaced.has(rule)));
     assert(current.rules.indexOf('RULE-SET,ads,REJECT') < current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive'));
     assert(current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive') < current.rules.indexOf('DOMAIN,api.onedrive.com,直接连接'));
@@ -70,10 +70,27 @@ async function main() {
     assert(fcm < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
     assert(current.rules.includes('DST-PORT,5228-5230,FCM'));
     const guard = current.rules.indexOf('AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
-    for (const id of ['youtube', 'microsoft', 'apple', 'steam', 'twitter', 'meta', 'line', 'netflix', 'pikpak', 'ehentai']) {
+    for (const id of ['youtube', 'microsoft', 'steam', 'twitter', 'pikpak', 'ehentai']) {
       const index = current.rules.indexOf('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id);
       assert(index > guard, id + ': service routing must follow the AI UDP guard');
       assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'), id + ': service routing must precede aggregate routing');
+    }
+  });
+  test('Apple, Meta and Line are opt-in while Netflix stays under overseas media', () => {
+    const enabled = evaluate(code, input, { Apple: true, Meta: true, Line: true });
+    for (const [name, id] of [['Apple', 'apple'], ['Meta', 'meta'], ['Line', 'line']]) {
+      assert(!current['proxy-groups'].some(group => group.name === name), name + ': disabled by default');
+      assert.equal(current['rule-providers'][id], undefined);
+      assert(enabled['proxy-groups'].some(group => group.name === name));
+      assert(enabled.rules.includes('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id));
+      assert(enabled.dns['nameserver-policy']['rule-set:' + id].every(address => address.includes('#' + name)));
+    }
+    for (const cfg of [current, enabled]) {
+      assert(!cfg['proxy-groups'].some(group => group.name === 'Netflix'));
+      assert.equal(cfg['rule-providers'].netflix, undefined);
+      assert(cfg.rules.includes('SUB-RULE,(RULE-SET,media),sub-media'));
+      assert(cfg.rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
+      assert(cfg['sub-rules']['sub-media'].includes('MATCH,海外媒体'));
     }
   });
   test('Microsoft rules remain exact and academic rules remain suffixes', () => {
@@ -161,7 +178,7 @@ async function main() {
   for (const file of ['src', 'config', 'Rules/personal']) fs.cpSync(path.join(root, file), path.join(dir, file), { recursive: true });
   test('Publication derives every provider from this repository manifest', () => {
     fs.writeFileSync(path.join(dir, 'config/project.json'), JSON.stringify({ repository: 'example/config', branch: 'main' }));
-    const published = evaluate(generate(dir), input);
+    const published = evaluate(generate(dir), input, { Apple: true, Meta: true, Line: true });
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'config/rule-sources.json'), 'utf8'));
     const httpProviders = Object.entries(published['rule-providers']).filter(([, provider]) => provider.type === 'http');
     assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).sort());

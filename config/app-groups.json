@@ -28,7 +28,7 @@
     "name": "Apple",
     "domain": "apple",
     "defaultGroup": "代理连接",
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "Steam",
@@ -48,20 +48,13 @@
     "domain": "meta",
     "ip": "facebook_ip",
     "defaultGroup": "代理连接",
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "Line",
     "domain": "line",
     "defaultGroup": "代理连接",
-    "enabled": true
-  },
-  {
-    "name": "Netflix",
-    "domain": "netflix",
-    "baseIp": "media_ip",
-    "defaultGroup": "代理连接",
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "PikPak",
