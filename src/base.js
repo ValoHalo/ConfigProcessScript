@@ -4,8 +4,8 @@
 function buildBaseConfig(config) {
   const subscriptionProxies = config.proxies || [];
   const optionalProviders = new Set(['dlsite', ...applicationGroups.flatMap(app => [app.domain, app.ip].filter(Boolean))]);
-  const directDns = ["https://dns.alidns.com/dns-query#直接连接", "https://doh.pub/dns-query#直接连接&h3=false"];
-  const proxyDns = ["https://dns.google/dns-query#代理DNS&ecs=8.8.8.8/24&ecs-override=true", "https://dns.quad9.net/dns-query#代理DNS&ecs=9.9.9.9/24&ecs-override=true"];
+  const directDns = publicDnsResolvers(personalSettings.dns.direct, '直接连接', personalSettings.dns.ecsMode);
+  const proxyDns = publicDnsResolvers(personalSettings.dns.proxy, '代理DNS', personalSettings.dns.ecsMode);
   const balAnchor = { "type": "load-balance", "strategy": "round-robin", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
   const fallAnchor = { "type": "fallback", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
   const dlAnchor = { "type": "select", "proxies": ["代理连接", "直接连接", "最低延迟", "故障转移", "香港|故障转移", "台湾|故障转移", "新加坡|故障转移", "日本|故障转移", "美国|故障转移", "德国|故障转移", "英国|故障转移", "荷兰|故障转移", "香港|轮询下载", "新加坡|轮询下载", "日本|轮询下载", "美国|轮询下载"], "include-all-providers": true, "empty-fallback": "REJECT" };
@@ -24,6 +24,7 @@ function buildBaseConfig(config) {
     "doh.pub": ["120.53.53.53", "1.12.12.12"],
     "dns.google": ["8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844"],
     "dns.quad9.net": ["9.9.9.9", "149.112.112.112", "2620:fe::fe", "2620:fe::9"],
+    "cloudflare-dns.com": ["1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"],
     "services.googleapis.cn": "services.googleapis.com",
     "google.cn": "google.com",
     "cn.bing.com": "global.bing.com"

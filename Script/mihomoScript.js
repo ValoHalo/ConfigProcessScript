@@ -353,8 +353,8 @@ const applicationGroups = [
 function buildBaseConfig(config) {
   const subscriptionProxies = config.proxies || [];
   const optionalProviders = new Set(['dlsite', ...applicationGroups.flatMap(app => [app.domain, app.ip].filter(Boolean))]);
-  const directDns = ["https://dns.alidns.com/dns-query#直接连接", "https://doh.pub/dns-query#直接连接&h3=false"];
-  const proxyDns = ["https://dns.google/dns-query#代理DNS&ecs=8.8.8.8/24&ecs-override=true", "https://dns.quad9.net/dns-query#代理DNS&ecs=9.9.9.9/24&ecs-override=true"];
+  const directDns = publicDnsResolvers(personalSettings.dns.direct, '直接连接', personalSettings.dns.ecsMode);
+  const proxyDns = publicDnsResolvers(personalSettings.dns.proxy, '代理DNS', personalSettings.dns.ecsMode);
   const balAnchor = { "type": "load-balance", "strategy": "round-robin", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
   const fallAnchor = { "type": "fallback", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
   const dlAnchor = { "type": "select", "proxies": ["代理连接", "直接连接", "最低延迟", "故障转移", "香港|故障转移", "台湾|故障转移", "新加坡|故障转移", "日本|故障转移", "美国|故障转移", "德国|故障转移", "英国|故障转移", "荷兰|故障转移", "香港|轮询下载", "新加坡|轮询下载", "日本|轮询下载", "美国|轮询下载"], "include-all-providers": true, "empty-fallback": "REJECT" };
@@ -373,6 +373,7 @@ function buildBaseConfig(config) {
     "doh.pub": ["120.53.53.53", "1.12.12.12"],
     "dns.google": ["8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844"],
     "dns.quad9.net": ["9.9.9.9", "149.112.112.112", "2620:fe::fe", "2620:fe::9"],
+    "cloudflare-dns.com": ["1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"],
     "services.googleapis.cn": "services.googleapis.com",
     "google.cn": "google.com",
     "cn.bing.com": "global.bing.com"
@@ -564,7 +565,19 @@ const personalSettings = {
   "preserveClientSettings": true,
   "dns": {
     "ecsMode": "resolver-default",
-    "directRules": true
+    "directRules": true,
+    "direct": [
+      "https://dns.alidns.com/dns-query",
+      "https://doh.pub/dns-query#h3=false"
+    ],
+    "proxy": [
+      "https://cloudflare-dns.com/dns-query",
+      "https://dns.google/dns-query",
+      "https://dns.quad9.net/dns-query"
+    ],
+    "general": [
+      "https://v.recipes/dns-cn#代理DNS"
+    ]
   }
 };
 
@@ -968,6 +981,35 @@ function configureGroupPresentation(config, nodeGroups) {
 
 // Keep DNS classification consistent with the personal traffic rules.
 // Run before importing subscription DNS, whose explicit ECS must be preserved.
+function publicDnsResolvers(addresses, group, ecsMode) {
+  const upstreamEcs = {
+    'https://dns.google/dns-query': '8.8.8.8/24',
+    'https://dns.quad9.net/dns-query': '9.9.9.9/24',
+  };
+  return addresses.map(address => {
+    let routed = personalDnsThroughGroup(address, group);
+    const subnet = upstreamEcs[address.split('#')[0]];
+    if (ecsMode === 'upstream' && subnet && !/[#&]ecs=/.test(routed)) routed += '&ecs=' + subnet + '&ecs-override=true';
+    return routed;
+  });
+}
+
+// General resolvers keep their explicitly configured route. Application and
+// node-specific DNS policies have already been built and remain independent.
+function configureGeneralDns(config, addresses) {
+  const extra = addresses.map(address => {
+    const selector = (address.split('#')[1] || '').split('&').find(part => part && !part.includes('='));
+    return personalDnsThroughGroup(address, !selector || selector === 'DIRECT' ? '直接连接' : selector);
+  });
+  config.dns.nameserver = [...new Set([...config.dns.nameserver, ...extra])];
+  for (const [key, resolvers] of Object.entries(config.dns['nameserver-policy'])) {
+    if (Array.isArray(resolvers) && resolvers.length && resolvers.every(address =>
+      typeof address === 'string' && address.split('#')[1]?.split('&')[0] === '代理DNS')) {
+      config.dns['nameserver-policy'][key] = [...new Set([...resolvers, ...extra])];
+    }
+  }
+}
+
 function withoutForcedEcs(address) {
   if (typeof address !== 'string' || !address.includes('#')) return address;
   const split = address.indexOf('#');
@@ -1565,6 +1607,7 @@ function main(subscription) {
   config = patchDnsExperience(config, personalLists, personalSettings.dns, ruleOptionsEnable.大流量下载直连, personalSettings.downloads.name);
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
   configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
+  configureGeneralDns(config, personalSettings.dns.general);
   configureGroupPresentation(config, nodeGroups);
   if (personalSettings.preserveClientSettings) {
     for (const key of ['port', 'socks-port', 'mixed-port', 'redir-port', 'tproxy-port', 'allow-lan', 'bind-address', 'tun', 'external-controller', 'external-controller-tls', 'external-controller-unix', 'external-controller-pipe', 'secret', 'external-ui', 'external-ui-url', 'external-doh-server']) delete config[key];

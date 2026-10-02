@@ -73,6 +73,7 @@ function main(subscription) {
   config = patchDnsExperience(config, personalLists, personalSettings.dns, ruleOptionsEnable.大流量下载直连, personalSettings.downloads.name);
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
   configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
+  configureGeneralDns(config, personalSettings.dns.general);
   configureGroupPresentation(config, nodeGroups);
   if (personalSettings.preserveClientSettings) {
     for (const key of ['port', 'socks-port', 'mixed-port', 'redir-port', 'tproxy-port', 'allow-lan', 'bind-address', 'tun', 'external-controller', 'external-controller-tls', 'external-controller-unix', 'external-controller-pipe', 'secret', 'external-ui', 'external-ui-url', 'external-doh-server']) delete config[key];

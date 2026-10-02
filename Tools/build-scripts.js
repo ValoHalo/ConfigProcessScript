@@ -48,6 +48,15 @@ function generate(projectRoot = root) {
     if (!app || typeof app.name !== 'string' || !app.name || /[,#&\r\n]/.test(app.name) || typeof app.enabled !== 'boolean' || typeof app.defaultGroup !== 'string' || !/^[a-z0-9_-]+$/.test(app.domain)) throw new Error('Invalid application group definition');
   }
   if (settings.dns?.ecsMode && !['resolver-default', 'upstream'].includes(settings.dns.ecsMode)) throw new Error('Invalid DNS ECS mode');
+  for (const key of ['direct', 'proxy', 'general']) {
+    const resolvers = settings.dns?.[key];
+    if (!Array.isArray(resolvers) || ((key === 'direct' || key === 'proxy') && !resolvers.length)) throw new Error('Invalid DNS resolver list: ' + key);
+    for (const resolver of resolvers) {
+      let parsed;
+      try { parsed = new URL(resolver); } catch { throw new Error('Invalid DNS resolver in ' + key); }
+      if (typeof resolver !== 'string' || parsed.protocol !== 'https:' || parsed.username || parsed.password || !parsed.hostname || /\s/.test(resolver)) throw new Error('Invalid DoH resolver in ' + key);
+    }
+  }
   if (!Array.isArray(settings.ai?.regions) || typeof settings.dlsite?.defaultGroup !== 'string') throw new Error('Invalid personal service settings');
   const data = {};
   for (const [name, types] of Object.entries({ 'microsoft-direct': ['DOMAIN'], 'academic-direct': ['DOMAIN-SUFFIX'], 'extra-direct': ['DOMAIN', 'DOMAIN-SUFFIX'], downloads: ['DOMAIN-SUFFIX'], onedrive: ['PROCESS-NAME'] })) data[name] = personalList(read('Rules/personal/' + name + '.list'), name, types);

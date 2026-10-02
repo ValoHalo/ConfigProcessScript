@@ -84,10 +84,17 @@ function controller(port, secret) {
 
 async function runCase(binary, mode, parentDirectory, options = {}) {
   const optionalApps = Boolean(options.Apple);
-  const directory = path.join(parentDirectory, mode + (optionalApps ? '-optional-apps' : ''));
+  const followsServices = options.DNS跟随服务 !== false;
+  const directory = path.join(parentDirectory, mode + (optionalApps ? '-optional-apps' : '') + (followsServices ? '' : '-general-dns'));
   fs.mkdirSync(directory, { recursive: true });
   const nodeDomain = 'private-node.example.test';
-  const fx = await fixtures({ dnsAddress: name => name === nodeDomain ? '127.0.0.1' : '203.0.113.7' });
+  // Only v.recipes can answer these names. This proves it really participates,
+  // regardless of which concurrent resolver would otherwise win the race.
+  const generalOnlyNames = ['ordinary.personal-dns-fixture.com', 'deb.debian.org', '114bank.co.jp'];
+  const fx = await fixtures({
+    dnsAddress: name => name === nodeDomain ? '127.0.0.1' : '203.0.113.7',
+    dnsStatus: ({ name, resolver }) => generalOnlyNames.includes(name) && resolver !== 'v.recipes' ? 503 : 200,
+  });
   const subscription = fx.subscription();
   subscription.proxies[0].server = nodeDomain;
   subscription.dns = { 'proxy-server-nameserver': [`http://127.0.0.1:${fx.origin.port}/dns-query/private#ecs=192.0.2.0/24&ecs-override=true`] };
@@ -211,7 +218,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     async function realQuery(name, expectedRoute, expectedResolver) {
       await call('/cache/dns/flush', 'POST');
       const start = fx.seen.length;
-      const response = await call('/dns/query?name=' + encodeURIComponent(name) + '&type=A');
+      const response = await call('/dns/query?name=' + encodeURIComponent(name) + '&type=A').catch(error => { error.message = name + ': ' + error.message; throw error; });
       await delay(30);
       const records = fx.seen.slice(start).filter(record => record.kind === 'dns' && record.name === name);
       assert(records.length, name + ' must reach a fixture resolver');
@@ -222,45 +229,69 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       return records;
     }
     const domestic = ['dns.alidns.com', 'doh.pub'];
-    const foreign = ['dns.google', 'dns.quad9.net'];
-    await realQuery('learn.microsoft.com', 'DIRECT', domestic);
-    await realQuery('www.nature.com', 'DIRECT', domestic);
-    await realQuery('cdn.steamcontent.com', 'DIRECT', domestic);
-    await call('/proxies/' + encodeURIComponent('下载更新'), 'PUT', { name: '代理连接' });
-    // Selecting a group does not terminate existing DoH keep-alive sessions.
-    // Close only local fixture sockets so this checks the next DNS connection.
+    const foreign = ['cloudflare-dns.com', 'dns.google', 'dns.quad9.net'];
+    const general = [...foreign, 'v.recipes'];
+    for (const name of generalOnlyNames) {
+      const records = await realQuery(name, 'HK 01', general);
+      check('v.recipes provides the usable general DNS answer: ' + name, () => assert(records.some(record => record.resolver === 'v.recipes' && record.route === 'HK 01')));
+    }
+    await call('/proxies/' + encodeURIComponent('代理DNS'), 'PUT', { name: '日本' });
     fx.origin.closeConnections();
     await delay(30);
-    await realQuery('cdn.steamcontent.com', 'HK 01', domestic);
-    await realQuery('international-gfe.download.nvidia.com', 'HK 01', domestic);
-    await realQuery('chatgpt.com', 'US 01', foreign);
-    await realQuery('www.dlsite.com', 'JP 01', foreign);
-    await realQuery('child.learn.microsoft.com', 'JP 01', foreign);
-    await realQuery('hanime1.me', 'US 01', foreign);
-    await realQuery('iwara.tv', 'US 01', foreign);
-    await realQuery('www.youtube.com', 'JP 01', foreign);
-    await realQuery('mypikpak.com', 'US 01', foreign);
-    await realQuery('mtalk.google.com', 'DIRECT', domestic);
-    await realQuery('exhentai.org', 'US 01', foreign);
-    await realQuery('apple.com', optionalApps ? 'JP 01' : 'HK 01', foreign);
-    await realQuery('facebook.com', optionalApps ? 'US 01' : 'HK 01', foreign);
-    await realQuery('line.me', optionalApps ? 'JP 01' : 'HK 01', foreign);
-    await realQuery('netflix.com', 'US 01', foreign);
-    await realQuery('nflxvideo.net', 'US 01', foreign);
-    await realQuery('nflxso.net', 'US 01', foreign);
-    for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, optionalApps ? 'JP 01' : 'DIRECT', optionalApps ? foreign : domestic);
-    for (const domain of ['download.microsoft.com', 'developer.microsoft.com']) await realQuery(domain, 'JP 01', foreign);
-    for (const domain of ['steamcloudsweden.blob.core.windows.net', 'steamugcquincy.blob.core.windows.net']) await realQuery(domain, 'US 01', foreign);
-    for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
-    for (const domain of ['youtubei.googleapis.com', 'yt3.googleusercontent.com']) await realQuery(domain, 'JP 01', foreign);
-    await realQuery('o4504926511693824.ingest.sentry.io', 'US 01', foreign);
-    for (const domain of ['copilot.microsoft.com', 'grok.x.com', 'meta.ai']) await realQuery(domain, 'US 01', foreign);
-    await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
-    await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
+    const changedRoute = await realQuery(generalOnlyNames[0], 'JP 01', general);
+    check('v.recipes follows the selected proxy DNS region', () => assert(changedRoute.some(record => record.resolver === 'v.recipes' && record.route === 'JP 01')));
+    await call('/proxies/' + encodeURIComponent('代理DNS'), 'PUT', { name: '代理连接' });
     fx.origin.closeConnections();
     await delay(30);
-    await realQuery('mtalk.google.com', 'HK 01', domestic);
-    await realQuery('exhentai.org', 'JP 01', foreign);
+    if (!followsServices) {
+      // With service following disabled, these names intentionally use the
+      // general resolver pool. v.recipes stays active without a separate switch.
+      await call('/proxies/' + encodeURIComponent('代理连接'), 'PUT', { name: 'US 01' });
+      fx.origin.closeConnections();
+      await delay(30);
+      await realQuery('chatgpt.com', 'US 01', general);
+      await realQuery('www.dlsite.com', 'US 01', general);
+      await realQuery('www.youtube.com', 'US 01', general);
+    } else {
+      await realQuery('learn.microsoft.com', 'DIRECT', domestic);
+      await realQuery('www.nature.com', 'DIRECT', domestic);
+      await realQuery('cdn.steamcontent.com', 'DIRECT', domestic);
+      await call('/proxies/' + encodeURIComponent('下载更新'), 'PUT', { name: '代理连接' });
+      // Selecting a group does not terminate existing DoH keep-alive sessions.
+      // Close only local fixture sockets so this checks the next DNS connection.
+      fx.origin.closeConnections();
+      await delay(30);
+      await realQuery('cdn.steamcontent.com', 'HK 01', domestic);
+      await realQuery('international-gfe.download.nvidia.com', 'HK 01', domestic);
+      await realQuery('chatgpt.com', 'US 01', foreign);
+      await realQuery('www.dlsite.com', 'JP 01', foreign);
+      await realQuery('child.learn.microsoft.com', 'JP 01', foreign);
+      await realQuery('hanime1.me', 'US 01', foreign);
+      await realQuery('iwara.tv', 'US 01', foreign);
+      await realQuery('www.youtube.com', 'JP 01', foreign);
+      await realQuery('mypikpak.com', 'US 01', foreign);
+      await realQuery('mtalk.google.com', 'DIRECT', domestic);
+      await realQuery('exhentai.org', 'US 01', foreign);
+      await realQuery('apple.com', optionalApps ? 'JP 01' : 'HK 01', optionalApps ? foreign : general);
+      await realQuery('facebook.com', optionalApps ? 'US 01' : 'HK 01', optionalApps ? foreign : general);
+      await realQuery('line.me', optionalApps ? 'JP 01' : 'HK 01', optionalApps ? foreign : general);
+      await realQuery('netflix.com', 'US 01', foreign);
+      await realQuery('nflxvideo.net', 'US 01', foreign);
+      await realQuery('nflxso.net', 'US 01', foreign);
+      for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, optionalApps ? 'JP 01' : 'DIRECT', optionalApps ? foreign : domestic);
+      for (const domain of ['download.microsoft.com', 'developer.microsoft.com']) await realQuery(domain, 'JP 01', foreign);
+      for (const domain of ['steamcloudsweden.blob.core.windows.net', 'steamugcquincy.blob.core.windows.net']) await realQuery(domain, 'US 01', foreign);
+      for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
+      for (const domain of ['youtubei.googleapis.com', 'yt3.googleusercontent.com']) await realQuery(domain, 'JP 01', foreign);
+      await realQuery('o4504926511693824.ingest.sentry.io', 'US 01', foreign);
+      for (const domain of ['copilot.microsoft.com', 'grok.x.com', 'meta.ai']) await realQuery(domain, 'US 01', foreign);
+      await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
+      await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
+      fx.origin.closeConnections();
+      await delay(30);
+      await realQuery('mtalk.google.com', 'HK 01', domestic);
+      await realQuery('exhentai.org', 'JP 01', foreign);
+    }
 
     const beforeAd = fx.seen.length;
     const adAnswer = await call('/dns/query?name=' + encodeURIComponent(adDomain) + '&type=A');
@@ -268,7 +299,10 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       assert.equal(adAnswer.Status, 3);
       assert(!fx.seen.slice(beforeAd).some(record => record.kind === 'dns' && record.name === adDomain));
     });
-    const publicRecords = fx.seen.filter(record => record.kind === 'dns' && [...domestic, ...foreign].includes(record.resolver));
+    const publicRecords = fx.seen.filter(record => record.kind === 'dns' && [...domestic, ...general].includes(record.resolver));
+    check('All selected public resolvers receive actual DNS wire queries', () => {
+      for (const resolver of [...domestic, ...general]) assert(publicRecords.some(record => record.resolver === resolver), resolver);
+    });
     if (mode === 'resolver-default') {
       check('Default public DNS sends no forced ECS on the wire', () => assert(publicRecords.length && publicRecords.every(record => record.ecs.length === 0)));
     } else {
@@ -279,11 +313,16 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
           assert(records.every(record => record.ecs.some(ecs => ecs.family === 1 && ecs.prefix === 24 && ecs.address === subnet)), JSON.stringify(records));
         });
       }
+      check('Cloudflare and v.recipes do not inherit unrelated public ECS', () => {
+        const records = publicRecords.filter(record => ['cloudflare-dns.com', 'v.recipes'].includes(record.resolver));
+        assert(records.length && records.every(record => record.ecs.length === 0));
+      });
     }
     const privateRecords = fx.seen.filter(record => record.kind === 'dns' && record.name === nodeDomain && record.resolver === 'private');
     check('Private node DNS stays direct and preserves its own ECS on the wire', () => {
       assert(privateRecords.length, 'Private node must actually resolve before proxy connect');
       assert(privateRecords.every(record => record.route === 'DIRECT' && record.ecs.some(ecs => ecs.family === 1 && ecs.prefix === 24 && ecs.address === '192.0.2.0')));
+      assert(!fx.seen.some(record => record.kind === 'dns' && record.name === nodeDomain && general.includes(record.resolver)), 'General resolvers must not receive private node DNS');
     });
     return { mode, options, passed: true, checks };
   } catch (error) {
@@ -307,11 +346,12 @@ async function main() {
   try {
     for (const mode of ['resolver-default', 'upstream']) results.push(await runCase(binary, mode, directory));
     results.push(await runCase(binary, 'resolver-default', directory, { Apple: true, Meta: true, Line: true }));
+    results.push(await runCase(binary, 'resolver-default', directory, { DNS跟随服务: false }));
     const passed = results.every(result => result.passed);
     const checks = results.reduce((sum, result) => sum + result.checks.length, 0);
     console.log(JSON.stringify({ passed, checks, results }, null, 2));
   } finally {
-    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 3 && results.every(result => result.passed), results }, null, 2));
+    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 4 && results.every(result => result.passed), results }, null, 2));
   }
 }
 main().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

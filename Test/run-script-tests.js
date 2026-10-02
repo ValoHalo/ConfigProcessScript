@@ -143,9 +143,11 @@ async function main() {
     assert(normal.proxies.includes('日本') && normal.proxies.includes('美国'));
     assert(!normal.proxies.includes('REJECT'));
   });
-  test('DNS preserves base resolvers without forcing an unrelated ECS subnet', () => {
+  test('DNS includes personal resolver choices without forcing an unrelated ECS subnet', () => {
     for (const key of ['default-nameserver', 'direct-nameserver', 'prefer-h3', 'enhanced-mode', 'fake-ip-filter-mode']) assert.deepEqual(current.dns[key], base.dns[key]);
-    assert.deepEqual(current.dns.nameserver, base.dns.nameserver.map(address => address.replace(/&ecs=[^&]+/g, '').replace(/&ecs-override=[^&]+/g, '')));
+    assert.deepEqual(current.dns.nameserver, [...base.dns.nameserver, 'https://v.recipes/dns-cn#代理DNS']);
+    assert(base.dns.nameserver.some(address => address.startsWith('https://cloudflare-dns.com/dns-query#代理DNS')));
+    assert.deepEqual(current.hosts['cloudflare-dns.com'], ['1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001']);
     assert(current.dns['nameserver-policy']['rule-set:ai'].every(s => s.includes('#国外AI')));
     assert(current.dns['nameserver-policy']['rule-set:dlsite'].every(s => s.includes('#DLsite')));
     assert(!Object.keys(current.dns['nameserver-policy']).some(k => k.includes('ai,') || k.includes(',ai')));
@@ -154,6 +156,22 @@ async function main() {
     const policyKeys = Object.keys(current.dns['nameserver-policy']);
     assert(policyKeys.indexOf('rule-set:personal-direct') < policyKeys.indexOf('rule-set:dlsite'));
     assert(policyKeys.indexOf('rule-set:dlsite') < policyKeys.findIndex(k => k.includes('proxy-lite')));
+  });
+  test('The selected general resolver is always active and service DNS remains isolated', () => {
+    const general = 'https://v.recipes/dns-cn#代理DNS';
+    for (const output of [current, evaluate(code, input, { DNS跟随服务: false })]) {
+      assert(output.dns.nameserver.includes(general));
+      for (const [key, addresses] of Object.entries(output.dns['nameserver-policy'])) {
+        if (addresses.some(address => address.includes('#代理DNS'))) assert(addresses.includes(general), key);
+      }
+      assert(!output.dns['proxy-server-nameserver'].some(address => address.includes('v.recipes')));
+    }
+    for (const id of ['ai', 'dlsite', 'youtube', 'ehentai']) {
+      assert(!current.dns['nameserver-policy']['rule-set:' + id].includes(general), id);
+    }
+    const context = vm.createContext({});
+    vm.runInContext(code + '\noptions = ruleOptionsEnable;', context);
+    assert(!Object.keys(context.options).some(name => /兼容|recipes/i.test(name)));
   });
   test('Personal DNS uses the same exact and suffix rules and keeps download precedence', () => {
     const direct = current['rule-providers']['personal-direct'].payload;
@@ -171,7 +189,9 @@ async function main() {
     custom.dns = { 'proxy-server-nameserver': ['https://private.example.net/dns-query#DIRECT&ecs=192.0.2.0/24&ecs-override=true'] };
     assert(evaluate(code, custom).dns['proxy-server-nameserver'][0].includes('ecs=192.0.2.0/24&ecs-override=true'));
     const legacy = evaluate(code.replace('"ecsMode": "resolver-default"', '"ecsMode": "upstream"'), input);
-    assert.deepEqual(legacy.dns.nameserver, base.dns.nameserver);
+    assert.deepEqual(legacy.dns.nameserver.map(address => address.replace(/&ecs=[^&]+/g, '').replace(/&ecs-override=[^&]+/g, '')), current.dns.nameserver);
+    assert(legacy.dns.nameserver.filter(address => /dns\.google|dns\.quad9\.net/.test(address)).every(address => address.includes('&ecs=')));
+    assert(legacy.dns.nameserver.filter(address => /cloudflare-dns\.com|v\.recipes/.test(address)).every(address => !address.includes('ecs=')));
   });
   test('Client controls listener, controller and TUN settings', () => {
     for (const key of ['tun', 'allow-lan', 'mixed-port', 'external-controller', 'secret']) assert.equal(current[key], undefined);

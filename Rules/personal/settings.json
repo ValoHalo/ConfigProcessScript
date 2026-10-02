@@ -22,6 +22,18 @@
   "preserveClientSettings": true,
   "dns": {
     "ecsMode": "resolver-default",
-    "directRules": true
+    "directRules": true,
+    "direct": [
+      "https://dns.alidns.com/dns-query",
+      "https://doh.pub/dns-query#h3=false"
+    ],
+    "proxy": [
+      "https://cloudflare-dns.com/dns-query",
+      "https://dns.google/dns-query",
+      "https://dns.quad9.net/dns-query"
+    ],
+    "general": [
+      "https://v.recipes/dns-cn#代理DNS"
+    ]
   }
 }

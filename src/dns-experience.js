@@ -1,5 +1,34 @@
 // Keep DNS classification consistent with the personal traffic rules.
 // Run before importing subscription DNS, whose explicit ECS must be preserved.
+function publicDnsResolvers(addresses, group, ecsMode) {
+  const upstreamEcs = {
+    'https://dns.google/dns-query': '8.8.8.8/24',
+    'https://dns.quad9.net/dns-query': '9.9.9.9/24',
+  };
+  return addresses.map(address => {
+    let routed = personalDnsThroughGroup(address, group);
+    const subnet = upstreamEcs[address.split('#')[0]];
+    if (ecsMode === 'upstream' && subnet && !/[#&]ecs=/.test(routed)) routed += '&ecs=' + subnet + '&ecs-override=true';
+    return routed;
+  });
+}
+
+// General resolvers keep their explicitly configured route. Application and
+// node-specific DNS policies have already been built and remain independent.
+function configureGeneralDns(config, addresses) {
+  const extra = addresses.map(address => {
+    const selector = (address.split('#')[1] || '').split('&').find(part => part && !part.includes('='));
+    return personalDnsThroughGroup(address, !selector || selector === 'DIRECT' ? '直接连接' : selector);
+  });
+  config.dns.nameserver = [...new Set([...config.dns.nameserver, ...extra])];
+  for (const [key, resolvers] of Object.entries(config.dns['nameserver-policy'])) {
+    if (Array.isArray(resolvers) && resolvers.length && resolvers.every(address =>
+      typeof address === 'string' && address.split('#')[1]?.split('&')[0] === '代理DNS')) {
+      config.dns['nameserver-policy'][key] = [...new Set([...resolvers, ...extra])];
+    }
+  }
+}
+
 function withoutForcedEcs(address) {
   if (typeof address !== 'string' || !address.includes('#')) return address;
   const split = address.indexOf('#');

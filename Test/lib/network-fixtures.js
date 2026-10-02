@@ -129,7 +129,10 @@ async function fixtures(options = {}) {
             : Buffer.concat(chunks);
         const name = dnsQuestion(query);
         const endpoint = new URL(req.url, 'http://localhost');
-        seen.push({ kind: 'dns', route, name, resolver: endpoint.searchParams.get('resolver') || decodeURIComponent(endpoint.pathname.split('/')[2] || ''), ecs: dnsClientSubnets(query) });
+        const resolver = endpoint.searchParams.get('resolver') || decodeURIComponent(endpoint.pathname.split('/')[2] || '');
+        seen.push({ kind: 'dns', route, name, resolver, ecs: dnsClientSubnets(query) });
+        const status = options.dnsStatus?.({ name, resolver, route }) || 200;
+        if (status !== 200) { res.writeHead(status); res.end(); return; }
         res.writeHead(200, { 'Content-Type': 'application/dns-message' });
         const address = typeof options.dnsAddress === 'function' ? options.dnsAddress(name) : options.dnsAddress;
         res.end(dnsAnswer(query, address || '203.0.113.7'));
