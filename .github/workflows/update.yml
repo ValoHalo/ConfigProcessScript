@@ -1,0 +1,68 @@
+name: Update upstream and rules
+on:
+  schedule:
+    - cron: '15 19 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Rules/personal/**'
+      - 'Rules/overrides/**'
+      - 'config/**'
+      - 'vendor/**'
+      - 'Tools/**'
+      - '.github/workflows/update.yml'
+permissions:
+  contents: write
+concurrency:
+  group: update-rules
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/rule-sources
+            .test-runtime/tools
+          key: rules-${{ runner.os }}-${{ hashFiles('config/mihomo-tool.json', 'config/rule-sources.json') }}-${{ github.run_id }}
+          restore-keys: rules-${{ runner.os }}-${{ hashFiles('config/mihomo-tool.json', 'config/rule-sources.json') }}-
+      - name: Fetch pinned compiler
+        run: python3 Tools/fetch-mihomo.py --output .test-runtime/tools/mihomo
+      - name: Refresh Echsfxy snapshot
+        run: python3 Tools/update-upstream.py
+      - name: Set this repository as publication source
+        env:
+          REPOSITORY: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: node Tools/configure-repository.js "$REPOSITORY" "$DEFAULT_BRANCH"
+      - name: Build rules and full script
+        run: |
+          npm run rules:update -- --mihomo .test-runtime/tools/mihomo
+          npm run build
+      - name: Validate before publishing
+        run: |
+          npm run check
+          npm run rules:update -- --check
+          npm run test:routing -- --mihomo .test-runtime/tools/mihomo
+          npm run test:ai-udp -- --mihomo .test-runtime/tools/mihomo
+          npm run test:dns-behavior -- --mihomo .test-runtime/tools/mihomo
+      - name: Publish only verified outputs
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add vendor/echsfxy/mihomo.js config/upstream.json config/project.json Rules/generated Script/mihomoScript.js
+          if git diff --cached --quiet; then
+            echo 'No upstream or rule changes.'
+          else
+            git commit -m 'chore: update upstream and generated rules'
+            git push
+          fi

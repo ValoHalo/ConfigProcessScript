@@ -1,0 +1,66 @@
+{
+  "ads": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/ads.mrs"
+  },
+  "proxy@direct": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/proxy@direct.mrs"
+  },
+  "ai": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/ai.mrs"
+  },
+  "download": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/download.mrs"
+  },
+  "safe": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/safe.mrs"
+  },
+  "google": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/google.mrs"
+  },
+  "media": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/media.mrs"
+  },
+  "proxy-lite": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/proxy-lite.mrs"
+  },
+  "direct-lite": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/direct-lite.mrs"
+  },
+  "dnsmasq-china-lite": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/domain/dnsmasq-china-lite.mrs"
+  },
+  "telegram_ip": {
+    "behavior": "ipcidr",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/ip/telegram.mrs"
+  },
+  "safe_ip": {
+    "behavior": "ipcidr",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/ip/safe.mrs"
+  },
+  "google_ip": {
+    "behavior": "ipcidr",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/ip/google.mrs"
+  },
+  "media_ip": {
+    "behavior": "ipcidr",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/ip/media.mrs"
+  },
+  "direct_ip": {
+    "behavior": "ipcidr",
+    "originalUrl": "https://raw.githubusercontent.com/echs-top/proxy/main/mrs/ip/direct.mrs"
+  },
+  "dlsite": {
+    "behavior": "domain",
+    "originalUrl": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dlsite.mrs"
+  }
+}

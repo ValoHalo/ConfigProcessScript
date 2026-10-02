@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "rulesets": {
+    "ads": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ads.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/ads.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/ads.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "proxy@direct": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy@direct.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/proxy@direct.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/proxy@direct.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "ai": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ai.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/ai.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/ai.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "download": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/download.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/download.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/download.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "safe": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/safe.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/safe.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/safe.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "google": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/google.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/google.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/google.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "media": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/media.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/media.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/media.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "proxy-lite": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy-lite.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/proxy-lite.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/proxy-lite.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "direct-lite": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/direct-lite.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/direct-lite.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/direct-lite.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "dnsmasq-china-lite": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/dnsmasq-china-lite.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/dnsmasq-china-lite.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/dnsmasq-china-lite.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "telegram_ip": {
+      "behavior": "ipcidr",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/telegram.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/telegram_ip.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/telegram_ip.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "safe_ip": {
+      "behavior": "ipcidr",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/safe.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/safe_ip.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/safe_ip.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "google_ip": {
+      "behavior": "ipcidr",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/google.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/google_ip.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/google_ip.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "media_ip": {
+      "behavior": "ipcidr",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/media.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/media_ip.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/media_ip.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "direct_ip": {
+      "behavior": "ipcidr",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/direct.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/direct_ip.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/direct_ip.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
+    "dlsite": {
+      "behavior": "domain",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dlsite.list",
+          "format": "text"
+        }
+      ],
+      "add": [
+        "Rules/overrides/dlsite.add.list"
+      ],
+      "remove": [
+        "Rules/overrides/dlsite.remove.list"
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    }
+  }
+}

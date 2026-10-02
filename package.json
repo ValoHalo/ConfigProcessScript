@@ -1,0 +1,27 @@
+{
+  "name": "config-process-script",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "node Tools/build-scripts.js",
+    "check:generated": "node Tools/build-scripts.js --check",
+    "process-config": "node Tools/process-config.js",
+    "test": "node Test/run-script-tests.js",
+    "test:dns": "node Test/run-personal-dns-tests.js",
+    "test:rules": "node Test/run-rule-maintenance-tests.js",
+    "test:probe": "node Test/run-probe-tests.js",
+    "test:routing": "node Test/run-rule-routing-tests.js",
+    "rules:update": "node Tools/update-rules.js",
+    "check": "npm run check:generated && npm test && npm run test:dns && npm run test:rules && npm run test:probe",
+    "test:ai-udp": "node Test/run-ai-udp-tests.js",
+    "test:live": "node Test/run-live-checks.js",
+    "test:dns-behavior": "node Test/run-dns-behavior-tests.js"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  },
+  "workspaces": [
+    "Test"
+  ]
+}

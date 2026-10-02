@@ -1,0 +1,13 @@
+{
+  "name": "config-process-script-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "完整版覆写脚本的生成、兼容性和运行行为测试",
+  "scripts": {
+    "test": "node run-script-tests.js"
+  },
+  "devDependencies": {
+    "espree": "^9.6.1",
+    "quickjs-emscripten": "^0.32.0"
+  }
+}

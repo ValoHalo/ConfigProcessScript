@@ -1,0 +1,27 @@
+{
+  "ai": {
+    "enabled": true,
+    "regions": [
+      "美国",
+      "日本"
+    ]
+  },
+  "dlsite": {
+    "enabled": true,
+    "defaultGroup": "日本|故障转移"
+  },
+  "downloads": {
+    "enabled": true,
+    "name": "下载更新"
+  },
+  "oneDrive": true,
+  "dnsFollowServices": {
+    "ai": true,
+    "dlsite": true
+  },
+  "preserveClientSettings": true,
+  "dns": {
+    "ecsMode": "resolver-default",
+    "directRules": true
+  }
+}

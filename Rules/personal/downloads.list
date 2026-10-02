@@ -1,0 +1,11 @@
+# 仅下载域名；账号、商店及更新调度继续使用其他分流。
+DOMAIN-SUFFIX,steamcontent.com
+DOMAIN-SUFFIX,download.epicgames.com
+DOMAIN-SUFFIX,download2.epicgames.com
+DOMAIN-SUFFIX,download3.epicgames.com
+DOMAIN-SUFFIX,download4.epicgames.com
+DOMAIN-SUFFIX,fastly-download.epicgames.com
+DOMAIN-SUFFIX,epicgames-download1.akamaized.net
+DOMAIN-SUFFIX,dl.delivery.mp.microsoft.com
+DOMAIN-SUFFIX,download.windowsupdate.com
+DOMAIN-SUFFIX,download.nvidia.com

@@ -1,0 +1,5 @@
+# OneDrive 的桌面进程和 Android 包名。
+PROCESS-NAME,OneDrive.exe
+PROCESS-NAME,OneDrive.Sync.Service.exe
+PROCESS-NAME,OneDriveStandaloneUpdater.exe
+PROCESS-NAME,com.microsoft.skydrive

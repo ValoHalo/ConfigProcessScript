@@ -1,0 +1,142 @@
+[
+  {
+    "domain": "mtalk.google.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接"
+  },
+  {
+    "domain": "youtube.com",
+    "expectedPolicy": "海外媒体",
+    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+  },
+  {
+    "domain": "google.com",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+  },
+  {
+    "domain": "cloud.google.com",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+  },
+  {
+    "domain": "gemini.google.com",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "ai.google.dev",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "generativelanguage.googleapis.com",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "chatgpt.com",
+    "expectedPolicy": "国外AI",
+    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+  },
+  {
+    "domain": "login.microsoftonline.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,login.microsoftonline.com,直接连接"
+  },
+  {
+    "domain": "api.onedrive.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,api.onedrive.com,直接连接"
+  },
+  {
+    "domain": "learn.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,learn.microsoft.com,直接连接"
+  },
+  {
+    "domain": "onedrive.live.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+  },
+  {
+    "domain": "sub.learn.microsoft.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+  },
+  {
+    "domain": "arxiv.org",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,arxiv.org,直接连接"
+  },
+  {
+    "domain": "ieee.org",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,ieee.org,直接连接"
+  },
+  {
+    "domain": "sciencedirect.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,sciencedirect.com,直接连接"
+  },
+  {
+    "domain": "steamcontent.com",
+    "expectedPolicy": "下载更新",
+    "expectedRule": "DOMAIN-SUFFIX,steamcontent.com,下载更新"
+  },
+  {
+    "domain": "download.epicgames.com",
+    "expectedPolicy": "下载更新",
+    "expectedRule": "DOMAIN-SUFFIX,download.epicgames.com,下载更新"
+  },
+  {
+    "domain": "download.windowsupdate.com",
+    "expectedPolicy": "下载更新",
+    "expectedRule": "DOMAIN-SUFFIX,download.windowsupdate.com,下载更新"
+  },
+  {
+    "domain": "store.steampowered.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+  },
+  {
+    "domain": "dlsite.com",
+    "expectedPolicy": "DLsite",
+    "expectedRule": "RULE-SET,dlsite,DLsite"
+  },
+  {
+    "domain": "lsposed.org",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,lsposed.org,直接连接"
+  },
+  {
+    "domain": "store.epicgames.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+  },
+  {
+    "domain": "codeload.github.com",
+    "expectedPolicy": "下载相关",
+    "expectedRule": "SUB-RULE,(RULE-SET,download),sub-download"
+  },
+  {
+    "domain": "files.pythonhosted.org",
+    "expectedPolicy": "下载相关",
+    "expectedRule": "SUB-RULE,(RULE-SET,download),sub-download"
+  },
+  {
+    "domain": "twitter.com",
+    "expectedPolicy": "风控安全",
+    "expectedRule": "SUB-RULE,(RULE-SET,safe),sub-safe"
+  },
+  {
+    "domain": "paypal.com",
+    "expectedPolicy": "风控安全",
+    "expectedRule": "SUB-RULE,(RULE-SET,safe),sub-safe"
+  },
+  {
+    "domain": "hcaptcha.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接"
+  }
+]

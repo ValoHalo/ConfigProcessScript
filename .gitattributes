@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Keep source and generated checksums stable on Windows and Linux.
+*.js text eol=lf
+*.json text eol=lf
+*.list text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.mrs binary

@@ -1,0 +1,549 @@
+{
+  "version": 1,
+  "rulesets": {
+    "ads": {
+      "behavior": "domain",
+      "count": 9052,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ads.list",
+          "format": "text",
+          "sha256": "d13b631ea9b1b458464aec6be8243a51fc398d8d62b9a0d19b48e167adad8c2a",
+          "count": 9052
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/ads.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/ads.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/ads.list",
+        "sha256": "f577169106ac3cf57058a873530c7b4e6e9ad269b977a589898312c94febfa17"
+      },
+      "mrs": {
+        "path": "domain/ads.mrs",
+        "sha256": "437e2728952c1a9d23c702da8c7a5c4baaf17ca69d384c78a3a85cf7961a535e"
+      }
+    },
+    "ai": {
+      "behavior": "domain",
+      "count": 197,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/ai.list",
+          "format": "text",
+          "sha256": "54bef92417be178b0c1556f1c050d6ae0e6169dbc9a99b8bafc04a2f49b30928",
+          "count": 197
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/ai.add.list",
+          "sha256": "2f1b66310dd9910373cd68b609b95aa2e9d2a22bea50676ff39052a4fad8f09e",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/ai.remove.list",
+          "sha256": "44f0181e363fc26e0793e1f9d666a3a7bd0d200cd02d543b4da7a55c5375838b",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/ai.list",
+        "sha256": "0b94a4414a00c71c515d045df63afebf8da1dd560653766427c5914c527bd4fc"
+      },
+      "mrs": {
+        "path": "domain/ai.mrs",
+        "sha256": "91b22942c9da47e45f4fffcb4b90aa6a4f3f18658404f54102b6d90c69475ad3"
+      }
+    },
+    "direct-lite": {
+      "behavior": "domain",
+      "count": 32288,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/direct-lite.list",
+          "format": "text",
+          "sha256": "53b2b69c7298540a6eb04fb761971267de3ea5643395b94603b934265086192f",
+          "count": 32288
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/direct-lite.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/direct-lite.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/direct-lite.list",
+        "sha256": "c16850bb0ad69006384804e09ad7ea20fcc1095a019b7fd9a0f2e19c3bb88eb6"
+      },
+      "mrs": {
+        "path": "domain/direct-lite.mrs",
+        "sha256": "6405b14c9d9d7585df9d45afb96618f97688e2190ec147f437f25dd83e239969"
+      }
+    },
+    "direct_ip": {
+      "behavior": "ipcidr",
+      "count": 10003,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/direct.list",
+          "format": "text",
+          "sha256": "76e4fbc306fbe83b7c7f3b351543d657f778e486ad0bb91b39f9dff65322c5a4",
+          "count": 10003
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/direct_ip.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/direct_ip.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "ipcidr/direct_ip.list",
+        "sha256": "76e4fbc306fbe83b7c7f3b351543d657f778e486ad0bb91b39f9dff65322c5a4"
+      },
+      "mrs": {
+        "path": "ipcidr/direct_ip.mrs",
+        "sha256": "60b5a9418ad2cd5759e2e6d5b79bc2e3567273ee3e8b42128b7e0df08cd7373a"
+      }
+    },
+    "dlsite": {
+      "behavior": "domain",
+      "count": 10,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dlsite.list",
+          "format": "text",
+          "sha256": "7bee8fd4d7e14cb52b03e735cf3a5b5995b36de0b9e9314069c559c454945430",
+          "count": 10
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/dlsite.add.list",
+          "sha256": "c846736d787ae1e8467760981050345d278244e5f7a84a23430d3c84b0e1db4b",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/dlsite.remove.list",
+          "sha256": "44f0181e363fc26e0793e1f9d666a3a7bd0d200cd02d543b4da7a55c5375838b",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/dlsite.list",
+        "sha256": "6ceb1a5e486d39b8f606e04143f163928eedafbabef83b258fcaf178bad5b69a"
+      },
+      "mrs": {
+        "path": "domain/dlsite.mrs",
+        "sha256": "4f85a9fc14470c63d39c83db331bb1b4e0e2b4a1564210ceffd484e494d8ea63"
+      }
+    },
+    "dnsmasq-china-lite": {
+      "behavior": "domain",
+      "count": 96726,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/dnsmasq-china-lite.list",
+          "format": "text",
+          "sha256": "4cbad5b6dadcdc431d011885d4fc63d7d68d228e3fe811ea14e73dd715dbbf67",
+          "count": 96726
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/dnsmasq-china-lite.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/dnsmasq-china-lite.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/dnsmasq-china-lite.list",
+        "sha256": "f8a3f21038cc739696e4c5190c3f5d258e208da544f1ad874cd23c63dc23306c"
+      },
+      "mrs": {
+        "path": "domain/dnsmasq-china-lite.mrs",
+        "sha256": "1a79a87d6c8e0fe94180429a7689f2cc16daa9b198c0876e4342c7af3eb13ee9"
+      }
+    },
+    "download": {
+      "behavior": "domain",
+      "count": 32,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/download.list",
+          "format": "text",
+          "sha256": "5934ffb3341a5ddfe5a5ae8a0f795acc7cbe332c8ca657cfeacc62d79ca67642",
+          "count": 32
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/download.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/download.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/download.list",
+        "sha256": "1b61cfd782dbbde6ddb8e3637e9a37a81a56ee3babc8e8af78e4dbeffab593df"
+      },
+      "mrs": {
+        "path": "domain/download.mrs",
+        "sha256": "2f92b6b3ebf0028998f90a93ea6e963dc3946a3f00c111aec0a7e48f03f825c8"
+      }
+    },
+    "google": {
+      "behavior": "domain",
+      "count": 630,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/google.list",
+          "format": "text",
+          "sha256": "37d696fede788ad9ee8ee8236dbb5b9972209486fb842488f0b769df150c22a2",
+          "count": 630
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/google.add.list",
+          "sha256": "7783b6c1537b8b484cde87e65c3ccca5334abd5e752e26f04804dab46c623d8b",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/google.remove.list",
+          "sha256": "44f0181e363fc26e0793e1f9d666a3a7bd0d200cd02d543b4da7a55c5375838b",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/google.list",
+        "sha256": "ecdafece873e0e5a5282fc77f1b53ab75a864d5a13bc921713d3b48aae6e1150"
+      },
+      "mrs": {
+        "path": "domain/google.mrs",
+        "sha256": "7848ddb0677caf61eed57268699dadafbcdf8007664282b0b3cc75552cca692d"
+      }
+    },
+    "google_ip": {
+      "behavior": "ipcidr",
+      "count": 145,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/google.list",
+          "format": "text",
+          "sha256": "35753a2484ea75ff5da394ba4e176fe6b72948c8fa2447bc3f8d22d7d05954f1",
+          "count": 145
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/google_ip.add.list",
+          "sha256": "32beb45c06311484bd69f81c75790f8c55d65e79f1327cd5482f9ed086c02a2d",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/google_ip.remove.list",
+          "sha256": "44f0181e363fc26e0793e1f9d666a3a7bd0d200cd02d543b4da7a55c5375838b",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "ipcidr/google_ip.list",
+        "sha256": "35753a2484ea75ff5da394ba4e176fe6b72948c8fa2447bc3f8d22d7d05954f1"
+      },
+      "mrs": {
+        "path": "ipcidr/google_ip.mrs",
+        "sha256": "9c71c42431d8fa4aa33591cdf46e60b3a98ba91d384f2df9e243adaa1c177afe"
+      }
+    },
+    "media": {
+      "behavior": "domain",
+      "count": 1772,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/media.list",
+          "format": "text",
+          "sha256": "611a6b41b17b4aa74b69ebb73c87ac1aaf97f1a404100d37b0dcca9d200d2354",
+          "count": 1772
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/media.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/media.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/media.list",
+        "sha256": "48402114f71adc0bebe0e9f31ed51aeffbf330a788b0fe595020ffc88ce86aa6"
+      },
+      "mrs": {
+        "path": "domain/media.mrs",
+        "sha256": "89fee54fef3a50fae89de692e859ed6fe057c992176cb130fa5bdf105a913576"
+      }
+    },
+    "media_ip": {
+      "behavior": "ipcidr",
+      "count": 122,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/media.list",
+          "format": "text",
+          "sha256": "d7c71269113609b715d66f6986bec29774527d2d131cbc0dea9c7280dcc5c779",
+          "count": 122
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/media_ip.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/media_ip.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "ipcidr/media_ip.list",
+        "sha256": "d7c71269113609b715d66f6986bec29774527d2d131cbc0dea9c7280dcc5c779"
+      },
+      "mrs": {
+        "path": "ipcidr/media_ip.mrs",
+        "sha256": "3fba174fdae1efe489d9b489126fa48e8a340f6d1f96b1478afad0c43781c14a"
+      }
+    },
+    "proxy-lite": {
+      "behavior": "domain",
+      "count": 19117,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy-lite.list",
+          "format": "text",
+          "sha256": "147e3bec875b1c254629c8fd3562ab7eab05f4e8b33523490d53ba7153a8aed8",
+          "count": 19117
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/proxy-lite.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/proxy-lite.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/proxy-lite.list",
+        "sha256": "2ffde126a6036946b7ca1d90f3c933979b0a93366ae37176874325810083cbc9"
+      },
+      "mrs": {
+        "path": "domain/proxy-lite.mrs",
+        "sha256": "684a648c9dc43f7ef268a03f7176fb0d2a8376779fce65ddf3909a9ba23c6f12"
+      }
+    },
+    "proxy@direct": {
+      "behavior": "domain",
+      "count": 291,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/proxy@direct.list",
+          "format": "text",
+          "sha256": "99203f8eaec7711bf55d2b228839afadfa9c300ac1843c180762e15de5797977",
+          "count": 291
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/proxy@direct.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/proxy@direct.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/proxy@direct.list",
+        "sha256": "b3ccab4f409e93b53337f7e6f2b62c17ad300ff53787979becdb08425e968388"
+      },
+      "mrs": {
+        "path": "domain/proxy@direct.mrs",
+        "sha256": "3ae84cb823892a17b45dda8d02993371864ece1c40c817918a792f7b436e065d"
+      }
+    },
+    "safe": {
+      "behavior": "domain",
+      "count": 1101,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/domain/safe.list",
+          "format": "text",
+          "sha256": "f995f25048852b48d790835e41203aaef70b2fd5d6f53efbc5b89f35c7bf3e5a",
+          "count": 1101
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/safe.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/safe.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "domain/safe.list",
+        "sha256": "bf64f0362b23260a5b256fb8aee7cef4c1c28bb6b37a9ba190762e9e23d493ae"
+      },
+      "mrs": {
+        "path": "domain/safe.mrs",
+        "sha256": "23ea5a8284b4ab2103b7c6fd0d53c45af4339c62edd9b3a794d4f8aa2ffb4fc4"
+      }
+    },
+    "safe_ip": {
+      "behavior": "ipcidr",
+      "count": 19,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/safe.list",
+          "format": "text",
+          "sha256": "7e37c6f264f5e614b15fe26c789d4e38b10df5a878c43d7b0fc86e5858bf9909",
+          "count": 19
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/safe_ip.add.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/safe_ip.remove.list",
+          "sha256": "e0cdb59e7456eb360effea2e97fc88d0157879a5bca4d379c6baa6e46073eeea",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "ipcidr/safe_ip.list",
+        "sha256": "7e37c6f264f5e614b15fe26c789d4e38b10df5a878c43d7b0fc86e5858bf9909"
+      },
+      "mrs": {
+        "path": "ipcidr/safe_ip.mrs",
+        "sha256": "e8fc8a292d91cf630475a1e759d52acf81cf38bc7283329253be5914dc23630f"
+      }
+    },
+    "telegram_ip": {
+      "behavior": "ipcidr",
+      "count": 11,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/echs-top/proxy/main/list/ip/telegram.list",
+          "format": "text",
+          "sha256": "57c01478a9012450194b43f4c6687b43e61c49e8fe6864db893f625dc1736b32",
+          "count": 11
+        }
+      ],
+      "add": [
+        {
+          "path": "Rules/overrides/telegram_ip.add.list",
+          "sha256": "2599645e4cc5d023d08acd96289b7ba5fc626b06d59480fb2cf2385c9d9e1340",
+          "count": 0
+        }
+      ],
+      "remove": [
+        {
+          "path": "Rules/overrides/telegram_ip.remove.list",
+          "sha256": "44f0181e363fc26e0793e1f9d666a3a7bd0d200cd02d543b4da7a55c5375838b",
+          "count": 0
+        }
+      ],
+      "output": {
+        "path": "ipcidr/telegram_ip.list",
+        "sha256": "57c01478a9012450194b43f4c6687b43e61c49e8fe6864db893f625dc1736b32"
+      },
+      "mrs": {
+        "path": "ipcidr/telegram_ip.mrs",
+        "sha256": "811aa2340e0509f5fd9ed56cfa09dff60167cb1bd865eb186b00731132b7768d"
+      }
+    }
+  }
+}
