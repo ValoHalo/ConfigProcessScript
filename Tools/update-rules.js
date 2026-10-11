@@ -701,6 +701,8 @@ async function updateRules(input = {}) {
       if (!options.allowShrink) {
         const identityOfRecord = ({ sha256: hash, count, ...identity }) => sourceIdentity(identity);
         for (const source of records.values()) {
+          // FaaS candidates fluctuate with live probes; empty input and total shrink remain guarded.
+          if (source.format === 'faas-ip') continue;
           const previousSource = previousRecord?.sources?.find((previous) => identityOfRecord(previous) === identityOfRecord(source));
           if (previousSource?.count && source.count < previousSource.count * (1 - maxShrink)) {
             throw new Error(id + ': suspicious shrink in source from ' + previousSource.count + ' to ' + source.count + ' rules; inspect changes and use --allow-shrink only when intended');

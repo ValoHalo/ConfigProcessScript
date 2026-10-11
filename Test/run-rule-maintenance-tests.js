@@ -36,6 +36,62 @@ async function snapshot(directory) {
   return result;
 }
 
+async function faasShrinkTests(parent, origin, responses) {
+  const root = path.join(parent, 'faas-shrink-fixture');
+  const generated = path.join(root, 'Rules', 'generated');
+  const configFile = path.join(root, 'config', 'rule-sources.json');
+  const stable = Array.from({ length: 20 }, (_, index) => '203.0.113.' + (index * 2 + 1));
+  const candidates = Array.from({ length: 25 }, (_, index) => '198.51.100.' + (index * 2 + 1));
+  const setCandidates = (ips) => responses.set('/faas-candidates', {
+    body: JSON.stringify({ Netlify: { result: {
+      dianxin: ips.slice(1), liantong: [], yidong: [], default: ips.slice(0, 1),
+    } } }),
+  });
+  const run = () => updateRules({ root, timeout: 2000 });
+  await fs.mkdir(path.dirname(configFile), { recursive: true });
+  await fs.writeFile(configFile, JSON.stringify({ version: 2, rulesets: {
+    direct_ip: { behavior: 'ipcidr', steps: [{ op: 'add', sources: [
+      { url: origin + '/faas-stable', format: 'text' },
+      { url: origin + '/faas-candidates', format: 'faas-ip' },
+    ] }], minEntries: 1, maxShrinkRatio: 0.35 },
+  } }));
+  responses.set('/faas-stable', { body: stable.join('\n') });
+  setCandidates(candidates.slice(0, 5));
+  await run();
+  await test('dynamic FaaS candidates may shrink from five to one without blocking a stable ruleset', async () => {
+    setCandidates(candidates.slice(0, 1));
+    const result = await run();
+    assert.equal(result.changed, true);
+    assert.equal(result.manifest.rulesets.direct_ip.sources[1].count, 1);
+    const actual = (await fs.readFile(path.join(generated, 'ipcidr', 'direct_ip.list'), 'utf8')).trim().split('\n');
+    assert.deepEqual(new Set(actual), new Set(normalize([...stable, candidates[0]], 'ipcidr')));
+    await updateRules({ root, check: true });
+  });
+  await test('ordinary sources in a mixed FaaS ruleset still reject suspicious shrink', async () => {
+    const before = await snapshot(generated);
+    responses.set('/faas-stable', { body: stable[0] });
+    await assert.rejects(run(), /suspicious shrink in source from 20 to 1/);
+    assert.deepEqual(await snapshot(generated), before);
+    responses.set('/faas-stable', { body: stable.join('\n') });
+  });
+  await test('empty and invalid FaaS candidates preserve published outputs', async () => {
+    const before = await snapshot(generated);
+    setCandidates([]);
+    await assert.rejects(run(), /empty/);
+    setCandidates(['not-an-ip']);
+    await assert.rejects(run(), /Invalid IP address/);
+    assert.deepEqual(await snapshot(generated), before);
+  });
+  await test('FaaS changes cannot bypass the total ruleset shrink guard', async () => {
+    setCandidates(candidates);
+    await run();
+    const before = await snapshot(generated);
+    setCandidates(candidates.slice(0, 1));
+    await assert.rejects(run(), /suspicious shrink from 45 to 21/);
+    assert.deepEqual(await snapshot(generated), before);
+  });
+}
+
 async function recipeTests(parent, origin, responses) {
   const root = path.join(parent, 'recipe-fixture');
   const configFile = path.join(root, 'config', 'rule-sources.json');
@@ -459,6 +515,7 @@ async function main() {
       await saveConfig();
       await run();
     });
+    await faasShrinkTests(root, origin, responses);
     await recipeTests(root, origin, responses);
     await test('all MRS compilation must succeed before publication; errors and empty outputs preserve old files', async () => {
       const compiler = path.join(root, 'fake-compiler.cjs');
