@@ -306,7 +306,7 @@
   "rulesets": {
     "ads": {
       "behavior": "domain",
-      "count": 12086,
+      "count": 12105,
       "steps": [
         {
           "op": "add",
@@ -329,7 +329,7 @@
               "format": "text"
             }
           ],
-          "count": 12088
+          "count": 12107
         },
         {
           "op": "prune-covered",
@@ -339,7 +339,7 @@
               "format": "text"
             }
           ],
-          "count": 12086,
+          "count": 12105,
           "removed": 2,
           "partialOverlap": 0
         }
@@ -354,8 +354,8 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "5833d9261a1455f0575857f119c227cfb93ae9e79d099becae4ea7b6aa2ffb71",
-          "count": 8353
+          "sha256": "21ba798ebcf97c1d0c38fd53e783968385cd89828ab30ecb1c2ed831ace05ad2",
+          "count": 8371
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
@@ -393,11 +393,11 @@
       ],
       "output": {
         "path": "domain/ads.list",
-        "sha256": "9f1e55459f8dd2efb98627a932609bda88c254ed1d9da1373b5c72537f4f6d51"
+        "sha256": "afed1134e52741af32fe7dd71f37a5c8ee3ffbd97a42eac4697cff31eaeb3e41"
       },
       "mrs": {
         "path": "domain/ads.mrs",
-        "sha256": "a15a6dc7f876e0218117f6b96163c4e8df3bacb5ba5b98cc0483bc78cc31def1"
+        "sha256": "839e0b60a041af1e1eed3f8d1578ed40667f17cd9967df815dcdf372a8f66a54"
       }
     },
     "ai": {
@@ -520,7 +520,7 @@
     },
     "direct-lite": {
       "behavior": "domain",
-      "count": 32396,
+      "count": 32395,
       "steps": [
         {
           "op": "add",
@@ -544,9 +544,9 @@
               "ref": "proxy"
             }
           ],
-          "count": 32396,
-          "removed": 617,
-          "partialOverlap": 627
+          "count": 32395,
+          "removed": 618,
+          "partialOverlap": 626
         }
       ],
       "sources": [
@@ -607,8 +607,8 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "5833d9261a1455f0575857f119c227cfb93ae9e79d099becae4ea7b6aa2ffb71",
-          "count": 8353
+          "sha256": "21ba798ebcf97c1d0c38fd53e783968385cd89828ab30ecb1c2ed831ace05ad2",
+          "count": 8371
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
@@ -694,16 +694,16 @@
       ],
       "output": {
         "path": "domain/direct-lite.list",
-        "sha256": "aa0d659ffafd1dcbe8b28e9d8daaa8161608f73cac5d2425395a79f752174de1"
+        "sha256": "6e0d61fa11eb38165cc68cecf4a4f4a6f0a26f2b3d2a43a53b964ef3ea12445c"
       },
       "mrs": {
         "path": "domain/direct-lite.mrs",
-        "sha256": "f6cb8ada00fb7c0a226446ef5b0800dae8c5ae575adc7958cb987cb316ecb7ec"
+        "sha256": "d1b4ca12de7afe3ba13fb01515f6324fd4e89acad1b39662a3eecc600c7328a9"
       }
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "count": 10341,
+      "count": 10347,
       "steps": [
         {
           "op": "add",
@@ -745,7 +745,7 @@
               "format": "faas-ip"
             }
           ],
-          "count": 10341
+          "count": 10347
         }
       ],
       "sources": [
@@ -764,8 +764,8 @@
         {
           "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
           "format": "text",
-          "sha256": "534cea732226a17b2c1635a00e4ce2038824689a6896f2d0b0dc634fe1ad0da1",
-          "count": 5956
+          "sha256": "6cc320492df7abd7f265ce1aaec48881a865bfd335a811f362e70b8765875f0c",
+          "count": 5958
         },
         {
           "url": "https://ispip.clang.cn/all_cn_apnic.txt",
@@ -788,19 +788,19 @@
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
           "format": "faas-ip",
-          "sha256": "01225d77e83344a7c46b14d8f62c131e1075c461d7250bb3190ffb84631fa312",
+          "sha256": "5bb7e1be5de1b7e170d2494153982f4527b8d84f838cbcdb09eb18094056b77c",
           "count": 10
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
           "format": "faas-ip",
-          "sha256": "d86877032a4f6ccd2f2ed62a12d8c4ee73aeb862941553ee33a492ec4864decc",
-          "count": 4
+          "sha256": "6618d4aa277f5a8ef436b26da19f835bb744638c7855b532d548c6c8fa6bb1d9",
+          "count": 5
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
           "format": "faas-ip",
-          "sha256": "211304a7a18746203abd04f02920c061229f22ddbfe42d1ce686c792b7206915",
+          "sha256": "5b18123eea92ba8b79b45da9215654f18799c18a894ea50248889866ab7b4a45",
           "count": 1
         }
       ],
@@ -820,11 +820,11 @@
       ],
       "output": {
         "path": "ipcidr/direct_ip.list",
-        "sha256": "18ba3eb677904b898117a799d78438694be931a30ce2116e4c2a712a8e582269"
+        "sha256": "dc83a63a18dab532b4071f7e924841ee5c678883259d7e42ad76ac7d8b6166b2"
       },
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
-        "sha256": "76be0cbbe151b22be7599da549c8fd734836abdac40cab0b9a66c34bfa345c59"
+        "sha256": "bb020edb64fedad97c73ef6c3a2724fbb69ff963904f1a3bc494758fe61d9598"
       }
     },
     "dlsite": {
@@ -875,7 +875,7 @@
     },
     "dnsmasq-china-lite": {
       "behavior": "domain",
-      "count": 96260,
+      "count": 96258,
       "steps": [
         {
           "op": "add",
@@ -902,9 +902,9 @@
               "ref": "direct"
             }
           ],
-          "count": 96260,
-          "removed": 13925,
-          "partialOverlap": 419
+          "count": 96258,
+          "removed": 13927,
+          "partialOverlap": 418
         }
       ],
       "sources": [
@@ -924,8 +924,8 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "5833d9261a1455f0575857f119c227cfb93ae9e79d099becae4ea7b6aa2ffb71",
-          "count": 8353
+          "sha256": "21ba798ebcf97c1d0c38fd53e783968385cd89828ab30ecb1c2ed831ace05ad2",
+          "count": 8371
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
@@ -1059,11 +1059,11 @@
       ],
       "output": {
         "path": "domain/dnsmasq-china-lite.list",
-        "sha256": "e6d343065c506c390e87c28e0bb5b00932f12913b54e8e1d7c6138b4f87d33fc"
+        "sha256": "45a5db1fbfd061b7386f44e91be34c7c86b11afa23eccc3f33d9c22c263e81fd"
       },
       "mrs": {
         "path": "domain/dnsmasq-china-lite.mrs",
-        "sha256": "4ad5b19e405e7658e5538c4d22ca7ac2195858266986779a405efda50f00e1fd"
+        "sha256": "9fbde3b8bdce28e3dbfd39b8715c322d1b72472d2bc962634ff9727ce7590750"
       }
     },
     "download": {
@@ -1750,8 +1750,8 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "5833d9261a1455f0575857f119c227cfb93ae9e79d099becae4ea7b6aa2ffb71",
-          "count": 8353
+          "sha256": "21ba798ebcf97c1d0c38fd53e783968385cd89828ab30ecb1c2ed831ace05ad2",
+          "count": 8371
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
