@@ -93,7 +93,7 @@
     },
     "proxy": {
       "behavior": "domain",
-      "count": 20849,
+      "count": 20850,
       "steps": [
         {
           "op": "add",
@@ -114,7 +114,7 @@
               "format": "text"
             }
           ],
-          "count": 20849
+          "count": 20850
         },
         {
           "op": "prune-covered",
@@ -124,7 +124,7 @@
               "format": "text"
             }
           ],
-          "count": 20849,
+          "count": 20850,
           "removed": 0,
           "partialOverlap": 0
         }
@@ -133,13 +133,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "91e4b314055f1eed8f35dc6783b2b133ddcfcbf975ce6a59dbd7f8e1178daa29",
-          "count": 26602
+          "sha256": "28fb9adb568ccd7e722e18e1393c06a06eacd39ac88cff25e9bdbc8ff33d2388",
+          "count": 26603
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "e62928d716bc199bba3638a8124830cbba82856702499f30f14ec08ba916c852",
+          "sha256": "867a9a7203bad7d64ceb4006cea69b2057fc0b84bc4f35f51bc4cf2e4faa5264",
           "count": 453
         },
         {
@@ -237,7 +237,7 @@
         {
           "url": "https://static-file-global.353355.xyz/rules/cn-additional-list-clash.yaml",
           "format": "yaml",
-          "sha256": "9e2ddaf179cee8160e0a4df9c28d9494ef549f321a10d09a4c04ad7cc4071c8f",
+          "sha256": "155b51955337d9d803e7e0c8a60d4aa69e4c2f5d87816ac1fafcf9376c69e1d5",
           "count": 44546
         },
         {
@@ -276,7 +276,7 @@
     },
     "dnsmasq-china": {
       "behavior": "domain",
-      "count": 109775,
+      "count": 109493,
       "steps": [
         {
           "op": "add",
@@ -287,7 +287,7 @@
               "domainMode": "suffix"
             }
           ],
-          "count": 109775
+          "count": 109493
         }
       ],
       "sources": [
@@ -295,8 +295,8 @@
           "url": "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf",
           "format": "dnsmasq",
           "domainMode": "suffix",
-          "sha256": "d5ff2f2fe2a0ed4c4380455351259e32d8635a3d60e513268ab0fec41110339d",
-          "count": 109795
+          "sha256": "a49ef80241e832c9e9ebfa26c2309c80fec21c19bcfa3fc9e540cd0fd00301ba",
+          "count": 109513
         }
       ],
       "add": [],
@@ -306,7 +306,7 @@
   "rulesets": {
     "ads": {
       "behavior": "domain",
-      "count": 12193,
+      "count": 12203,
       "steps": [
         {
           "op": "add",
@@ -329,7 +329,7 @@
               "format": "text"
             }
           ],
-          "count": 12195
+          "count": 12205
         },
         {
           "op": "prune-covered",
@@ -339,7 +339,7 @@
               "format": "text"
             }
           ],
-          "count": 12193,
+          "count": 12203,
           "removed": 2,
           "partialOverlap": 0
         }
@@ -354,15 +354,15 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "1bc951d2556e82a75f8697d39fd71d02acec68b0f5fdb5a6c871ff9d4425f5ff",
-          "count": 8425
+          "sha256": "0330459434a9fba597fe291b19307640b204767f448c0595bb5b1f91c60742dd",
+          "count": 8455
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e25db81a73d89e5664966b005757ec85bcc070656c5352620035d87a6ad79192",
-          "count": 3573
+          "sha256": "915643eab5e2f96b78777dcfad636b72c5355ff3135dce3574aba660007e72d8",
+          "count": 3563
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -393,11 +393,11 @@
       ],
       "output": {
         "path": "domain/ads.list",
-        "sha256": "936d9f5a47585f5794faae13b8fa2145e0c0a56c53c52b289a489bf18ea52b85"
+        "sha256": "0d6e7626770615d0db3434c3b6d3722711da6b2c2775d068566a4c100f96af4c"
       },
       "mrs": {
         "path": "domain/ads.mrs",
-        "sha256": "468f344a2fb447320129915d072039144791f42b636c7f877614bec31f934b03"
+        "sha256": "a534ca85b437471ca82e96b926375ee672400336856da8126c15099e6414e1fb"
       }
     },
     "ai": {
@@ -451,13 +451,13 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.list",
           "format": "text",
-          "sha256": "970f4d9c4acf4e02e8aab9417aa89254371fce0b232d4b8e6b01c694c699222c",
+          "sha256": "485af8f7be4c968c0ab00c84dc194936eefc3984cd21026f1482423f6bcef19a",
           "count": 204
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-cn.list",
           "format": "text",
-          "sha256": "a1a63832002eee27e295b45aab678c3a9f5760d773ac32c465d11011ed807a1b",
+          "sha256": "447cb8248544ff94b6172f4d7c4c46a20240e71ff0bf760e8b89b2118a7e8b40",
           "count": 115
         }
       ],
@@ -503,7 +503,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.list",
           "format": "text",
-          "sha256": "e7e9c82bf12e6a5d826320cadad247b62f64994d383957fa3247ba395d91fa30",
+          "sha256": "f9e7c8d33295d7ef94aecfeebcd4104871c5df5fda740ab5f39d55f1c1968ee2",
           "count": 1792
         }
       ],
@@ -546,7 +546,7 @@
           ],
           "count": 32398,
           "removed": 617,
-          "partialOverlap": 633
+          "partialOverlap": 637
         }
       ],
       "sources": [
@@ -565,7 +565,7 @@
         {
           "url": "https://static-file-global.353355.xyz/rules/cn-additional-list-clash.yaml",
           "format": "yaml",
-          "sha256": "9e2ddaf179cee8160e0a4df9c28d9494ef549f321a10d09a4c04ad7cc4071c8f",
+          "sha256": "155b51955337d9d803e7e0c8a60d4aa69e4c2f5d87816ac1fafcf9376c69e1d5",
           "count": 44546
         },
         {
@@ -607,15 +607,15 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "1bc951d2556e82a75f8697d39fd71d02acec68b0f5fdb5a6c871ff9d4425f5ff",
-          "count": 8425
+          "sha256": "0330459434a9fba597fe291b19307640b204767f448c0595bb5b1f91c60742dd",
+          "count": 8455
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e25db81a73d89e5664966b005757ec85bcc070656c5352620035d87a6ad79192",
-          "count": 3573
+          "sha256": "915643eab5e2f96b78777dcfad636b72c5355ff3135dce3574aba660007e72d8",
+          "count": 3563
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -644,13 +644,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "91e4b314055f1eed8f35dc6783b2b133ddcfcbf975ce6a59dbd7f8e1178daa29",
-          "count": 26602
+          "sha256": "28fb9adb568ccd7e722e18e1393c06a06eacd39ac88cff25e9bdbc8ff33d2388",
+          "count": 26603
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "e62928d716bc199bba3638a8124830cbba82856702499f30f14ec08ba916c852",
+          "sha256": "867a9a7203bad7d64ceb4006cea69b2057fc0b84bc4f35f51bc4cf2e4faa5264",
           "count": 453
         },
         {
@@ -703,7 +703,7 @@
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "count": 10375,
+      "count": 10381,
       "steps": [
         {
           "op": "add",
@@ -745,7 +745,7 @@
               "format": "faas-ip"
             }
           ],
-          "count": 10375
+          "count": 10381
         }
       ],
       "sources": [
@@ -758,8 +758,8 @@
         {
           "url": "https://gaoyifan.github.io/china-operator-ip/china46.txt",
           "format": "text",
-          "sha256": "954685d944c08ecb81b87a3709908e2a326742a359ac093106ebdc6fb63ee58f",
-          "count": 10011
+          "sha256": "fae2c398697928ec1c477af7ef1f940e6e009846e5e29bec6239760f96d7443a",
+          "count": 10015
         },
         {
           "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
@@ -788,19 +788,19 @@
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
           "format": "faas-ip",
-          "sha256": "fc40fbaa721259e13d56357843588a9a5a3598a256a0c47337eeb2f1726081e2",
+          "sha256": "65c8a2cab22a2280107cea47e89c2005abfa2780675051fe2dd28c1ce3d056a4",
           "count": 10
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
           "format": "faas-ip",
-          "sha256": "1b3bc5c8861a4c390b7366057b80b20479b6c6507d0350b3da997fb3a0a0e4c7",
+          "sha256": "224c6b07ea87fd368df5d10617c8ec3ba9efb2a2a55b590d10cbac808e426d21",
           "count": 5
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
           "format": "faas-ip",
-          "sha256": "bf00cbf9253a32a7362fcb62aa646c5e8fecc51fcf645de329c1ee944faaa480",
+          "sha256": "593172616f9b02941ee89c08da7331eb4653f65a302e50892c075879fe7a66ce",
           "count": 4
         }
       ],
@@ -820,11 +820,11 @@
       ],
       "output": {
         "path": "ipcidr/direct_ip.list",
-        "sha256": "3b791de02e978b8cfd6a72e4836cc805bc02cedcfe828fa679657b3ecb0a91e9"
+        "sha256": "fc326727c9e35ade85f921eeb4530c4edac41ba280bf2d0460caa74658cbc607"
       },
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
-        "sha256": "66710e4ddf07b80949ebea08ad5f2afef0e9d9d868520425343743db89bedc85"
+        "sha256": "18dc9002b60428e349f3365c6bca7a046765700ca6cca9f65db43c5c017fdfbc"
       }
     },
     "dlsite": {
@@ -875,7 +875,7 @@
     },
     "dnsmasq-china-lite": {
       "behavior": "domain",
-      "count": 95876,
+      "count": 95590,
       "steps": [
         {
           "op": "add",
@@ -884,7 +884,7 @@
               "ref": "dnsmasq-china"
             }
           ],
-          "count": 109775
+          "count": 109493
         },
         {
           "op": "prune-covered",
@@ -902,8 +902,8 @@
               "ref": "direct"
             }
           ],
-          "count": 95876,
-          "removed": 13899,
+          "count": 95590,
+          "removed": 13903,
           "partialOverlap": 426
         }
       ],
@@ -912,8 +912,8 @@
           "url": "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf",
           "format": "dnsmasq",
           "domainMode": "suffix",
-          "sha256": "d5ff2f2fe2a0ed4c4380455351259e32d8635a3d60e513268ab0fec41110339d",
-          "count": 109795
+          "sha256": "a49ef80241e832c9e9ebfa26c2309c80fec21c19bcfa3fc9e540cd0fd00301ba",
+          "count": 109513
         },
         {
           "url": "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.yaml",
@@ -924,15 +924,15 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "1bc951d2556e82a75f8697d39fd71d02acec68b0f5fdb5a6c871ff9d4425f5ff",
-          "count": 8425
+          "sha256": "0330459434a9fba597fe291b19307640b204767f448c0595bb5b1f91c60742dd",
+          "count": 8455
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e25db81a73d89e5664966b005757ec85bcc070656c5352620035d87a6ad79192",
-          "count": 3573
+          "sha256": "915643eab5e2f96b78777dcfad636b72c5355ff3135dce3574aba660007e72d8",
+          "count": 3563
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -973,13 +973,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "91e4b314055f1eed8f35dc6783b2b133ddcfcbf975ce6a59dbd7f8e1178daa29",
-          "count": 26602
+          "sha256": "28fb9adb568ccd7e722e18e1393c06a06eacd39ac88cff25e9bdbc8ff33d2388",
+          "count": 26603
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "e62928d716bc199bba3638a8124830cbba82856702499f30f14ec08ba916c852",
+          "sha256": "867a9a7203bad7d64ceb4006cea69b2057fc0b84bc4f35f51bc4cf2e4faa5264",
           "count": 453
         },
         {
@@ -1021,7 +1021,7 @@
         {
           "url": "https://static-file-global.353355.xyz/rules/cn-additional-list-clash.yaml",
           "format": "yaml",
-          "sha256": "9e2ddaf179cee8160e0a4df9c28d9494ef549f321a10d09a4c04ad7cc4071c8f",
+          "sha256": "155b51955337d9d803e7e0c8a60d4aa69e4c2f5d87816ac1fafcf9376c69e1d5",
           "count": 44546
         },
         {
@@ -1059,11 +1059,11 @@
       ],
       "output": {
         "path": "domain/dnsmasq-china-lite.list",
-        "sha256": "b9a83c008df4c5e01b036d4bb96705d35ae74354f740980472561ad768c0414d"
+        "sha256": "893d9c079b02d7737a843408c8b7bcb55682ee456d2bd8439c46e2742e90ff12"
       },
       "mrs": {
         "path": "domain/dnsmasq-china-lite.mrs",
-        "sha256": "0cbce8f53892d7f78a5944e954467bd6d2754e5d0a266f8adc141d83cbd0a470"
+        "sha256": "549a6de0ce866716cd0537deebc0c6ef0fd3e6d951715f9e02dd27cf02fd3fa0"
       }
     },
     "download": {
@@ -1250,7 +1250,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.list",
           "format": "text",
-          "sha256": "c6921433763fefddacef92f7a46d73bc0107ecfb99b607b8bd4a31c9d7366e81",
+          "sha256": "b1ff9830e54c385ab4ddf65a3fb4640ee21177c8d1e501d0e6b27ca3d9bddfe7",
           "count": 1075
         },
         {
@@ -1297,7 +1297,7 @@
     },
     "google_ip": {
       "behavior": "ipcidr",
-      "count": 145,
+      "count": 148,
       "steps": [
         {
           "op": "add",
@@ -1307,15 +1307,15 @@
               "format": "text"
             }
           ],
-          "count": 145
+          "count": 148
         }
       ],
       "sources": [
         {
           "url": "https://www.gstatic.com/ipranges/goog.txt",
           "format": "text",
-          "sha256": "6a1dbf66f894c9e4aaa8941382b9f4b0137de2ffe3dc1e64e86d9a41c3b07d9d",
-          "count": 145
+          "sha256": "bd6b596bbcd1ef84fa6662a98f1d2fbc3d331aa7bb73569d6f29ae7eca8419c5",
+          "count": 148
         }
       ],
       "add": [
@@ -1334,11 +1334,11 @@
       ],
       "output": {
         "path": "ipcidr/google_ip.list",
-        "sha256": "35753a2484ea75ff5da394ba4e176fe6b72948c8fa2447bc3f8d22d7d05954f1"
+        "sha256": "eb4ab5cc9738d17025e733632285d37e50aec8c5a0b214b318b9320a2e85bde4"
       },
       "mrs": {
         "path": "ipcidr/google_ip.mrs",
-        "sha256": "9c71c42431d8fa4aa33591cdf46e60b3a98ba91d384f2df9e243adaa1c177afe"
+        "sha256": "af64e5fab765219349adc682e56634537d58b349330049b8e44f7688a63a735a"
       }
     },
     "googlefcm": {
@@ -1453,7 +1453,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media.list",
           "format": "text",
-          "sha256": "8696f6e7e84ec9c47bfa819400959d737e2dc2260825300f2d0daa8af4cde411",
+          "sha256": "ff3eba9f2998bf94b7cca47b769d2aba30a487e13bbc25323b1d05f6a25f0db7",
           "count": 1580
         },
         {
@@ -1471,7 +1471,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.list",
           "format": "text",
-          "sha256": "d8feffdc107ae4a9871a52d63909dcbab848047e280f26c643847889af00f4f7",
+          "sha256": "deedd38c73bb4574d1600940ec81ecb8554a00def79fcda887fbef4f3569500a",
           "count": 439
         },
         {
@@ -1569,7 +1569,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.list",
           "format": "text",
-          "sha256": "f4cdbfc64e0dfe35fb82c628bcae047324da081567395a3cfa1f086df90fb13d",
+          "sha256": "c98efc4256c078d8edca69082f94b942e947be649ca0c63cd0e427e430d51c2b",
           "count": 555
         }
       ],
@@ -1615,7 +1615,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.list",
           "format": "text",
-          "sha256": "f976475c90d4d56d1862a27ff283667cd8af2a998fc53e05760be4a8f8f46a4f",
+          "sha256": "42f8256c46fb4a088414fdb3544fe5e2f2c25d588e31359ec2ec54dec460b279",
           "count": 746
         },
         {
@@ -1672,7 +1672,7 @@
     },
     "proxy-lite": {
       "behavior": "domain",
-      "count": 19181,
+      "count": 19182,
       "steps": [
         {
           "op": "add",
@@ -1681,7 +1681,7 @@
               "ref": "proxy"
             }
           ],
-          "count": 20849
+          "count": 20850
         },
         {
           "op": "prune-covered",
@@ -1699,7 +1699,7 @@
               "ref": "media"
             }
           ],
-          "count": 19181,
+          "count": 19182,
           "removed": 1668,
           "partialOverlap": 349
         }
@@ -1708,13 +1708,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "91e4b314055f1eed8f35dc6783b2b133ddcfcbf975ce6a59dbd7f8e1178daa29",
-          "count": 26602
+          "sha256": "28fb9adb568ccd7e722e18e1393c06a06eacd39ac88cff25e9bdbc8ff33d2388",
+          "count": 26603
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "e62928d716bc199bba3638a8124830cbba82856702499f30f14ec08ba916c852",
+          "sha256": "867a9a7203bad7d64ceb4006cea69b2057fc0b84bc4f35f51bc4cf2e4faa5264",
           "count": 453
         },
         {
@@ -1750,15 +1750,15 @@
         {
           "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
           "format": "yaml",
-          "sha256": "1bc951d2556e82a75f8697d39fd71d02acec68b0f5fdb5a6c871ff9d4425f5ff",
-          "count": 8425
+          "sha256": "0330459434a9fba597fe291b19307640b204767f448c0595bb5b1f91c60742dd",
+          "count": 8455
         },
         {
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e25db81a73d89e5664966b005757ec85bcc070656c5352620035d87a6ad79192",
-          "count": 3573
+          "sha256": "915643eab5e2f96b78777dcfad636b72c5355ff3135dce3574aba660007e72d8",
+          "count": 3563
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -1787,13 +1787,13 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.list",
           "format": "text",
-          "sha256": "970f4d9c4acf4e02e8aab9417aa89254371fce0b232d4b8e6b01c694c699222c",
+          "sha256": "485af8f7be4c968c0ab00c84dc194936eefc3984cd21026f1482423f6bcef19a",
           "count": 204
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-cn.list",
           "format": "text",
-          "sha256": "a1a63832002eee27e295b45aab678c3a9f5760d773ac32c465d11011ed807a1b",
+          "sha256": "447cb8248544ff94b6172f4d7c4c46a20240e71ff0bf760e8b89b2118a7e8b40",
           "count": 115
         },
         {
@@ -1805,7 +1805,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.list",
           "format": "text",
-          "sha256": "c6921433763fefddacef92f7a46d73bc0107ecfb99b607b8bd4a31c9d7366e81",
+          "sha256": "b1ff9830e54c385ab4ddf65a3fb4640ee21177c8d1e501d0e6b27ca3d9bddfe7",
           "count": 1075
         },
         {
@@ -1829,7 +1829,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media.list",
           "format": "text",
-          "sha256": "8696f6e7e84ec9c47bfa819400959d737e2dc2260825300f2d0daa8af4cde411",
+          "sha256": "ff3eba9f2998bf94b7cca47b769d2aba30a487e13bbc25323b1d05f6a25f0db7",
           "count": 1580
         },
         {
@@ -1841,7 +1841,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.list",
           "format": "text",
-          "sha256": "d8feffdc107ae4a9871a52d63909dcbab848047e280f26c643847889af00f4f7",
+          "sha256": "deedd38c73bb4574d1600940ec81ecb8554a00def79fcda887fbef4f3569500a",
           "count": 439
         }
       ],
@@ -1861,11 +1861,11 @@
       ],
       "output": {
         "path": "domain/proxy-lite.list",
-        "sha256": "8e3a9eb58fb55ec02ed4f3ffac380497d50bd65e537ed9aab322d27e3b8a4436"
+        "sha256": "5e1f2eeb563a84785c3764b1e699a1cc5866662faf7630740e3ac789f3655c2e"
       },
       "mrs": {
         "path": "domain/proxy-lite.mrs",
-        "sha256": "c2e9fe026d15edf2dcfeff0dc4903bc77c8f09e3b5ee26d44a523433a974b0d9"
+        "sha256": "a5ab8ad07702427382c6d1063b5061b61aa867181e9c5e6e66c5eca321b29b81"
       }
     },
     "proxy@direct": {
@@ -1955,7 +1955,7 @@
     },
     "safe": {
       "behavior": "domain",
-      "count": 1150,
+      "count": 1155,
       "steps": [
         {
           "op": "add",
@@ -2007,7 +2007,7 @@
               "format": "text"
             }
           ],
-          "count": 1169
+          "count": 1174
         },
         {
           "op": "prune-covered",
@@ -2018,7 +2018,7 @@
               ]
             }
           ],
-          "count": 1150,
+          "count": 1155,
           "removed": 19,
           "partialOverlap": 0
         }
@@ -2039,7 +2039,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-finance.list",
           "format": "text",
-          "sha256": "4296b994ebb9be515dc6ba43ea2bca3fa265a6e063ec34c5213e43b522f27fa5",
+          "sha256": "662501d5bc3c2f10efe63fc32f53cce6aa774dc9c0a761c5c01e9be8d0a1aa75",
           "count": 659
         },
         {
@@ -2057,8 +2057,8 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-cryptocurrency.list",
           "format": "text",
-          "sha256": "f6bab274cdef90fc119b16f5a01cd2b2ef83d653d92cf5ba069d7903e776478a",
-          "count": 235
+          "sha256": "a0824e9874a2c5ad6c7f0f459b6f6bfa492a9cf9bcdb12c1fbd51f04dcae7ac7",
+          "count": 240
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/stripe.list",
@@ -2095,11 +2095,11 @@
       ],
       "output": {
         "path": "domain/safe.list",
-        "sha256": "b45fd85de0013714f0f66484e694f79b980e770a283fef41bb913432f0fe8d1a"
+        "sha256": "8daca3ffec21e0b9ee568bf19958b4c962277ba223699cba8d582ce1a5673daf"
       },
       "mrs": {
         "path": "domain/safe.mrs",
-        "sha256": "667d8c517f28541fc014c24fa078147ece84731d2ed0ccac25989f04de7feec0"
+        "sha256": "56f4d6b5a71c95d8077982cbce500cebf26980796e83026408b5ce6c9c8da63f"
       }
     },
     "safe_ip": {
@@ -2150,7 +2150,7 @@
     },
     "steam": {
       "behavior": "domain",
-      "count": 59,
+      "count": 60,
       "steps": [
         {
           "op": "add",
@@ -2160,26 +2160,26 @@
               "format": "text"
             }
           ],
-          "count": 59
+          "count": 60
         }
       ],
       "sources": [
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.list",
           "format": "text",
-          "sha256": "63e7cfe27eedb6660abd763618129cf46e3a39ebf436886bfb8a8eedde5b49bb",
-          "count": 60
+          "sha256": "39d0906eee2be501771d2399a7890e2f22495d935f8e608bb1c3e3f2dc093c15",
+          "count": 61
         }
       ],
       "add": [],
       "remove": [],
       "output": {
         "path": "domain/steam.list",
-        "sha256": "adf1fb68d6c20e96b7f7de909ed0936f4a7a109ac6482714eea56c45aa1d45ab"
+        "sha256": "da0371e77ee297c664fe73f9a4e7c6fdb96754adaae8395d2370a2ffd5265690"
       },
       "mrs": {
         "path": "domain/steam.mrs",
-        "sha256": "56b220668f0eb9c2f014aa993e1f947eff2828fb8c010aea6b07a0f72f3cc7b3"
+        "sha256": "f5113fd54ee8d222f5eeb20c4a825ce42d219bdb316fa08c53832d02206c4927"
       }
     },
     "telegram": {
