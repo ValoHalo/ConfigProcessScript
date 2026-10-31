@@ -93,7 +93,7 @@
     },
     "proxy": {
       "behavior": "domain",
-      "count": 20869,
+      "count": 20871,
       "steps": [
         {
           "op": "add",
@@ -114,7 +114,7 @@
               "format": "text"
             }
           ],
-          "count": 20869
+          "count": 20871
         },
         {
           "op": "prune-covered",
@@ -124,7 +124,7 @@
               "format": "text"
             }
           ],
-          "count": 20869,
+          "count": 20871,
           "removed": 0,
           "partialOverlap": 0
         }
@@ -133,13 +133,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "9e0009d1948fa38a18ff1060d41a25b36270e595d9c214002e5e25f5ef6568d8",
-          "count": 26608
+          "sha256": "5f6191911b5fd39a186bd3add027cf0eac87b4e2b2a483de552cf7632575ce67",
+          "count": 26610
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "10d77df90eaa98987a40f4756a118bb00639e6bc11785c8c188a5021adf3dc7e",
+          "sha256": "b1a715e946da41b50439595a1a304dc1f8b2e553c3d9412290cacda4c93e3c4d",
           "count": 453
         },
         {
@@ -451,14 +451,14 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.list",
           "format": "text",
-          "sha256": "7feb3d3f80f9161404cfb4bd45eb5a6d6e945af5d8f2bb24d99ed88d72a6c53a",
+          "sha256": "17b9ed8a2e7c324bdb87881e729018886ea68d8a2b15fa7971652baa9ada9571",
           "count": 213
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-cn.list",
           "format": "text",
-          "sha256": "641d6fd5de7b501e2ffc86370e264968c92f4c00092f584bd43e72783e6c0a28",
-          "count": 116
+          "sha256": "6175c3ce55abaacab5a0d37073be01055a2ade8b187059f1dbe4eea1ff98819e",
+          "count": 119
         }
       ],
       "add": [
@@ -503,7 +503,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.list",
           "format": "text",
-          "sha256": "cfa3bf6b6c2e40566305605bcd488a789a9525eb1bbf78c4273f422201afe8af",
+          "sha256": "da1c05d112feb177b122ccb8de14ef16a24eb095a006d19023ba621d648880c4",
           "count": 1793
         }
       ],
@@ -644,13 +644,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "9e0009d1948fa38a18ff1060d41a25b36270e595d9c214002e5e25f5ef6568d8",
-          "count": 26608
+          "sha256": "5f6191911b5fd39a186bd3add027cf0eac87b4e2b2a483de552cf7632575ce67",
+          "count": 26610
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "10d77df90eaa98987a40f4756a118bb00639e6bc11785c8c188a5021adf3dc7e",
+          "sha256": "b1a715e946da41b50439595a1a304dc1f8b2e553c3d9412290cacda4c93e3c4d",
           "count": 453
         },
         {
@@ -703,7 +703,7 @@
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "count": 10081,
+      "count": 10083,
       "steps": [
         {
           "op": "add",
@@ -745,7 +745,7 @@
               "format": "faas-ip"
             }
           ],
-          "count": 10081
+          "count": 10083
         }
       ],
       "sources": [
@@ -758,14 +758,14 @@
         {
           "url": "https://gaoyifan.github.io/china-operator-ip/china46.txt",
           "format": "text",
-          "sha256": "70a647afe412b8600f3af6da4df51dae62b6dabdfa76d2e0096529632ddc2c3a",
-          "count": 9649
+          "sha256": "edd33ea1c3dba857f61cfa2eb9257de96abb51908594b738e005a05c85142805",
+          "count": 9652
         },
         {
           "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
           "format": "text",
-          "sha256": "f4c6235e8589fed6f57474d85a6ac9333137bb104492bf06d23799ae9f2e886f",
-          "count": 6035
+          "sha256": "b46446d7e73fb90ae0b237853143767f8891414529cb6c0f37ffd7fa3b9c64a4",
+          "count": 5995
         },
         {
           "url": "https://ispip.clang.cn/all_cn_apnic.txt",
@@ -776,8 +776,8 @@
         {
           "url": "https://raw.githubusercontent.com/metowolf/iplist/master/data/special/china.txt",
           "format": "text",
-          "sha256": "31f1770be57936e14ac9c71a853e279212af71f5512ed5d69053ab40c2a34a97",
-          "count": 5567
+          "sha256": "ae3ae57329ec3f80ae85c1e6213a2e2b96195bb6bc3b75146f6143d534315d16",
+          "count": 5568
         },
         {
           "url": "https://raw.githubusercontent.com/zhufengme/block_cn_files/master/cn_ip_list.txt",
@@ -788,20 +788,20 @@
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
           "format": "faas-ip",
-          "sha256": "9ce72f1db3930caaf2872f0d7feefddc393b57b10aa227560537436703a41ce8",
+          "sha256": "2d3054e47eb5922f433d5e89a6fc5f71e6545ae223be7444b0757358499c5e0d",
           "count": 10
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
           "format": "faas-ip",
-          "sha256": "741be1231db0f388c151183e08465856d26dc5400cf77c415df1db674dcbd1d9",
+          "sha256": "8ee9716969c52a5d367818e4d626652cd8b41e0cfecd1b7bd20dab749ffa0e77",
           "count": 5
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
           "format": "faas-ip",
-          "sha256": "2e717dc004ca9df8d1b08d4cd8e2e0e59823e72ce9862e5ee0a4ebda5d3c60e4",
-          "count": 4
+          "sha256": "87c4e98f8f81ae627f4a06a9e34691a157612db527804d8bdc59c1559b81e671",
+          "count": 1
         }
       ],
       "add": [
@@ -820,11 +820,11 @@
       ],
       "output": {
         "path": "ipcidr/direct_ip.list",
-        "sha256": "7f50cd5118041b9f3b746a6161b4c372d6267d158fcea921f080e6a0f9ef7cbf"
+        "sha256": "610dc1899964e34e4dcfbec8ee0e9358bbadc2bae54fe40b9ad59d4977fc08c6"
       },
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
-        "sha256": "2e78a15eb5a571d7837c86041ce2726d8ae7c0f11a0356f07f91000fc6807a4a"
+        "sha256": "cd1254c1288bcc31444aeb2beb46676303092984cd56a9f9f1bc1d65d0921385"
       }
     },
     "dlsite": {
@@ -973,13 +973,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "9e0009d1948fa38a18ff1060d41a25b36270e595d9c214002e5e25f5ef6568d8",
-          "count": 26608
+          "sha256": "5f6191911b5fd39a186bd3add027cf0eac87b4e2b2a483de552cf7632575ce67",
+          "count": 26610
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "10d77df90eaa98987a40f4756a118bb00639e6bc11785c8c188a5021adf3dc7e",
+          "sha256": "b1a715e946da41b50439595a1a304dc1f8b2e553c3d9412290cacda4c93e3c4d",
           "count": 453
         },
         {
@@ -1250,7 +1250,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.list",
           "format": "text",
-          "sha256": "5216128f64b3a45bc1801e9346b623ef921342fa8ed3afa0bce5c2f6418c0427",
+          "sha256": "611258aca6666c5f6c9cc6d55d04c132deb888bdafd235d78b06a82c00acedaa",
           "count": 1078
         },
         {
@@ -1453,7 +1453,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media.list",
           "format": "text",
-          "sha256": "61918b0383139a1f1ff6c2396106ac1d108adf9a96808b4d83ed52c3cbf22878",
+          "sha256": "9803cc736416f52e16c9a7b2d6632157d8c9f056d0c22bd0de1eff51e2b6bc3b",
           "count": 1580
         },
         {
@@ -1471,7 +1471,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.list",
           "format": "text",
-          "sha256": "f48e78f1cac38b6067f2738109e90b7c5aa4415b1b003ca8d860ff9e4afcbbd9",
+          "sha256": "7ce54a77f117f0ce48db406000f4e821bd61bded96e188f33bc2295337c663ba",
           "count": 439
         },
         {
@@ -1569,7 +1569,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.list",
           "format": "text",
-          "sha256": "4bdc3762567bf287d8c5dc8e0602d72891b8422d8d27c378aea460e944119c6b",
+          "sha256": "de86612b5849ba407dbcba1b81f11acd9e29ab28bd0951f7b6bf5a5afb4685a8",
           "count": 556
         }
       ],
@@ -1586,7 +1586,7 @@
     },
     "microsoft": {
       "behavior": "domain",
-      "count": 597,
+      "count": 599,
       "steps": [
         {
           "op": "add",
@@ -1596,7 +1596,7 @@
               "format": "text"
             }
           ],
-          "count": 635
+          "count": 637
         },
         {
           "op": "prune-covered",
@@ -1606,7 +1606,7 @@
               "format": "text"
             }
           ],
-          "count": 597,
+          "count": 599,
           "removed": 38,
           "partialOverlap": 1
         }
@@ -1615,8 +1615,8 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.list",
           "format": "text",
-          "sha256": "cdca038133d65d2be2e988dfbf2eade3d401bb0c2338396a5e76fad66e59bd78",
-          "count": 753
+          "sha256": "2ba139fb1f9cf3ea276e1b0035268aa4c8b42bb8cde9c96420173f2533c8df74",
+          "count": 755
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.list",
@@ -1629,11 +1629,11 @@
       "remove": [],
       "output": {
         "path": "domain/microsoft.list",
-        "sha256": "bdf18fa646635633417107a36c00f1e09b59b0792604c844a53be10f46dc8384"
+        "sha256": "137dcdf76c6427755d02d5d7c9ccbe81f7610b64c07758e24d7d1a2357c5e15c"
       },
       "mrs": {
         "path": "domain/microsoft.mrs",
-        "sha256": "964445f822218a1ed40860c2c7ecba15b750c7d79be4d534e5c611eb772a6cb6"
+        "sha256": "a2e29c03776db2212204a36f9a09f50df8db69938184c824c77eb6cdbe04ce3f"
       }
     },
     "pikpak": {
@@ -1672,7 +1672,7 @@
     },
     "proxy-lite": {
       "behavior": "domain",
-      "count": 19195,
+      "count": 19197,
       "steps": [
         {
           "op": "add",
@@ -1681,7 +1681,7 @@
               "ref": "proxy"
             }
           ],
-          "count": 20869
+          "count": 20871
         },
         {
           "op": "prune-covered",
@@ -1699,7 +1699,7 @@
               "ref": "media"
             }
           ],
-          "count": 19195,
+          "count": 19197,
           "removed": 1674,
           "partialOverlap": 350
         }
@@ -1708,13 +1708,13 @@
         {
           "url": "https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/proxy.list",
           "format": "text",
-          "sha256": "9e0009d1948fa38a18ff1060d41a25b36270e595d9c214002e5e25f5ef6568d8",
-          "count": 26608
+          "sha256": "5f6191911b5fd39a186bd3add027cf0eac87b4e2b2a483de552cf7632575ce67",
+          "count": 26610
         },
         {
           "url": "https://api.github.com/meta",
           "format": "github-meta",
-          "sha256": "10d77df90eaa98987a40f4756a118bb00639e6bc11785c8c188a5021adf3dc7e",
+          "sha256": "b1a715e946da41b50439595a1a304dc1f8b2e553c3d9412290cacda4c93e3c4d",
           "count": 453
         },
         {
@@ -1787,14 +1787,14 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.list",
           "format": "text",
-          "sha256": "7feb3d3f80f9161404cfb4bd45eb5a6d6e945af5d8f2bb24d99ed88d72a6c53a",
+          "sha256": "17b9ed8a2e7c324bdb87881e729018886ea68d8a2b15fa7971652baa9ada9571",
           "count": 213
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-cn.list",
           "format": "text",
-          "sha256": "641d6fd5de7b501e2ffc86370e264968c92f4c00092f584bd43e72783e6c0a28",
-          "count": 116
+          "sha256": "6175c3ce55abaacab5a0d37073be01055a2ade8b187059f1dbe4eea1ff98819e",
+          "count": 119
         },
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google-play.list",
@@ -1805,7 +1805,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.list",
           "format": "text",
-          "sha256": "5216128f64b3a45bc1801e9346b623ef921342fa8ed3afa0bce5c2f6418c0427",
+          "sha256": "611258aca6666c5f6c9cc6d55d04c132deb888bdafd235d78b06a82c00acedaa",
           "count": 1078
         },
         {
@@ -1829,7 +1829,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media.list",
           "format": "text",
-          "sha256": "61918b0383139a1f1ff6c2396106ac1d108adf9a96808b4d83ed52c3cbf22878",
+          "sha256": "9803cc736416f52e16c9a7b2d6632157d8c9f056d0c22bd0de1eff51e2b6bc3b",
           "count": 1580
         },
         {
@@ -1841,7 +1841,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.list",
           "format": "text",
-          "sha256": "f48e78f1cac38b6067f2738109e90b7c5aa4415b1b003ca8d860ff9e4afcbbd9",
+          "sha256": "7ce54a77f117f0ce48db406000f4e821bd61bded96e188f33bc2295337c663ba",
           "count": 439
         }
       ],
@@ -1861,11 +1861,11 @@
       ],
       "output": {
         "path": "domain/proxy-lite.list",
-        "sha256": "4d82e78820c01a4b4b2735f66f38f8623451a70c678b02839673842201b87fea"
+        "sha256": "38ba55df67d769f159b3292bbb8bcffcb324ac99d8ef584a3495e87ddf65e471"
       },
       "mrs": {
         "path": "domain/proxy-lite.mrs",
-        "sha256": "36c01ddab8a4b1e016736d367b3a94b8d69759edced16a6247cde281b5d389ce"
+        "sha256": "b40a835b352256d7b9df3c46474955361ee522d1b66122cd53f7fde30e5a9b23"
       }
     },
     "proxy@direct": {
@@ -2039,7 +2039,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-finance.list",
           "format": "text",
-          "sha256": "bc7d1f241495878e8de7450219c87dd61cce172f009b0aeab74f5f29bbd7ae8a",
+          "sha256": "244165f91c27fb092bcdd6be1c65c45e11905c2141aed0de4dee8fdc3ad8d822",
           "count": 661
         },
         {
@@ -2057,7 +2057,7 @@
         {
           "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-cryptocurrency.list",
           "format": "text",
-          "sha256": "c0c456a9d1599488d21d89c7dcda7f596acb8937943514a235cd7851862930ae",
+          "sha256": "ad0b158f701f941b62a72c5047172fcbc6087f920535c84415401639e54ae120",
           "count": 240
         },
         {
