@@ -69,10 +69,12 @@ test('Personal DNS module uses ES2020 and runs without host imports', () => {
   assert.equal(typeof patchPersonalDns, 'function');
 });
 
-test('No subscription DNS additions leave the Echsfxy configuration unchanged', () => {
+test('Missing subscription node DNS removes the base fallback without changing other settings', () => {
   const input = fixtures.minimalSubscription();
   const base = upstream(input);
-  assert.deepEqual(apply(input, {}, base), base);
+  const expected = clone(base);
+  delete expected.dns['proxy-server-nameserver'];
+  assert.deepEqual(apply(input, {}, base), expected);
 });
 
 test('Private node policy is promoted without losing h3 or ECS parameters', () => {
@@ -87,7 +89,7 @@ test('Private node policy is promoted without losing h3 or ECS parameters', () =
 test('Ordinary nameserver and unrelated policies are not promoted to node DNS', () => {
   const input = { proxies: [node()], dns: { nameserver: ['https://private.example.net/dns-query'], 'nameserver-policy': { 'unrelated.example.net': 'https://private.example.net/dns-query' } } };
   const out = apply(input);
-  assert.deepEqual(out.dns['proxy-server-nameserver'], directDns);
+  assert.equal(out.dns['proxy-server-nameserver'], undefined);
   assert.equal(out.dns['proxy-server-nameserver-policy'], undefined);
 });
 
@@ -267,5 +269,98 @@ test('Unrelated HTTPS policies and non-HTTPS node resolvers do not change prefer
   } };
   assert.equal(apply(input).dns['prefer-h3'], true);
 });
+
+const overseasNodeDns = [
+  'https://odvr.nic.cz/doh#DIRECT',
+  'https://dns.digitale-gesellschaft.ch/dns-query#DIRECT',
+  'https://doh.applied-privacy.net/query#DIRECT',
+];
+test('Domestic-only node DNS becomes three direct overseas DoH resolvers', () => {
+  for (const addresses of [
+    ['223.5.5.5', '119.29.29.29'],
+    ['https://DNS.ALIDNS.COM/dns-query#旧组&h3=true', 'https://doh.pub/dns-query'],
+    ['tls://[2400:3200:0:0:0:0:0:1]', 'https://[2402:4e00:1::]/dns-query'],
+    ['114.114.115.115', '210.2.4.8'],
+    'https://doh.pub/dns-query',
+  ]) {
+    const out = apply({ proxies: [node()], dns: { 'prefer-h3': true, 'proxy-server-nameserver': addresses } });
+    assert.deepEqual(out.dns['proxy-server-nameserver'], overseasNodeDns);
+    assert.equal(out.dns['prefer-h3'], false);
+  }
+});
+test('Empty and ordinary DNS lists do not create node DNS', () => {
+  for (const dns of [undefined, {}, { 'proxy-server-nameserver': [] }, { 'proxy-server-nameserver': '' }, { nameserver: ['223.5.5.5'] }]) {
+    const out = apply({ proxies: [node()], dns });
+    assert(!Object.hasOwn(out.dns, 'proxy-server-nameserver'));
+  }
+});
+test('Foreign, mixed and private explicit resolvers retain addresses and parameters', () => {
+  for (const addresses of [
+    ['https://dns.google/dns-query#DIRECT&h3=false'],
+    ['223.5.5.5', '8.8.8.8'],
+    ['223.5.5.5', 'https://private.example.net/dns-query#ecs=192.0.2.0/24'],
+    ['https://alidns.com.example.net/dns-query', 'https://provider.example.net/223.5.5.5'],
+    overseasNodeDns,
+  ]) {
+    const out = apply({ proxies: [node()], dns: { 'proxy-server-nameserver': addresses } });
+    assert.deepEqual(out.dns['proxy-server-nameserver'], addresses.map(address => {
+      const [url, suffix = ''] = address.split('#');
+      return url + '#直接连接' + suffix.split('&').filter(part => part.includes('=')).map(part => '&' + part).join('');
+    }));
+  }
+});
+test('Domestic node policies retain their keys and provide the required default node list', () => {
+  for (const key of ['nameserver-policy', 'proxy-server-nameserver-policy']) {
+    const input = { proxies: [node()], dns: { [key]: { 'node.example.net': '223.5.5.5' } } };
+    const out = apply(input);
+    assert.deepEqual(out.dns['proxy-server-nameserver-policy'], { 'node.example.net': overseasNodeDns });
+    assert.deepEqual(out.dns['proxy-server-nameserver'], overseasNodeDns);
+  }
+  const unrelated = apply({ proxies: [node()], dns: { 'nameserver-policy': { 'other.example.net': '223.5.5.5' } } });
+  assert.equal(unrelated.dns['proxy-server-nameserver-policy'], undefined);
+});
+test('Domestic node rule-set policy replacement retains dependencies', () => {
+  const out = apply({ proxies: [node()], dns: { 'proxy-server-nameserver-policy': { 'rule-set:airport': ['119.29.29.29'] } },
+    'rule-providers': { airport: { type: 'inline', behavior: 'domain', payload: ['+.example.net'] } } });
+  assert.deepEqual(out.dns['proxy-server-nameserver-policy']['rule-set:airport'], overseasNodeDns);
+  assert.deepEqual(out['rule-providers'].airport.payload, ['+.example.net']);
+  assert.deepEqual(out.dns['proxy-server-nameserver'], overseasNodeDns);
+});
+
+const args = process.argv.slice(2);
+if (args.length) {
+  if (args.length !== 2 || args[0] !== '--mihomo') throw new Error('Usage: [--mihomo <official Mihomo executable>]');
+  const { spawnSync } = require('node:child_process');
+  const YAML = require('yaml');
+  const { loadScript } = require('./lib/loader');
+  const binary = path.resolve(args[1]);
+  const api = loadScript('Script/mihomoScript.js');
+  const parent = path.resolve(__dirname, '../.test-runtime');
+  fs.mkdirSync(parent, { recursive: true });
+  const directory = fs.mkdtempSync(path.join(parent, 'node-dns-load-'));
+  for (const [name, dns] of Object.entries({
+    absent: undefined,
+    domestic: { 'proxy-server-nameserver': ['223.5.5.5'] },
+    policy: { 'proxy-server-nameserver-policy': { 'node.example.net': '119.29.29.29' } },
+    ruleset: { 'proxy-server-nameserver-policy': { 'rule-set:airport': '223.5.5.5' } },
+  })) {
+    test('Mihomo accepts generated node DNS: ' + name, () => {
+      const output = api.main({ proxies: [node()], dns,
+        'rule-providers': { airport: { type: 'inline', behavior: 'domain', payload: ['+.example.net'] } } });
+      // Keep the generated configuration, using local rule fixtures to avoid network downloads.
+      for (const [id, provider] of Object.entries(output['rule-providers'])) {
+        output['rule-providers'][id] = { type: 'inline', behavior: provider.behavior,
+          payload: provider.behavior === 'ipcidr' ? ['192.0.2.0/24'] :
+            provider.behavior === 'classical' ? ['DOMAIN,example.invalid'] : ['+.example.invalid'] };
+      }
+      const file = path.join(directory, name + '.yaml');
+      fs.writeFileSync(file, YAML.stringify(output));
+      const result = spawnSync(binary, ['-t', '-d', directory, '-f', file], {
+        encoding: 'utf8', windowsHide: true, timeout: 15000,
+      });
+      assert.equal(result.status, 0, String(result.error || '') + result.stdout + result.stderr);
+    });
+  }
+}
 
 console.log(`Personal DNS: ${passed} passed.`);

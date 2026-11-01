@@ -35,3 +35,4 @@ jobs:
       - run: npm run test:groups -- --mihomo .test-runtime/tools/mihomo
       - run: npm run test:ai-udp -- --mihomo .test-runtime/tools/mihomo
       - run: npm run test:dns-behavior -- --mihomo .test-runtime/tools/mihomo
+      - run: npm run test:dns -- --mihomo .test-runtime/tools/mihomo

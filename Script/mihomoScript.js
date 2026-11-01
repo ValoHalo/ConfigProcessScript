@@ -1071,7 +1071,7 @@ function patchDnsExperience(config, lists, options, downloadEnabled, downloadGro
 
 
 // Private subscription DNS and hosts preservation for the Echsfxy configuration.
-const personalDnsCommonDnsList = [
+const personalDnsDomesticDnsList = [
   // IPv4（国内）
   '223.5.5.5',
   '223.6.6.6',
@@ -1079,8 +1079,10 @@ const personalDnsCommonDnsList = [
   '1.12.12.12',
   '120.53.53.53',
   '114.114.114.114',
+  '114.114.115.115',
   '180.76.76.76',
   '1.2.4.8',
+  '210.2.4.8',
   '116.116.116.116',
   '101.226.4.6',
   '123.125.81.6',
@@ -1091,8 +1093,19 @@ const personalDnsCommonDnsList = [
   '2400:3200::1',
   '2400:3200:baba::1',
   '2402:4e00::',
+  '2402:4e00:1::',
   '2400:da00::6666',
+  'alidns.com',
+  'doh.pub',
+  'dot.pub',
+  'dns.pub',
+  'dnspod.cn',
+  'dnspod.com',
+  'dns.baidu.com',
+];
 
+const personalDnsCommonDnsList = [
+  ...personalDnsDomesticDnsList,
   // IPv4（国外）
   '1.1.1.1',
   '1.0.0.1',
@@ -1134,13 +1147,6 @@ const personalDnsCommonDnsList = [
   '2610:a1:1019::1',
 
   // 公共解析服务的主机名及其子域
-  'alidns.com',
-  'doh.pub',
-  'dot.pub',
-  'dns.pub',
-  'dnspod.cn',
-  'dnspod.com',
-  'dns.baidu.com',
   'dns.google',
   'dns.cloudflare.com',
   'cloudflare-dns.com',
@@ -1151,6 +1157,16 @@ const personalDnsCommonDnsList = [
   'adguard-dns.com',
   'dns.apple.com',
   'one.one.one.one',
+  'odvr.nic.cz',
+  'dns.digitale-gesellschaft.ch',
+  'doh.applied-privacy.net',
+];
+
+// Used only when an existing node resolver list contains domestic public DNS exclusively.
+const personalDnsNodeDirectResolvers = [
+  'https://odvr.nic.cz/doh#DIRECT',
+  'https://dns.digitale-gesellschaft.ch/dns-query#DIRECT',
+  'https://doh.applied-privacy.net/query#DIRECT',
 ];
 
 // 展开 IPv6 后按地址比较，DNS 路径、参数及相似域名不参与公共解析器判定。
@@ -1186,6 +1202,13 @@ function personalDnsParseDnsEndpoint(value) {
 }
 
 const personalDnsCommonDnsHosts = personalDnsCommonDnsList.map(personalDnsNormalizeDnsHost);
+const personalDnsDomesticDnsHosts = personalDnsDomesticDnsList.map(personalDnsNormalizeDnsHost);
+function personalDnsIsDomesticDns(dns) {
+  const { host } = personalDnsParseDnsEndpoint(dns);
+  return personalDnsDomesticDnsHosts.some(
+    (known) => host === known || (!known.includes(':') && !/^\d/.test(known) && host.endsWith(`.${known}`)),
+  );
+}
 function personalDnsIsPublicDns(dns) {
   const { host, scheme } = personalDnsParseDnsEndpoint(dns);
   if (scheme === 'system' || host === 'system') return true;
@@ -1385,6 +1408,7 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
   for (const value of Object.values(retainedHosts).flatMap(values)) nodeDomains.add(value.toLowerCase());
   const matchesNode = (pattern) => !pattern.startsWith('rule-set:') && personalDnsMatchDomainPattern(pattern, nodeDomains);
   let importedHttpsWithoutForcedH3 = false;
+  let replacedDomesticNodeDns = false;
   const sanitize = (value, privateOnly = false) => [...new Set(values(value)
     .filter((address) => !localListener(address) && (!privateOnly || !personalDnsIsPublicDns(address)))
     .map((address) => {
@@ -1396,6 +1420,14 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
       if (personalDnsParseDnsEndpoint(address).scheme === 'https' && !forceH3) importedHttpsWithoutForcedH3 = true;
       return personalDnsThroughGroup(address, directGroup);
     }))];
+  const selectNodeResolvers = (addresses, privateOnly = false) => {
+    const source = values(addresses);
+    if (source.length && source.every(personalDnsIsDomesticDns) && !source.some(localListener)) {
+      replacedDomesticNodeDns = true;
+      return [...personalDnsNodeDirectResolvers];
+    }
+    return sanitize(addresses, privateOnly);
+  };
   const originalPolicy = object(originDns['nameserver-policy']);
   const explicitPolicy = object(originDns['proxy-server-nameserver-policy']);
   const nodePolicy = { ...object(dns['proxy-server-nameserver-policy']) };
@@ -1405,10 +1437,10 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
   const inheritedPrivate = [];
   for (const [pattern, addresses] of Object.entries(originalPolicy)) {
     if (!matchesNode(pattern)) continue;
-    const cleaned = sanitize(addresses, true);
+    const cleaned = selectNodeResolvers(addresses, true);
     if (!cleaned.length) continue;
-    nodePolicy[pattern] = Array.isArray(addresses) ? cleaned : cleaned[0];
-    inheritedPrivate.push(...cleaned);
+    nodePolicy[pattern] = Array.isArray(addresses) || cleaned.length > 1 ? cleaned : cleaned[0];
+    inheritedPrivate.push(...cleaned.filter((address) => !personalDnsIsPublicDns(address)));
   }
 
   const originalProviders = object(original['rule-providers']);
@@ -1441,7 +1473,7 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
     return name;
   };
   for (const [pattern, addresses] of Object.entries(explicitPolicy)) {
-    const cleaned = sanitize(addresses);
+    const cleaned = selectNodeResolvers(addresses);
     if (!cleaned.length) continue;
     let key = pattern;
     if (pattern.startsWith('rule-set:')) {
@@ -1449,25 +1481,33 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
       if (!names.length) continue;
       key = 'rule-set:' + [...new Set(names)].join(',');
     }
-    nodePolicy[key] = Array.isArray(addresses) ? cleaned : cleaned[0];
+    nodePolicy[key] = Array.isArray(addresses) || cleaned.length > 1 ? cleaned : cleaned[0];
     if (matchesNode(pattern)) inheritedPrivate.push(...sanitize(addresses, true));
   }
   if (copiedRuleProvider) next['rule-providers'] = ruleProviders;
   if (Object.keys(nodePolicy).length) dns['proxy-server-nameserver-policy'] = nodePolicy;
   else delete dns['proxy-server-nameserver-policy'];
 
-  const explicitResolvers = sanitize(originNodeResolvers);
+  const explicitResolvers = selectNodeResolvers(originNodeResolvers);
   const privateResolvers = [...new Set(inheritedPrivate)];
   if (explicitResolvers.length || privateResolvers.length) {
     dns['proxy-server-nameserver'] = [...new Set([...explicitResolvers, ...privateResolvers])];
+  } else if (Object.keys(nodePolicy).length) {
+    // Mihomo requires a default node resolver whenever a node policy is present.
+    // Reuse the supplied policies instead of adding an unrelated default resolver.
+    dns['proxy-server-nameserver'] = [...new Set(Object.values(nodePolicy).flatMap(values))];
   } else if (originNodeResolvers.some(localListener)) {
     // The imported local DNS listener is not present in the generated config.
     dns['proxy-server-nameserver'] = copy(dns['direct-nameserver'] || dns['default-nameserver'] || []);
+  } else {
+    // Do not retain the base configuration's default when the subscription has no node DNS.
+    delete dns['proxy-server-nameserver'];
   }
   // Mihomo only handles h3=true as a per-resolver override; h3=false does not
   // cancel prefer-h3. Preserve the source transport preference when importing
   // node HTTPS resolvers, while leaving configurations without them unchanged.
-  if (dns['prefer-h3'] === true && originDns['prefer-h3'] !== true && importedHttpsWithoutForcedH3) {
+  if (dns['prefer-h3'] === true && (replacedDomesticNodeDns ||
+    (originDns['prefer-h3'] !== true && importedHttpsWithoutForcedH3))) {
     dns['prefer-h3'] = false;
   }
 

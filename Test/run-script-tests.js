@@ -164,7 +164,7 @@ async function main() {
       for (const [key, addresses] of Object.entries(output.dns['nameserver-policy'])) {
         if (addresses.some(address => address.includes('#代理DNS'))) assert(addresses.includes(general), key);
       }
-      assert(!output.dns['proxy-server-nameserver'].some(address => address.includes('v.recipes')));
+      assert(!(output.dns['proxy-server-nameserver'] || []).some(address => address.includes('v.recipes')));
     }
     for (const id of ['ai', 'dlsite', 'youtube', 'ehentai']) {
       assert(!current.dns['nameserver-policy']['rule-set:' + id].includes(general), id);
@@ -192,6 +192,19 @@ async function main() {
     assert.deepEqual(legacy.dns.nameserver.map(address => address.replace(/&ecs=[^&]+/g, '').replace(/&ecs-override=[^&]+/g, '')), current.dns.nameserver);
     assert(legacy.dns.nameserver.filter(address => /dns\.google|dns\.quad9\.net/.test(address)).every(address => address.includes('&ecs=')));
     assert(legacy.dns.nameserver.filter(address => /cloudflare-dns\.com|v\.recipes/.test(address)).every(address => !address.includes('ecs=')));
+  });
+  test('Published script replaces domestic-only node DNS and leaves missing node DNS absent', () => {
+    assert(!Object.hasOwn(current.dns, 'proxy-server-nameserver'));
+    const custom = fixture();
+    custom.dns = { 'proxy-server-nameserver': ['223.5.5.5', 'https://doh.pub/dns-query'] };
+    const output = evaluate(code, custom);
+    assert.deepEqual(output.dns['proxy-server-nameserver'], [
+      'https://odvr.nic.cz/doh#DIRECT',
+      'https://dns.digitale-gesellschaft.ch/dns-query#DIRECT',
+      'https://doh.applied-privacy.net/query#DIRECT',
+    ]);
+    assert.deepEqual(output.dns['direct-nameserver'], current.dns['direct-nameserver']);
+    assert.equal(output.dns['prefer-h3'], false);
   });
   test('Client controls listener, controller and TUN settings', () => {
     for (const key of ['tun', 'allow-lan', 'mixed-port', 'external-controller', 'secret']) assert.equal(current[key], undefined);
