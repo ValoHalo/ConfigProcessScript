@@ -1006,6 +1006,7 @@
 +.abtest.todesk.com
 +.abtest3-misc-hl.zijieapi.com
 +.abtest3-misc-lf.zijieapi.com
++.abu.usaday.biz
 +.ac.dun.163yun.com
 +.ac.o2.qq.com
 +.ac.rnm.ca
@@ -4089,6 +4090,7 @@
 +.darm.cn
 +.darngavel.com
 +.darvin-ec.ads.heytapmobi.com
++.dash.kryon.one
 +.data-577c2406e4.dewezet.de
 +.data-abtest-api.mihoyo.com
 +.data-api.fenbi.com
@@ -12000,29 +12002,17 @@ adexp.liftoff.io
 adguanggao.eee114.com
 adimg.uve.weibo.com
 admarketing.yahoo.net
-ads-api.tiktok.com
 ads-api.twitter.com
-ads-jp.tiktok.com
 ads-sdk-api.ranfenghd.com
-ads-sg.tiktok.com
 ads.auctions.yahoo.com
 ads.finance.yahoo.com
 ads.raidrive.com
 adsebs.ximalaya.com
 adservice.sigmob.cn
-adspecs.yahoo.com
 adstrategy.biz.weibo.com
 adstudio-assets.scdn.co
-adstudio.spotify.com
 adtago.s3.amazonaws.com
-adtech.yahooinc.com
 adui.tg.meitu.com
-advertising-api-eu.amazon.com
-advertising-api-fe.amazon.com
-advertising-api.amazon.com
-advertising.apple.com
-advertising.yahoo.com
-advertising.yandex.ru
 advice-ads.s3.amazonaws.com
 adx-ad.smart-tv.cn
 adx-bj-req.anythinktech.com
@@ -12055,7 +12045,6 @@ api.ssp.xcultur.com
 api.statsig.com
 aqyad.com
 bdapi.ads.oppomobile.com
-bingads.microsoft.com
 biz.weibo.com
 books-analytics-events.apple.com
 bootpreload.uve.weibo.com
@@ -12072,6 +12061,7 @@ cdn.liftoff-creatives.io
 ck.ads.oppomobile.com
 click.chinaliftoff.io
 click4.chinaliftoff.io
+client-upload.cn-shanghai.log.aliyuncs.com
 cloooud.com
 cn-api.anythinktech.com
 cnlogs.umengcloud.com
@@ -12084,6 +12074,7 @@ data.mistat.rus.xiaomi.com
 data.mistat.xiaomi.com
 datacollection.uve.weibo.com
 dc.sigmob.cn
+du-app.cn-hangzhou.log.aliyuncs.com
 edge.ads.twitch.tv
 events.reddit.com
 events.redditmedia.com
@@ -12113,6 +12104,7 @@ klink.volceapplog.com
 knicks.jd.com
 launcher.smart-tv.cn
 launcherimg.smart-tv.cn
+lf-event-manager.oceanengine.com
 lf3-ad-union-sdk.pglstatp-toutiao.com
 lf6-ad-union-sdk.pglstatp-toutiao.com
 lh3.googleadsserving.cn
@@ -12184,6 +12176,8 @@ sdkconfig.play.aiseet.atianqi.com
 sdownload.stargame.com
 sf16-static.i18n-pglstatp.com
 sf3-fe-tos.pglstatp-toutiao.com
+shihuo-new.log.shihuocdn.cn
+shihuo.log.shihuocdn.cn
 shouji.sogou.com
 smetrics.samsung.com
 sms.ads.oppomobile.com
