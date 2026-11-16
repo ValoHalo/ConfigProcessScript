@@ -3,3 +3,7 @@ DOMAIN,fsend.cn
 DOMAIN-SUFFIX,lsposed.org
 DOMAIN-SUFFIX,lsposed.zip
 DOMAIN,international-gfe.download.nvidia.com
+# 卡巴斯基官网、更新及安全网络服务。
+DOMAIN-SUFFIX,kaspersky.com
+DOMAIN-SUFFIX,kaspersky-labs.com
+DOMAIN-SUFFIX,kaspersky.com.hk

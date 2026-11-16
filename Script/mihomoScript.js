@@ -667,7 +667,10 @@ const personalLists = {
     "DOMAIN,fsend.cn",
     "DOMAIN-SUFFIX,lsposed.org",
     "DOMAIN-SUFFIX,lsposed.zip",
-    "DOMAIN,international-gfe.download.nvidia.com"
+    "DOMAIN,international-gfe.download.nvidia.com",
+    "DOMAIN-SUFFIX,kaspersky.com",
+    "DOMAIN-SUFFIX,kaspersky-labs.com",
+    "DOMAIN-SUFFIX,kaspersky.com.hk"
   ],
   "downloads": [
     "DOMAIN-SUFFIX,steamcontent.com",
