@@ -774,6 +774,22 @@
       "minEntries": 1,
       "maxShrinkRatio": 0.35
     },
+    "discord": {
+      "behavior": "domain",
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/discord.list",
+              "format": "text"
+            }
+          ]
+        }
+      ],
+      "minEntries": 1,
+      "maxShrinkRatio": 0.35
+    },
     "microsoft": {
       "behavior": "domain",
       "steps": [

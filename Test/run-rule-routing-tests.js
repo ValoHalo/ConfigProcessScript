@@ -73,7 +73,7 @@ async function runCase(binary, options, mode) {
       try { await control('/version'); ready = true; break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
     }
     if (!ready) throw new Error('Mihomo did not start: ' + logs.slice(-1500));
-    for (const [group, node] of Object.entries({ 代理连接: 'HK 01', GOOGLE: '代理连接', 国外AI: 'US 01' })) {
+    for (const [group, node] of Object.entries({ 代理连接: 'US 01', GOOGLE: '代理连接', 国外AI: 'US 01' })) {
       await control('/proxies/' + encodeURIComponent(group), 'PUT', { name: node });
     }
     // Providers initialize asynchronously; require the complete set before requests.
@@ -102,6 +102,7 @@ async function runCase(binary, options, mode) {
         const connection = active.connections.find(c => item.domain ? c.metadata.host === item.domain : c.metadata.destinationIP === item.ip);
         assert(connection, target + ': connection metadata missing');
         assert(connection.chains.includes(item.expectedPolicy), `${target}: expected ${item.expectedPolicy}, got ${connection.chains.join(' -> ')}`);
+        if (item.expectedExit) assert.equal(connection.chains[0], item.expectedExit, target + ': outbound');
         const parts = item.expectedRule.split(',');
         const expectedType = { 'RULE-SET': 'RuleSet', 'DOMAIN': 'Domain', 'DOMAIN-SUFFIX': 'DomainSuffix', 'SUB-RULE': 'SubRules', 'DST-PORT': 'DstPort' }[parts[0]];
         const expectedPayload = parts[0] === 'SUB-RULE' ? item.expectedRule.slice(9, item.expectedRule.lastIndexOf(',')) : parts[0] === 'DST-PORT' ? String(fx.origin.port) : parts[1];

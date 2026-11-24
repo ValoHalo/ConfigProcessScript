@@ -23,7 +23,7 @@ function bettboxOptions(settings, applications) {
   options.push(
     ['OneDrive', settings.oneDrive, 'OneDrive 进程独立分流，默认直连'],
     ['DLsite', settings.dlsite.enabled, 'DLsite 独立分流，默认日本'],
-    ['AI固定出口', settings.ai.enabled, 'AI 只使用手动选定的美国或日本节点'],
+    ['AI固定出口', settings.ai.enabled, 'AI 默认按' + settings.ai.regions.join('、') + '的顺序选用已有地区分组，也可手选节点；没有对应分组时跟随代理连接'],
     ['大流量下载直连', settings.downloads.enabled, '游戏与系统下载独立分流，默认直连'],
     ['DNS跟随服务', true, '应用域名解析跟随该应用选择的出口'],
   );

@@ -57,9 +57,6 @@ async function runCase({ binary, directory, production, originPort, guarded, arr
   assert(aiIndex >= 0, 'Production AI rule is missing');
   const guard = production.rules[aiIndex + 1];
   assert(guard?.endsWith(',REJECT') && guard.includes('(NETWORK,UDP)') && guard.includes('(RULE-SET,ai)'), 'Production AI rule must be immediately followed by its UDP rejection guard');
-  const aiGroup = clone(production['proxy-groups'].find(group => group.name === '国外AI'));
-  const quicGroup = clone(production['proxy-groups'].find(group => group.name === '代理QUIC'));
-  assert(aiGroup && quicGroup, 'Production service groups are missing');
   const nodeProvider = clone(production['proxy-providers']['节点']);
   nodeProvider['health-check'] = { enable: false };
   const subAi = clone(production['sub-rules']['sub-ai']);
@@ -81,7 +78,11 @@ async function runCase({ binary, directory, production, originPort, guarded, arr
     hosts: { 'fixed-ai.test': '127.0.0.1', 'other-service.test': '127.0.0.1' },
     dns: { enable: true, ipv6: false, 'use-hosts': true, nameserver: ['127.0.0.1:9'] },
     'proxy-providers': { 节点: nodeProvider },
-    'proxy-groups': [aiGroup, quicGroup, { name: 'Review fallback', type: 'select', proxies: ['DIRECT'] }],
+    proxies: production.proxies,
+    'proxy-groups': [
+      ...production['proxy-groups'].map(group => ({ ...group, interval: 0, lazy: true, url: 'http://127.0.0.1:9/' })),
+      { name: 'Review fallback', type: 'select', proxies: ['DIRECT'] },
+    ],
     'rule-providers': { ai: { type: 'inline', behavior: 'domain', format: 'text', payload: ['fixed-ai.test'] } },
     'sub-rules': { 'sub-ai': localSubAi },
     rules: [production.rules[aiIndex], ...(guarded ? [guard] : []), 'MATCH,Review fallback'],

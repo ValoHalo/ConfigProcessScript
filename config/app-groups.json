@@ -19,6 +19,12 @@
     "enabled": true
   },
   {
+    "name": "Discord",
+    "domain": "discord",
+    "defaultGroup": "代理连接",
+    "enabled": true
+  },
+  {
     "name": "Steam",
     "domain": "steam",
     "defaultGroup": "代理连接",

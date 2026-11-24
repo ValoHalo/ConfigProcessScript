@@ -10,6 +10,10 @@
 https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Script/mihomoScript.js
 ```
 
+启用“AI固定出口”后，“国外AI”菜单只列出订阅中已有的美国、日本分组及其具体节点。首次使用时默认走美国分组；没有美国节点时走日本，两地都没有节点时跟随“代理连接”。要固定使用某个节点，可以直接在“国外AI”里选它。
+
+卡巴斯基官网、My Kaspersky 账户页、登录和官网 API 使用“直接连接”，域名解析也走直连。域名清单在 `Rules/personal/extra-direct.list`。
+
 ## 节点域名 DNS
 
 订阅提供的节点解析列表全部为已识别的国内公共 DNS 时，替换为以下直连 DoH：

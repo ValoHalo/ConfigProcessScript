@@ -27,17 +27,17 @@ function main(subscription) {
   for (const key of ['microsoft-direct', 'extra-direct', 'academic-direct']) for (const rule of personalLists[key]) earlyRules.push(rule + ',直接连接');
 
   if (ruleOptionsEnable.AI固定出口) {
-    const candidates = [];
-    for (const region of personalSettings.ai.regions) {
-      for (const name of nodeGroups.regions[region] || []) if (!candidates.includes(name)) candidates.push(name);
-    }
+    const regions = personalSettings.ai.regions;
+    const regionGroups = [...new Set(regions.map(region => nodeGroups.regionGroups[region]).filter(Boolean))];
+    const candidates = [...new Set(regions.flatMap(region => nodeGroups.regions[region] || []))];
     aiGroup.type = 'select';
-    aiGroup.proxies = ['REJECT'];
-    // Provider nodes must be referenced through use, not the top-level proxies list.
-    // Match names exactly so an update cannot add a different region to this group.
-    aiGroup.use = ['节点'];
-    aiGroup.filter = '^(?:' + ['REJECT', ...candidates].map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')$';
-    aiGroup['default-selected'] = 'REJECT';
+    aiGroup.proxies = regionGroups.length ? regionGroups : ['代理连接'];
+    aiGroup['default-selected'] = aiGroup.proxies[0];
+    if (candidates.length) {
+      aiGroup.use = ['节点'];
+      aiGroup.filter = personalNodeFilter([...aiGroup.proxies, ...candidates]);
+    }
+    delete aiGroup['empty-fallback'];
     delete aiGroup['include-all-providers'];
     delete aiGroup['include-all'];
   }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "configSha256": "0e210ea0fda8b41b01512ab61e5b2c96c4d8e87efbbd09aadeac90c84f9cf63e",
+  "configSha256": "646e1d5dd3ccfc4d03a1f073990c5359e70c3efd75c5abe748747a84d9c6d003",
   "components": {
     "google-cn-exclusions": {
       "behavior": "domain",
@@ -825,6 +825,40 @@
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
         "sha256": "d63a561b7094454e37cb3554b115ee889c77121e363fce98412ed1dbf9ec8b8b"
+      }
+    },
+    "discord": {
+      "behavior": "domain",
+      "count": 28,
+      "steps": [
+        {
+          "op": "add",
+          "sources": [
+            {
+              "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/discord.list",
+              "format": "text"
+            }
+          ],
+          "count": 28
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/discord.list",
+          "format": "text",
+          "sha256": "9f2530e2dc4117a27851256d731908931064bc6c9fefe43f69cc164804a33456",
+          "count": 28
+        }
+      ],
+      "add": [],
+      "remove": [],
+      "output": {
+        "path": "domain/discord.list",
+        "sha256": "4c92e454d0644d77b74f0acf1fd874d2d98545b9c9111abd4fedeebdd71c4f3a"
+      },
+      "mrs": {
+        "path": "domain/discord.mrs",
+        "sha256": "d7387b23e75ca9a93086ee7f9d398efb936c64bdbb85d97aa7dea99de2381891"
       }
     },
     "dlsite": {

@@ -106,14 +106,13 @@ async function main() {
     assert(!current.rules.includes('DOMAIN-SUFFIX,login.microsoftonline.com,直接连接'));
     assert(current.rules.includes('DOMAIN-SUFFIX,arxiv.org,直接连接'));
   });
-  test('AI uses concrete allowed nodes and starts at REJECT', () => {
+  test('AI starts in the preferred region and allows individual nodes', () => {
     const group = current['proxy-groups'].find(g => g.name === '国外AI');
-    assert.deepEqual(group.proxies, ['REJECT']);
+    assert.deepEqual(group.proxies, ['美国', '日本']);
     assert.deepEqual(group.use, ['节点']);
     const allowed = new RegExp(group.filter);
     assert(allowed.test('US 01') && allowed.test('JP 01') && !allowed.test('HK 01') && !allowed.test('xUS 01'));
     assert.equal(group['include-all-providers'], undefined);
-    assert.equal(evaluate(code, { proxies: [fixture().proxies[0]] })['proxy-groups'].find(g => g.name === '国外AI').proxies.length, 1);
     assert.equal(current.rules[current.rules.indexOf('SUB-RULE,(RULE-SET,ai),sub-ai') + 1], 'AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
   });
   test('DLsite is a normal selector defaulting to Japan', () => {

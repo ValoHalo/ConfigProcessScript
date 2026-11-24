@@ -170,6 +170,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
       ['child.learn.microsoft.com', true, 'Microsoft child domain stays outside exact rule'],
       ['www.nature.com', false, 'Academic suffix direct rule'],
+      ['my.kaspersky.com', false, 'My Kaspersky uses a real IP under personal direct rules'],
       ['api.lsposed.org', false, 'Personal suffix direct rule'],
       ['baidu.com', false, 'Upstream domestic real-IP rule'],
       ['cdn.steamcontent.com', true, 'Selectable downloads retain Fake-IP'],
@@ -249,12 +250,15 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await call('/proxies/' + encodeURIComponent('代理连接'), 'PUT', { name: 'US 01' });
       fx.origin.closeConnections();
       await delay(30);
+      await realQuery('my.kaspersky.com', 'DIRECT', domestic);
       await realQuery('chatgpt.com', 'US 01', general);
       await realQuery('www.dlsite.com', 'US 01', general);
       await realQuery('www.youtube.com', 'US 01', general);
     } else {
       await realQuery('learn.microsoft.com', 'DIRECT', domestic);
       await realQuery('www.nature.com', 'DIRECT', domestic);
+      await realQuery('my.kaspersky.com', 'DIRECT', domestic);
+      await realQuery('api-router.kaspersky-labs.com', 'DIRECT', domestic);
       await realQuery('cdn.steamcontent.com', 'DIRECT', domestic);
       await call('/proxies/' + encodeURIComponent('下载更新'), 'PUT', { name: '代理连接' });
       // Selecting a group does not terminate existing DoH keep-alive sessions.

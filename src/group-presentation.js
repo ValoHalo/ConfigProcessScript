@@ -10,6 +10,7 @@ function personalGroupIcons() {
     'YouTube': qure('YouTube'),
     'GOOGLE': qure('Google_Search'),
     'TELEGRAM': qure('Telegram'),
+    'Discord': qure('Discord'),
     'Microsoft': qure('Microsoft'),
     'OneDrive': qure('OneDrive'),
     'Apple': qure('Apple'),
@@ -55,7 +56,7 @@ function configureGroupPresentation(config, nodeGroups) {
   });
   const order = [
     '代理连接', '直接连接', '代理DNS', '代理QUIC',
-    '国外AI', 'YouTube', '海外媒体', 'GOOGLE', 'TELEGRAM', 'Microsoft', 'OneDrive',
+    '国外AI', 'YouTube', '海外媒体', 'GOOGLE', 'TELEGRAM', 'Discord', 'Microsoft', 'OneDrive',
     'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak',
     'EHentai', 'DLsite', 'FCM', '下载更新', '下载相关', '风控安全',
   ];

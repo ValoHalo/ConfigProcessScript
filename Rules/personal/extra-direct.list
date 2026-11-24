@@ -44,3 +44,9 @@ DOMAIN-SUFFIX,kaspersky.ro
 DOMAIN-SUFFIX,kaspersky.rs
 DOMAIN-SUFFIX,kaspersky.ru
 DOMAIN-SUFFIX,kaspersky.se
+# 全球官网地区跳转、短链接及官网列出的独立站点。
+# https://www.kaspersky.com/
+DOMAIN-SUFFIX,kaspersky.ua
+DOMAIN,kas.pr
+DOMAIN-SUFFIX,securelist.com
+DOMAIN-SUFFIX,kasperskyesimstore.com

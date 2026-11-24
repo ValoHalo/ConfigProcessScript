@@ -1,5 +1,35 @@
 [
   {
+    "domain": "www.kaspersky.com",
+    "expectedPolicy": "直接连接",
+    "expectedExit": "DIRECT",
+    "expectedRule": "DOMAIN-SUFFIX,kaspersky.com,直接连接"
+  },
+  {
+    "domain": "my.kaspersky.com",
+    "expectedPolicy": "直接连接",
+    "expectedExit": "DIRECT",
+    "expectedRule": "DOMAIN-SUFFIX,kaspersky.com,直接连接"
+  },
+  {
+    "domain": "api-router.kaspersky-labs.com",
+    "expectedPolicy": "直接连接",
+    "expectedExit": "DIRECT",
+    "expectedRule": "DOMAIN-SUFFIX,kaspersky-labs.com,直接连接"
+  },
+  {
+    "domain": "www.kaspersky.com.cn",
+    "expectedPolicy": "直接连接",
+    "expectedExit": "DIRECT",
+    "expectedRule": "DOMAIN-SUFFIX,kaspersky.com.cn,直接连接"
+  },
+  {
+    "domain": "kas.pr",
+    "expectedPolicy": "直接连接",
+    "expectedExit": "DIRECT",
+    "expectedRule": "DOMAIN,kas.pr,直接连接"
+  },
+  {
     "domain": "mtalk.google.com",
     "expectedPolicy": "FCM",
     "expectedRule": "SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm"
@@ -143,6 +173,21 @@
     "domain": "telegram.org",
     "expectedPolicy": "TELEGRAM",
     "expectedRule": "SUB-RULE,(RULE-SET,telegram),sub-app-telegram"
+  },
+  {
+    "domain": "discord.com",
+    "expectedPolicy": "Discord",
+    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
+  },
+  {
+    "domain": "cdn.discordapp.com",
+    "expectedPolicy": "Discord",
+    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
+  },
+  {
+    "domain": "discord-attachments-uploads-prd.storage.googleapis.com",
+    "expectedPolicy": "Discord",
+    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
   },
   {
     "domain": "apple.com",

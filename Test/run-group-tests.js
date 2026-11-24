@@ -163,25 +163,29 @@ function configurationTests() {
     assert(regional, 'Japanese parent missing after collision resolution');
     checkBucket(cfg, regional, names.slice(0, 4));
     assert.equal(byName(cfg, 'DLsite').proxies[0], regional.name);
+    assert.deepEqual(byName(cfg, '国外AI').proxies, ['美国', regional.name]);
     checkReferences(cfg);
   });
-  test('AI selector retains only concrete American and Japanese nodes plus REJECT', () => {
-    const cfg = generate(['US 01', 'JP 02', 'HK 03', 'NL 04', 'US 剩余流量']);
+  test('AI offers US and Japan groups and their nodes, with US first regardless of subscription order', () => {
+    const cfg = generate(['JP 02', 'US 01', 'HK 03', 'NL 04', 'US 剩余流量']);
     const ai = byName(cfg, '国外AI');
     assert.equal(ai.type, 'select');
-    assert.deepEqual(ai.proxies, ['REJECT']);
+    assert.deepEqual(ai.proxies, ['美国', '日本']);
     assert.deepEqual(ai.use, ['节点']);
     assert.deepEqual(sorted(candidates(cfg, ai)), ['JP 02', 'US 01']);
-    assert.equal(ai['default-selected'], 'REJECT');
+    assert.equal(ai['default-selected'], '美国');
     assert.equal(ai['include-all-providers'], undefined);
     assert.equal(ai['include-all'], undefined);
   });
-  test('AI works safely when no American or Japanese nodes are available', () => {
-    const cfg = generate(['HK 01']);
-    const ai = byName(cfg, '国外AI');
-    assert.deepEqual(ai.proxies, ['REJECT']);
-    assert.deepEqual(candidates(cfg, ai), []);
-    checkReferences(cfg);
+  test('AI starts in Japan without US nodes and follows the proxy group without either region', () => {
+    for (const [names, target] of [[['JP 01', 'US 剩余流量'], '日本'], [['HK 01'], '代理连接']]) {
+      const cfg = generate(names);
+      const ai = byName(cfg, '国外AI');
+      assert.deepEqual(ai.proxies, [target]);
+      assert.equal(ai['default-selected'], target);
+      if (target === '代理连接') assert.equal(ai.use, undefined);
+      checkReferences(cfg);
+    }
   });
   test('DLsite defaults to the ordinary Japanese selector', () => {
     const cfg = generate(['JP 01', 'US 01']);
@@ -315,7 +319,8 @@ async function coreTest(binary, label, names) {
   const fx = await fixtures();
   const cfg = generate(names);
   const expected = buckets(cfg).map(group => ({ parent: group.name, children: group.proxies, nodes: candidates(cfg, group) }));
-  const aiCandidates = candidates(cfg, byName(cfg, '国外AI'));
+  const ai = byName(cfg, '国外AI');
+  const aiCandidates = ai.use ? candidates(cfg, ai) : [];
   let child, logs = '';
   try {
     const controller = await freePort(), secret = crypto.randomUUID();
@@ -364,8 +369,8 @@ async function coreTest(binary, label, names) {
         assert.deepEqual(sorted(loaded[item.children[index]].all), sorted(item.nodes), item.children[index] + ': core provider candidates');
       }
     }
-    assert.deepEqual(sorted(loaded['国外AI'].all), sorted(['REJECT', ...aiCandidates]), 'Core AI choices');
-    assert.equal(loaded['国外AI'].now, 'REJECT');
+    assert.deepEqual(sorted(loaded['国外AI'].all), sorted([...ai.proxies, ...aiCandidates]), 'Core AI choices');
+    assert.equal(loaded['国外AI'].now, ai.proxies[0], 'Core AI initial choice');
     assert.equal(loaded.DLsite.now, byName(cfg, 'DLsite').proxies[0], 'Core DLsite initial choice');
     assert.equal(loaded.EHentai.now, byName(cfg, 'EHentai').proxies[0], 'Core EHentai initial choice');
     assert.equal(loaded.FCM.now, '直接连接', 'Core FCM initial choice');
@@ -395,6 +400,7 @@ async function main() {
     const binary = path.resolve(args[1]);
     await coreTest(binary, 'all regions, rates and metacharacters', ['HK [a]+ 0.5x', 'TW 01', 'SG 01', 'JP 0.59x', 'US 2x', 'DE 01', 'UK 01', 'NL 01', 'Canada 01', 'NL 剩余流量']);
     await coreTest(binary, 'only Hong Kong; absent Japan, America and Netherlands', ['HK 01', 'NL 剩余流量']);
+    await coreTest(binary, 'Japan without US', ['HK 01', 'JP 01']);
     await coreTest(binary, 'node/group name collisions', ['日本', '日本|最低延迟', '日本|负载均衡', '日本（分组）', 'US 2x']);
   }
   console.log(count + ' group behavior checks passed.');
