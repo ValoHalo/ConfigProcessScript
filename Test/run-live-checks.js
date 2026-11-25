@@ -30,7 +30,7 @@ async function main() {
   Object.assign(config, { 'mixed-port': port, 'allow-lan': false, 'bind-address': '127.0.0.1', tun: { enable: false }, ntp: { enable: false }, 'external-controller': '127.0.0.1:' + await freePort(), secret: crypto.randomUUID(), 'external-ui': '', 'external-ui-url': '', 'log-level': 'info' });
   // Ensure the generic health URL exercises the selected AI node, even when
   // upstream Apple rules normally select a direct connection.
-  config.rules.unshift('DOMAIN,www.apple.com,国外AI');
+  config.rules.unshift('DOMAIN,www.apple.com,AI');
   for (const group of config['proxy-groups']) { group.interval = 0; group.lazy = true; }
   for (const provider of Object.values(config['proxy-providers'])) if (provider['health-check']) provider['health-check'].enable = false;
   const core = new BettboxCore(defaultCorePath(), directory);
@@ -50,7 +50,7 @@ async function main() {
       }
     }
     const groups = await core.call('getProxies');
-    const availableNames = (groups['国外AI'].all || []).filter(name => name !== 'REJECT');
+    const availableNames = (groups.AI.all || []).filter(name => name !== 'REJECT');
     const settings = JSON.parse(fs.readFileSync('Rules/personal/settings.json', 'utf8'));
     const ordered = [];
     for (const region of settings.ai.regions) {
@@ -62,7 +62,7 @@ async function main() {
     const candidates = ordered.slice(0, 3);
     let connected = false;
     for (const [index, node] of candidates.entries()) {
-      await core.select('代理连接', node); await core.select('国外AI', node);
+      await core.select('代理连接', node); await core.select('AI', node);
       try {
         const result = await probe({ url: 'https://www.apple.com/library/test/success.html', proxy: 'http://127.0.0.1:' + port, timeout: 12000 });
         report.checks.push({ case: 'AI candidate ' + (index + 1), status: result.status });

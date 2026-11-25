@@ -40,7 +40,7 @@ function candidates(cfg, group) {
   return nodeNames(cfg).filter(name => !group.filter || regex(group.filter).test(name));
 }
 function buckets(cfg) {
-  return groups(cfg).filter(group => group.type === 'select' && group.use?.includes('节点') && group.proxies?.length === 2 && byName(cfg, group.proxies[0])?.type === 'url-test' && byName(cfg, group.proxies[1])?.type === 'load-balance');
+  return groups(cfg).filter(group => group.type === 'select' && group.use?.includes('节点') && group.proxies?.length === 1 && byName(cfg, group.proxies[0])?.type === 'url-test');
 }
 function expectBucket(cfg, label, expected) {
   const group = byName(cfg, label);
@@ -49,19 +49,16 @@ function expectBucket(cfg, label, expected) {
   return group;
 }
 function checkBucket(cfg, group, expected) {
-  assert(buckets(cfg).includes(group), group.name + ': must select two automatic children');
+  assert(buckets(cfg).includes(group), group.name + ': must select one automatic url-test child');
   assert.deepEqual(group.use, ['节点']);
   assert.deepEqual(sorted(candidates(cfg, group)), sorted(expected), group.name + ': incorrect provider candidates');
-  for (const [index, type] of ['url-test', 'load-balance'].entries()) {
-    const child = byName(cfg, group.proxies[index]);
-    assert.equal(child.type, type);
-    assert.deepEqual(child.use, ['节点']);
-    assert.deepEqual(sorted(candidates(cfg, child)), sorted(expected), child.name + ': incorrect provider candidates');
-    assert.equal(child['include-all-providers'], undefined);
-    assert.equal(child['include-all'], undefined);
-    assert.equal(child.hidden, true, child.name + ': automatic modes belong inside the parent');
-    if (type === 'load-balance') assert.equal(child.strategy, 'round-robin');
-  }
+  const child = byName(cfg, group.proxies[0]);
+  assert.equal(child.type, 'url-test');
+  assert.deepEqual(child.use, ['节点']);
+  assert.deepEqual(sorted(candidates(cfg, child)), sorted(expected), child.name + ': incorrect provider candidates');
+  assert.equal(child['include-all-providers'], undefined);
+  assert.equal(child['include-all'], undefined);
+  assert.equal(child.hidden, true, child.name + ': automatic mode belongs inside the parent');
   assert(expected.length > 0, 'An empty bucket must never be generated');
 }
 function checkReferences(cfg) {
@@ -82,9 +79,9 @@ function checkReferences(cfg) {
     }
   }
   for (const provider of Object.values(cfg['rule-providers'])) if (provider.proxy) assert(allowed.has(provider.proxy), 'Unknown rule download proxy ' + provider.proxy);
-  assert(!groups(cfg).some(group => /\|(?:故障转移|轮询下载)$/.test(group.name)), 'Old regional groups must be removed');
-  for (const group of groups(cfg)) assert(!(group.proxies || []).some(name => /\|(?:故障转移|轮询下载)$/.test(name)), 'Old regional reference in ' + group.name);
-  for (const service of ['代理连接', '直接连接', '代理DNS', '代理QUIC', 'TELEGRAM', '国外AI', '下载相关', '风控安全', 'GOOGLE', '海外媒体', 'GLOBAL']) assert(byName(cfg, service), 'Missing service ' + service);
+  assert(!groups(cfg).some(group => /\|(?:故障转移|轮询下载|负载均衡)$/.test(group.name)), 'Legacy regional and load-balance groups must be absent');
+  for (const group of groups(cfg)) assert(!(group.proxies || []).some(name => /\|(?:故障转移|轮询下载|负载均衡)$/.test(name)), 'Legacy reference in ' + group.name);
+  for (const service of ['代理连接', '直接连接', '代理DNS', 'TELEGRAM', 'AI', 'GOOGLE', 'Media', 'GLOBAL']) assert(byName(cfg, service), 'Missing service ' + service);
   assert.equal(byName(cfg, '最低延迟').type, 'url-test');
   assert.equal(byName(cfg, '故障转移').type, 'fallback');
 }
@@ -156,19 +153,19 @@ function configurationTests() {
     assert.deepEqual(clone(api.main(source)), first, 'Repeating the original input must be deterministic');
   });
   test('Dynamic names avoid collisions with actual subscription node names', () => {
-    const names = ['日本', '日本|最低延迟', '日本|负载均衡', '日本（分组）', 'US 2x'];
+    const names = ['日本', '日本|最低延迟', '日本（分组）', 'US 2x'];
     const cfg = generate(names);
     for (const group of groups(cfg)) assert(!names.includes(group.name), 'Group collides with node: ' + group.name);
     const regional = buckets(cfg).find(group => candidates(cfg, group).includes('日本'));
     assert(regional, 'Japanese parent missing after collision resolution');
-    checkBucket(cfg, regional, names.slice(0, 4));
+    checkBucket(cfg, regional, names.slice(0, 3));
     assert.equal(byName(cfg, 'DLsite').proxies[0], regional.name);
-    assert.deepEqual(byName(cfg, '国外AI').proxies, ['美国', regional.name]);
+    assert.deepEqual(byName(cfg, 'AI').proxies, ['美国', regional.name]);
     checkReferences(cfg);
   });
   test('AI offers US and Japan groups and their nodes, with US first regardless of subscription order', () => {
     const cfg = generate(['JP 02', 'US 01', 'HK 03', 'NL 04', 'US 剩余流量']);
-    const ai = byName(cfg, '国外AI');
+    const ai = byName(cfg, 'AI');
     assert.equal(ai.type, 'select');
     assert.deepEqual(ai.proxies, ['美国', '日本']);
     assert.deepEqual(ai.use, ['节点']);
@@ -180,7 +177,7 @@ function configurationTests() {
   test('AI starts in Japan without US nodes and follows the proxy group without either region', () => {
     for (const [names, target] of [[['JP 01', 'US 剩余流量'], '日本'], [['HK 01'], '代理连接']]) {
       const cfg = generate(names);
-      const ai = byName(cfg, '国外AI');
+      const ai = byName(cfg, 'AI');
       assert.deepEqual(ai.proxies, [target]);
       assert.equal(ai['default-selected'], target);
       if (target === '代理连接') assert.equal(ai.use, undefined);
@@ -206,28 +203,27 @@ function configurationTests() {
     assert(dlsite.proxies.includes('代理连接'));
     checkReferences(cfg);
   });
-  test('Frequently used selectors lead the menu, with optional social apps in their usual positions', () => {
+  test('Visible proxy groups follow the reorganized service, region and trailing utility order', () => {
     const cfg = generate(['HK 0.5x', 'JP 01', 'US 2x', 'Canada 01']);
     const visible = groups(cfg).filter(group => !group.hidden).map(group => group.name);
-    const favorites = ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Twitter', 'DLsite', 'EHentai', '海外媒体', 'GOOGLE', 'Steam', 'PikPak', 'FCM'];
-    assert.deepEqual(visible.slice(0, favorites.length + 2), [...favorites, '直接连接', '下载相关']);
-    const optional = groups(generate(['HK 01'], { Line: true, Meta: true })).filter(g => !g.hidden).map(g => g.name);
-    assert.deepEqual(optional.slice(0, 7), ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta']);
-    const applications = ['国外AI', 'DLsite', 'FCM', '海外媒体', 'Steam', 'Twitter', 'PikPak', 'EHentai', 'TELEGRAM', '下载相关', '风控安全', 'GOOGLE'];
-    for (const name of ['Apple', 'Meta', 'Line', 'Netflix', 'YouTube', 'Microsoft', 'OneDrive']) assert(!visible.includes(name));
-    const regions = ['香港', '日本', '美国', '其他节点'];
-    const firstRegion = Math.min(...regions.map(name => visible.indexOf(name)));
-    for (const name of applications) assert(visible.indexOf(name) > 0 && visible.indexOf(name) < firstRegion, name + ': application must precede regions');
-    for (const name of regions) assert(visible.indexOf(name) > 3 && visible.indexOf(name) < visible.indexOf('低倍率节点'), name + ': region must precede multiplier groups');
-    assert.deepEqual(visible.slice(-2), ['低倍率节点', '高倍率节点']);
+    const expected = [
+      '代理连接', 'AI', 'TELEGRAM', 'Discord', 'Twitter',
+      'DLsite', 'EHentai', 'Media', 'GOOGLE', 'PikPak', 'FCM',
+      '香港', '日本', '美国', '其他节点', '低倍率节点', '高倍率节点',
+      '直接连接', '代理DNS',
+    ];
+    assert.deepEqual(visible, expected);
+    for (const name of ['Steam', 'Apple', 'Meta', 'Line', '下载相关', '风控安全', '代理QUIC', 'Netflix', 'YouTube', 'Microsoft', 'OneDrive', '国外AI', '海外媒体']) {
+      assert(!visible.includes(name), name + ': must not appear in visible groups');
+    }
     assert.equal(byName(cfg, '最低延迟').hidden, true);
     assert.equal(byName(cfg, '故障转移').hidden, true);
     assert.equal(byName(cfg, 'GLOBAL').hidden, true);
     checkReferences(cfg);
   });
-  test('Restored applications expose direct and regional choices with their intended defaults', () => {
-    const cfg = generate(['HK 01', 'JP 01', 'US 01'], { Apple: true, Meta: true, Line: true });
-    for (const name of ['FCM', '海外媒体', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak', 'EHentai']) {
+  test('Active applications expose direct and regional choices with their intended defaults', () => {
+    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
+    for (const name of ['FCM', 'Media', 'TELEGRAM', 'Discord', 'Twitter', 'PikPak', 'EHentai']) {
       const group = byName(cfg, name);
       assert(group, name + ': missing application selector');
       assert.equal(group.type, 'select');
@@ -251,22 +247,23 @@ function configurationTests() {
     for (const app of definitions.filter(app => !app.existingGroup)) {
       assert(byName(baseline, app.name), app.name + ': enabled baseline is required');
       const cfg = generate(['HK 01', 'JP 01', 'US 01'], { ...allEnabled, [app.name]: false });
-      if (!app.existingGroup) assert(!byName(cfg, app.name), app.name + ': disabled group remains');
+      assert(!byName(cfg, app.name), app.name + ': disabled group remains');
       assert.equal(cfg['rule-providers'][app.domain], undefined, app.name + ': disabled domain provider remains');
-      assert(!cfg.rules.some(rule => rule.includes('RULE-SET,' + app.domain + ')') || rule.includes('sub-app-' + app.domain)), app.name + ': disabled rule remains');
-      assert.equal(cfg['sub-rules']['sub-app-' + app.domain], undefined, app.name + ': disabled sub-rule remains');
+      assert(!cfg.rules.some(rule => rule.startsWith('RULE-SET,' + app.domain + ',')), app.name + ': disabled rule remains');
       assert(!Object.keys(cfg.dns['nameserver-policy']).some(key => key.startsWith('rule-set:') && key.slice(9).split(',').includes(app.domain)), app.name + ': disabled DNS policy remains');
       assert(!cfg.dns['fake-ip-filter'].some(rule => rule.startsWith('RULE-SET,' + app.domain + ',')), app.name + ': disabled fake-IP rule remains');
-      if (app.ip && !app.baseIp) assert.equal(cfg['rule-providers'][app.ip], undefined, app.name + ': disabled IP provider remains');
+      if (app.ip) assert.equal(cfg['rule-providers'][app.ip], undefined, app.name + ': disabled IP provider remains');
+      if (app.baseIp) assert.equal(cfg['rule-providers'][app.baseIp], undefined, app.name + ': disabled baseIp provider remains');
+      if (app.extraDomains) assert.equal(cfg['rule-providers'][app.domain + '-extra'], undefined, app.name + ': disabled extra provider remains');
       checkReferences(cfg);
     }
     const fcmOff = generate(['HK 01'], { FCM: false });
     assert(fcmOff.rules.includes('DST-PORT,5228-5230,直接连接'));
-    assert(generate(['HK 01'], { Twitter: false }).rules.includes('SUB-RULE,(RULE-SET,safe_ip),sub-safe'));
-    assert(generate(['HK 01']).rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
+    assert(!generate(['HK 01'], { Twitter: false }).rules.some(rule => rule.includes('safe_ip')));
+    assert(generate(['HK 01']).rules.includes('RULE-SET,media_ip,Media'));
   });
   test('Application DNS follows the application while retaining personal and AI precedence', () => {
-    const cfg = generate(['HK 01', 'JP 01', 'US 01'], { Apple: true, Meta: true, Line: true });
+    const cfg = generate(['HK 01', 'JP 01', 'US 01']);
     const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
     const policies = cfg.dns['nameserver-policy'];
     const keys = Object.keys(policies);
@@ -285,26 +282,24 @@ function configurationTests() {
       assert(filters.indexOf(filter) < filters.indexOf('RULE-SET,proxy@direct,real-ip'), app.name + ': direct exception Fake-IP priority');
     }
   });
-  test('Google and overseas media DNS follow their selectors after more specific applications', () => {
+  test('Google and Media DNS follow their selectors after more specific applications', () => {
     const cfg = generate(['HK 01', 'JP 01', 'US 01']);
     const policies = cfg.dns['nameserver-policy'];
     const keys = Object.keys(policies);
     const filters = cfg.dns['fake-ip-filter'];
-    for (const [id, group] of [['google', 'GOOGLE'], ['media', '海外媒体']]) {
+    for (const [id, group] of [['google', 'GOOGLE'], ['media', 'Media']]) {
       assert(policies['rule-set:' + id].every(address => address.includes('#' + group)));
       assert(!keys.some(key => key !== 'rule-set:' + id && key.startsWith('rule-set:') && key.slice(9).split(',').includes(id)));
     }
     assert(keys.indexOf('rule-set:youtube') < keys.indexOf('rule-set:google'));
     assert(keys.indexOf('rule-set:proxy@direct') < keys.indexOf('rule-set:google'));
-    assert(keys.indexOf('rule-set:steam') < keys.indexOf('rule-set:proxy-lite'));
     assert(filters.indexOf('RULE-SET,youtube,fake-ip') < filters.indexOf('RULE-SET,google,fake-ip'));
     assert(filters.indexOf('RULE-SET,proxy@direct,real-ip') < filters.indexOf('RULE-SET,google,fake-ip'));
-    assert(filters.indexOf('RULE-SET,steam,fake-ip') < filters.indexOf('RULE-SET,proxy-lite,fake-ip'));
   });
   test('Disabling service DNS keeps application routing and Fake-IP without binding application resolvers', () => {
     const names = ['HK 01', 'JP 01', 'US 01'];
-    const enabled = generate(names, { Apple: true, Meta: true, Line: true });
-    const disabled = generate(names, { Apple: true, Meta: true, Line: true, DNS跟随服务: false });
+    const enabled = generate(names);
+    const disabled = generate(names, { DNS跟随服务: false });
     const definitions = JSON.parse(fs.readFileSync(path.join(root, 'config/app-groups.json'), 'utf8'));
     assert.deepEqual(disabled.rules, enabled.rules, 'DNS switch must not change application routing');
     assert.deepEqual(disabled.dns['fake-ip-filter'], enabled.dns['fake-ip-filter'], 'DNS switch must preserve application Fake-IP classification');
@@ -321,7 +316,7 @@ async function coreTest(binary, label, names) {
   const fx = await fixtures();
   const cfg = generate(names);
   const expected = buckets(cfg).map(group => ({ parent: group.name, children: group.proxies, nodes: candidates(cfg, group) }));
-  const ai = byName(cfg, '国外AI');
+  const ai = byName(cfg, 'AI');
   const aiCandidates = ai.use ? candidates(cfg, ai) : [];
   let child, logs = '';
   try {
@@ -365,14 +360,12 @@ async function coreTest(binary, label, names) {
     assert(loaded, 'Mihomo did not become ready: ' + logs);
     for (const item of expected) {
       assert.equal(loaded[item.parent].type, 'Selector', item.parent);
-      assert.deepEqual(sorted(loaded[item.parent].all), sorted([...item.children, ...item.nodes]), item.parent + ': core must expose both modes and actual provider nodes');
-      for (const [index, type] of ['URLTest', 'LoadBalance'].entries()) {
-        assert.equal(loaded[item.children[index]].type, type, item.children[index]);
-        assert.deepEqual(sorted(loaded[item.children[index]].all), sorted(item.nodes), item.children[index] + ': core provider candidates');
-      }
+      assert.deepEqual(sorted(loaded[item.parent].all), sorted([...item.children, ...item.nodes]), item.parent + ': core must expose url-test mode and actual provider nodes');
+      assert.equal(loaded[item.children[0]].type, 'URLTest', item.children[0]);
+      assert.deepEqual(sorted(loaded[item.children[0]].all), sorted(item.nodes), item.children[0] + ': core provider candidates');
     }
-    assert.deepEqual(sorted(loaded['国外AI'].all), sorted([...ai.proxies, ...aiCandidates]), 'Core AI choices');
-    assert.equal(loaded['国外AI'].now, ai.proxies[0], 'Core AI initial choice');
+    assert.deepEqual(sorted(loaded.AI.all), sorted([...ai.proxies, ...aiCandidates]), 'Core AI choices');
+    assert.equal(loaded.AI.now, ai.proxies[0], 'Core AI initial choice');
     assert.equal(loaded.DLsite.now, byName(cfg, 'DLsite').proxies[0], 'Core DLsite initial choice');
     assert.equal(loaded.EHentai.now, byName(cfg, 'EHentai').proxies[0], 'Core EHentai initial choice');
     assert.equal(loaded.FCM.now, '直接连接', 'Core FCM initial choice');

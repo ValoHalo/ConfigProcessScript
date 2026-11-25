@@ -10,7 +10,7 @@ const fixtures = require('./lib/fixtures');
 const source = fs.readFileSync(path.join(__dirname, '../src/personal-dns.js'), 'utf8');
 const patchPersonalDns = vm.runInNewContext(source + '\n;patchPersonalDns;', {});
 const clone = (value) => JSON.parse(JSON.stringify(value));
-const groups = { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' };
+const groups = { direct: '直接连接', proxy: '代理连接', ai: 'AI', dlsite: 'DLsite' };
 const proxyDns = ['https://dns.google/dns-query#代理DNS&ecs=8.8.8.8/24&ecs-override=true', 'https://dns.quad9.net/dns-query#代理DNS&h3=false'];
 const directDns = ['https://dns.alidns.com/dns-query#直接连接', 'https://doh.pub/dns-query#直接连接&h3=false'];
 const node = (extra = {}) => ({ name: 'JP 01', type: 'trojan', server: 'node.example.net', port: 443, password: 'fixture', ...extra });
@@ -199,7 +199,7 @@ test('AI and DLsite DNS follow their groups without duplicate combined policies 
   const policies = out.dns['nameserver-policy'];
   assert.equal(policies['rule-set:ai,download,safe,google,media,proxy-lite'], undefined);
   assert.deepEqual(policies['rule-set:download,safe,google,media,proxy-lite'], proxyDns);
-  assert.deepEqual(policies['rule-set:ai'], proxyDns.map((address) => address.replace('#代理DNS', '#国外AI')));
+  assert.deepEqual(policies['rule-set:ai'], proxyDns.map((address) => address.replace('#代理DNS', '#AI')));
   assert.deepEqual(policies['rule-set:dlsite'], proxyDns.map((address) => address.replace('#代理DNS', '#DLsite')));
   assert.deepEqual(Object.keys(policies).filter((key) => key.startsWith('rule-set:') && key.slice(9).split(',').includes('ai')), ['rule-set:ai']);
 });

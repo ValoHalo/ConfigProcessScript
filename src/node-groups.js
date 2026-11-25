@@ -40,10 +40,8 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     if (rate !== null && rate >= 2) high.push(proxy.name);
   }
   const original = config['proxy-groups'];
-  const oldRegional = new Set(original.filter(group => /\|(?:故障转移|轮询下载)$/.test(group.name)).map(group => group.name));
-  const remaining = original.filter(group => !oldRegional.has(group.name));
   const reserved = new Set([
-    ...remaining.map(group => group.name),
+    ...original.map(group => group.name),
     ...(config.proxies || []).map(proxy => proxy.name),
     ...Object.values(config['proxy-providers']).flatMap(entry => (entry.payload || []).map(proxy => proxy.name)),
     'DLsite', 'DIRECT', 'REJECT', 'PASS-RULE',
@@ -56,50 +54,39 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     return result;
   };
   const automatic = original.find(group => group.name === '最低延迟');
-  const balance = original.find(group => group.type === 'load-balance');
-  if (!automatic || !balance) throw new Error('基础配置缺少最低延迟或负载均衡模板');
+  if (!automatic) throw new Error('基础配置缺少最低延迟模板');
   const health = provider['health-check'] || {};
   const generated = [], parents = [], buckets = [], regionGroups = Object.create(null);
-  const references = Object.create(null);
-  function createBucket(label, names, icon, kind) {
+  function createBucket(label, names, kind) {
     names = [...new Set(names)];
     if (!names.length) return null;
-    const parent = allocate(label), auto = allocate(parent + '|最低延迟'), load = allocate(parent + '|负载均衡');
+    const parent = allocate(label), auto = allocate(parent + '|最低延迟');
     const common = { use: ['节点'], filter: personalNodeFilter(names), 'empty-fallback': 'REJECT', hidden: true };
     const autoGroup = { ...automatic, ...common, name: auto };
-    const loadGroup = { ...balance, ...common, name: load };
-    for (const child of [autoGroup, loadGroup]) {
-      delete child['include-all-providers']; delete child['include-all']; delete child.proxies;
-      for (const field of ['url', 'interval', 'timeout', 'expected-status', 'lazy', 'max-failed-times']) if (health[field] !== undefined) child[field] = health[field];
-      if (icon) child.icon = icon;
+    delete autoGroup['include-all-providers'];
+    delete autoGroup['include-all'];
+    delete autoGroup.proxies;
+    for (const field of ['url', 'interval', 'timeout', 'expected-status', 'lazy', 'max-failed-times']) {
+      if (health[field] !== undefined) autoGroup[field] = health[field];
     }
-    generated.push({ name: parent, type: 'select', proxies: [auto, load], use: ['节点'], filter: personalNodeFilter([auto, load, ...names]), 'default-selected': auto, ...(icon ? { icon } : {}) }, autoGroup, loadGroup);
+    generated.push({ name: parent, type: 'select', proxies: [auto], use: ['节点'], filter: personalNodeFilter([auto, ...names]), 'default-selected': auto }, autoGroup);
     parents.push(parent);
-    buckets.push({ kind, label, parent, children: [auto, load] });
+    buckets.push({ kind, label, parent, children: [auto] });
     return parent;
   }
   for (const [region] of definitions) {
-    const old = original.find(group => group.name === region + '|故障转移');
-    const parent = createBucket(region, regions[region], old?.icon, 'region');
+    const parent = createBucket(region, regions[region], 'region');
     if (parent) regionGroups[region] = parent;
-    references[region + '|故障转移'] = parent;
-    references[region + '|轮询下载'] = parent;
   }
-  createBucket('其他节点', other, automatic.icon, 'other');
-  createBucket('低倍率节点', low, automatic.icon, 'multiplier');
-  createBucket('高倍率节点', high, balance.icon, 'multiplier');
-  for (const group of remaining) {
-    if (!Array.isArray(group.proxies) || !group.proxies.some(name => oldRegional.has(name))) continue;
-    const menu = [];
-    let inserted = false;
-    for (const name of group.proxies) {
-      if (oldRegional.has(name)) {
-        if (!inserted) { menu.push(...parents); inserted = true; }
-      } else menu.push(name);
-    }
-    group.proxies = [...new Set(menu)];
-    if (oldRegional.has(group['default-selected'])) group['default-selected'] = references[group['default-selected']] || group.proxies[0] || 'REJECT';
+  createBucket('其他节点', other, 'other');
+  createBucket('低倍率节点', low, 'multiplier');
+  createBucket('高倍率节点', high, 'multiplier');
+  for (const group of original) {
+    if (!Array.isArray(group.proxies)) continue;
+    const anchor = group.proxies.indexOf('故障转移');
+    if (anchor < 0) continue;
+    group.proxies = [...new Set([...group.proxies.slice(0, anchor + 1), ...parents, ...group.proxies.slice(anchor + 1)])];
   }
-  config['proxy-groups'] = [...remaining, ...generated];
-  return { regions, regionGroups, references, buckets };
+  config['proxy-groups'] = [...original, ...generated];
+  return { regions, regionGroups, buckets };
 }

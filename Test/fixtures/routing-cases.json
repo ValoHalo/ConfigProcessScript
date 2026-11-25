@@ -8,7 +8,7 @@
   {
     "ip": "8.8.4.4",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google_ip),sub-google"
+    "expectedRule": "RULE-SET,google_ip,GOOGLE"
   },
   {
     "domain": "emerald.com",
@@ -55,49 +55,49 @@
   {
     "domain": "mtalk.google.com",
     "expectedPolicy": "FCM",
-    "expectedRule": "SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm"
+    "expectedRule": "RULE-SET,googlefcm,FCM"
   },
   {
     "domain": "youtube.com",
-    "expectedPolicy": "海外媒体",
+    "expectedPolicy": "Media",
     "expectedExit": "JP 01",
-    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+    "expectedRule": "RULE-SET,youtube,Media"
   },
   {
     "domain": "rr1.googlevideo.com",
-    "expectedPolicy": "海外媒体",
+    "expectedPolicy": "Media",
     "expectedExit": "JP 01",
-    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+    "expectedRule": "RULE-SET,youtube,Media"
   },
   {
     "domain": "google.com",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+    "expectedRule": "RULE-SET,google,GOOGLE"
   },
   {
     "domain": "cloud.google.com",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+    "expectedRule": "RULE-SET,google,GOOGLE"
   },
   {
     "domain": "gemini.google.com",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "ai.google.dev",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "generativelanguage.googleapis.com",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "chatgpt.com",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "login.microsoftonline.com",
@@ -117,12 +117,12 @@
   {
     "domain": "onedrive.live.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "sub.learn.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "arxiv.org",
@@ -141,8 +141,9 @@
   },
   {
     "domain": "steamcontent.com",
-    "expectedPolicy": "Steam",
-    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,steamcontent.com,直接连接",
+    "expectedExit": "DIRECT"
   },
   {
     "domain": "download.epicgames.com",
@@ -165,7 +166,7 @@
   {
     "domain": "fe3.delivery.mp.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "msedge.sf.dl.delivery.mp.microsoft.com",
@@ -176,12 +177,12 @@
   {
     "domain": "slscr.update.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "kv801.prod.do.dsp.mp.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "definitionupdates.microsoft.com",
@@ -204,7 +205,7 @@
   {
     "domain": "dotnetcli.blob.core.windows.net",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "statics.teams.cdn.office.net",
@@ -239,12 +240,12 @@
   {
     "domain": "ms-python.gallerycdn.vsassets.io",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "store.steampowered.com",
-    "expectedPolicy": "Steam",
-    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "dlsite.com",
@@ -259,27 +260,27 @@
   {
     "domain": "store.epicgames.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "codeload.github.com",
-    "expectedPolicy": "下载相关",
-    "expectedRule": "SUB-RULE,(RULE-SET,download),sub-download"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "files.pythonhosted.org",
-    "expectedPolicy": "下载相关",
-    "expectedRule": "SUB-RULE,(RULE-SET,download),sub-download"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "twitter.com",
     "expectedPolicy": "Twitter",
-    "expectedRule": "SUB-RULE,(RULE-SET,twitter),sub-app-twitter"
+    "expectedRule": "RULE-SET,twitter,Twitter"
   },
   {
     "domain": "paypal.com",
-    "expectedPolicy": "风控安全",
-    "expectedRule": "SUB-RULE,(RULE-SET,safe),sub-safe"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "hcaptcha.com",
@@ -289,110 +290,98 @@
   {
     "domain": "telegram.org",
     "expectedPolicy": "TELEGRAM",
-    "expectedRule": "SUB-RULE,(RULE-SET,telegram),sub-app-telegram"
+    "expectedRule": "RULE-SET,telegram,TELEGRAM"
   },
   {
     "domain": "discord.com",
     "expectedPolicy": "Discord",
-    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
+    "expectedRule": "RULE-SET,discord,Discord"
   },
   {
     "domain": "cdn.discordapp.com",
     "expectedPolicy": "Discord",
-    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
+    "expectedRule": "RULE-SET,discord,Discord"
   },
   {
     "domain": "discord-attachments-uploads-prd.storage.googleapis.com",
     "expectedPolicy": "Discord",
-    "expectedRule": "SUB-RULE,(RULE-SET,discord),sub-app-discord"
+    "expectedRule": "RULE-SET,discord,Discord"
   },
   {
     "domain": "apple.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
-    "enabledPolicy": "Apple",
-    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "facebook.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
-    "enabledPolicy": "Meta",
-    "enabledRule": "SUB-RULE,(RULE-SET,meta),sub-app-meta"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "line.me",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
-    "enabledPolicy": "Line",
-    "enabledRule": "SUB-RULE,(RULE-SET,line),sub-app-line"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "netflix.com",
-    "expectedPolicy": "海外媒体",
+    "expectedPolicy": "Media",
     "expectedExit": "JP 01",
-    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+    "expectedRule": "RULE-SET,media,Media"
   },
   {
     "domain": "mypikpak.com",
     "expectedPolicy": "PikPak",
-    "expectedRule": "SUB-RULE,(RULE-SET,pikpak),sub-app-pikpak"
+    "expectedRule": "RULE-SET,pikpak,PikPak"
   },
   {
     "domain": "e-hentai.org",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "domain": "exhentai.org",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "domain": "ehgt.org",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "domain": "hath.network",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "domain": "hanime1.me",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "domain": "iwara.tv",
     "expectedPolicy": "EHentai",
-    "expectedRule": "SUB-RULE,(RULE-SET,ehentai),sub-app-ehentai"
+    "expectedRule": "RULE-SET,ehentai,EHentai"
   },
   {
     "ip": "23.246.0.1",
-    "expectedPolicy": "海外媒体",
-    "expectedRule": "SUB-RULE,(RULE-SET,media_ip),sub-media"
+    "expectedPolicy": "Media",
+    "expectedRule": "RULE-SET,media_ip,Media"
   },
   {
     "domain": "www.apple.com",
     "expectedPolicy": "直接连接",
-    "expectedRule": "RULE-SET,proxy@direct,直接连接",
-    "enabledPolicy": "Apple",
-    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+    "expectedRule": "RULE-SET,proxy@direct,直接连接"
   },
   {
     "domain": "apps.apple.com",
     "expectedPolicy": "直接连接",
-    "expectedRule": "RULE-SET,proxy@direct,直接连接",
-    "enabledPolicy": "Apple",
-    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+    "expectedRule": "RULE-SET,proxy@direct,直接连接"
   },
   {
     "domain": "music.apple.com",
     "expectedPolicy": "直接连接",
-    "expectedRule": "RULE-SET,proxy@direct,直接连接",
-    "enabledPolicy": "Apple",
-    "enabledRule": "SUB-RULE,(RULE-SET,apple),sub-app-apple"
+    "expectedRule": "RULE-SET,proxy@direct,直接连接"
   },
   {
     "domain": "download.microsoft.com",
@@ -409,7 +398,7 @@
   {
     "domain": "go.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "storeedgefd.dsx.mp.microsoft.com",
@@ -420,79 +409,79 @@
   {
     "domain": "child.vscode.download.prss.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "other-tenant.blob.core.windows.net",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "steamcloudsweden.blob.core.windows.net",
-    "expectedPolicy": "Steam",
-    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "steamugcquincy.blob.core.windows.net",
-    "expectedPolicy": "Steam",
-    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "drive.usercontent.google.com",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+    "expectedRule": "RULE-SET,google,GOOGLE"
   },
   {
     "domain": "drive-data-export.usercontent.google.com",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+    "expectedRule": "RULE-SET,google,GOOGLE"
   },
   {
     "domain": "drive-data-export-eu.usercontent.google.com",
     "expectedPolicy": "GOOGLE",
-    "expectedRule": "SUB-RULE,(RULE-SET,google),sub-google"
+    "expectedRule": "RULE-SET,google,GOOGLE"
   },
   {
     "domain": "youtubei.googleapis.com",
-    "expectedPolicy": "海外媒体",
+    "expectedPolicy": "Media",
     "expectedExit": "JP 01",
-    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+    "expectedRule": "RULE-SET,youtube,Media"
   },
   {
     "domain": "yt3.googleusercontent.com",
-    "expectedPolicy": "海外媒体",
+    "expectedPolicy": "Media",
     "expectedExit": "JP 01",
-    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+    "expectedRule": "RULE-SET,youtube,Media"
   },
   {
     "domain": "o4504926511693824.ingest.sentry.io",
     "expectedPolicy": "PikPak",
-    "expectedRule": "SUB-RULE,(RULE-SET,pikpak),sub-app-pikpak"
+    "expectedRule": "RULE-SET,pikpak,PikPak"
   },
   {
     "domain": "nflxvideo.net",
-    "expectedPolicy": "海外媒体",
-    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+    "expectedPolicy": "Media",
+    "expectedRule": "RULE-SET,media,Media"
   },
   {
     "domain": "nflxso.net",
-    "expectedPolicy": "海外媒体",
-    "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
+    "expectedPolicy": "Media",
+    "expectedRule": "RULE-SET,media,Media"
   },
   {
     "domain": "copilot.microsoft.com",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "grok.x.com",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "meta.ai",
-    "expectedPolicy": "国外AI",
-    "expectedRule": "SUB-RULE,(RULE-SET,ai),sub-ai"
+    "expectedPolicy": "AI",
+    "expectedRule": "RULE-SET,ai,AI"
   },
   {
     "domain": "unlisted-fcm-port-7f180e9f.com",
@@ -538,22 +527,22 @@
   {
     "domain": "c2rsetup.officeapps.live.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "globalcdn.nuget.org",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "displaycatalog.mp.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "aka.ms",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "cdn.oneget.org",
@@ -606,7 +595,7 @@
   {
     "domain": "download2.epicgames.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+    "expectedRule": "RULE-SET,proxy-lite,代理连接"
   },
   {
     "domain": "storeedge.microsoft.com",
@@ -653,13 +642,13 @@
   {
     "domain": "skyapi.onedrive.live.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接",
     "expectedExit": "US 01"
   },
   {
     "domain": "login.microsoft.com",
     "expectedPolicy": "代理连接",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接",
     "expectedExit": "US 01"
   },
   {
@@ -670,7 +659,24 @@
   },
   {
     "domain": "deep.other-tenant.sharepoint.com",
-    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedRule": "RULE-SET,proxy-lite,代理连接",
     "expectedPolicy": "代理连接"
+  },
+  {
+    "domain": "api.steampowered.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,api.steampowered.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "test.steamserver.net",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,steamserver.net,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "dlandroid.rcv.sandai.net",
+    "expectedPolicy": "PikPak",
+    "expectedRule": "RULE-SET,pikpak-extra,PikPak"
   }
 ]

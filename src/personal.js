@@ -8,9 +8,9 @@ function main(subscription) {
   let config = buildBaseConfig(personalClone(subscription));
   const nodeGroups = configurePersonalNodeGroups(config, applicationGroups.map(app => app.name));
   const groups = config['proxy-groups'];
-  const required = ['直接连接', '代理连接', '国外AI'];
+  const required = ['直接连接', '代理连接', 'AI'];
   for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('基础策略组已变化，需要检查个人配置：' + name);
-  const aiGroup = groups.find(group => group.name === '国外AI');
+  const aiGroup = groups.find(group => group.name === 'AI');
   const originalService = personalClone(aiGroup);
   const extraGroups = [];
   const earlyRules = personalLists.downloads.map(rule => rule + ',直接连接');
@@ -35,7 +35,7 @@ function main(subscription) {
   }
   if (ruleOptionsEnable.DLsite) {
     const configured = personalSettings.dlsite.defaultGroup;
-    const preferred = nodeGroups.regionGroups[configured] || nodeGroups.references[configured] || configured;
+    const preferred = nodeGroups.regionGroups[configured] || configured;
     const defaultGroup = groups.some(group => group.name === preferred) ? preferred : 'REJECT';
     const group = { ...originalService, name: 'DLsite', proxies: [defaultGroup, ...originalService.proxies.filter(name => name !== defaultGroup)], 'default-selected': defaultGroup };
     const preferredGroup = groups.find(item => item.name === defaultGroup);
@@ -49,7 +49,7 @@ function main(subscription) {
   if (insertion < 0) throw new Error('基础规则顺序已变化，需要检查个人规则插入位置');
   config.rules.splice(insertion + 1, 0, ...earlyRules);
   if (ruleOptionsEnable.AI固定出口) {
-    const aiRule = config.rules.indexOf('SUB-RULE,(RULE-SET,ai),sub-ai');
+    const aiRule = config.rules.indexOf('RULE-SET,ai,AI');
     if (aiRule < 0) throw new Error('基础 AI 规则已变化，需要检查固定出口');
     // Mihomo can skip a selected node without UDP support. Stop before another
     // service or the catch-all can send this traffic through a different exit.
@@ -69,7 +69,7 @@ function main(subscription) {
     if (ai < 0) throw new Error('缺少 AI DNS 规则，无法确定 DLsite 的优先级');
     filters.splice(ai, 0, 'RULE-SET,dlsite,fake-ip');
   }
-  config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
+  config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: 'AI', dlsite: 'DLsite' });
   configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
   configureGeneralDns(config, personalSettings.dns.general);
   configureGroupPresentation(config, nodeGroups);

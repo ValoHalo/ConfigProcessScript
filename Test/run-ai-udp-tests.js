@@ -53,16 +53,12 @@ async function runCase({ binary, directory, production, originPort, guarded, arr
   const name = guarded ? 'with-guard' : 'without-guard';
   const caseDirectory = path.join(directory, name);
   fs.mkdirSync(caseDirectory, { recursive: true });
-  const aiIndex = production.rules.indexOf('SUB-RULE,(RULE-SET,ai),sub-ai');
+  const aiIndex = production.rules.indexOf('RULE-SET,ai,AI');
   assert(aiIndex >= 0, 'Production AI rule is missing');
   const guard = production.rules[aiIndex + 1];
   assert(guard?.endsWith(',REJECT') && guard.includes('(NETWORK,UDP)') && guard.includes('(RULE-SET,ai)'), 'Production AI rule must be immediately followed by its UDP rejection guard');
   const nodeProvider = clone(production['proxy-providers']['节点']);
   nodeProvider['health-check'] = { enable: false };
-  const subAi = clone(production['sub-rules']['sub-ai']);
-  assert(subAi.some(rule => rule.includes('(DST-PORT,443)')), 'Upstream AI QUIC structure changed');
-  // Exercise the production PASS-RULE branch on an unprivileged, isolated UDP port.
-  const localSubAi = subAi.map(rule => rule.replace('(DST-PORT,443)', '(DST-PORT,' + originPort + ')'));
   const mixedPort = await freePort();
   const controllerPort = await freePort();
   const secret = crypto.randomUUID();
@@ -84,7 +80,6 @@ async function runCase({ binary, directory, production, originPort, guarded, arr
       { name: 'Review fallback', type: 'select', proxies: ['DIRECT'] },
     ],
     'rule-providers': { ai: { type: 'inline', behavior: 'domain', format: 'text', payload: ['fixed-ai.test'] } },
-    'sub-rules': { 'sub-ai': localSubAi },
     rules: [production.rules[aiIndex], ...(guarded ? [guard] : []), 'MATCH,Review fallback'],
   };
   const configPath = path.join(caseDirectory, 'config.yaml');
@@ -118,8 +113,7 @@ async function runCase({ binary, directory, production, originPort, guarded, arr
       await pause(100);
     }
     assert(ready, 'Mihomo providers did not initialize: ' + logs);
-    await control('/proxies/' + encodeURIComponent('国外AI'), 'PUT', { name: '美国 US TCP-only' });
-    await control('/proxies/' + encodeURIComponent('代理QUIC'), 'PUT', { name: 'PASS-RULE' });
+    await control('/proxies/' + encodeURIComponent('AI'), 'PUT', { name: '美国 US TCP-only' });
     tcp = net.createConnection(mixedPort, '127.0.0.1');
     await once(tcp, 'connect');
     let reply = receive(tcp);

@@ -98,7 +98,7 @@ async function runCase(binary, options, mode) {
       try { await control('/version'); ready = true; break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
     }
     if (!ready) throw new Error('Mihomo did not start: ' + logs.slice(-1500));
-    for (const [group, node] of Object.entries({ 代理连接: 'US 01', GOOGLE: '代理连接', 国外AI: 'US 01', 海外媒体: 'JP 01' })) {
+    for (const [group, node] of Object.entries({ 代理连接: 'US 01', GOOGLE: '代理连接', AI: 'US 01', Media: 'JP 01' })) {
       await control('/proxies/' + encodeURIComponent(group), 'PUT', { name: node });
     }
     // Providers initialize asynchronously; require the complete set before requests.
@@ -156,7 +156,6 @@ async function main() {
   if (args.length !== 2 || args[0] !== '--mihomo') throw new Error('Usage: --mihomo <official Mihomo executable>');
   const binary = path.resolve(args[1]);
   await runCase(binary, {}, 'default');
-  await runCase(binary, { Apple: true, Meta: true, Line: true }, 'optional');
   await runCase(binary, {}, 'ip');
 }
 main().catch(error => { console.error(error.stack); process.exitCode = 1; });

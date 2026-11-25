@@ -8,6 +8,13 @@ DOMAIN,ocsp.digicert.com
 DOMAIN,crl3.digicert.com
 DOMAIN,ocsp.sectigo.com
 DOMAIN,crl.sectigo.com
+# Steam CM 连接管理与游戏内容下载 CDN；直连以自动匹配就近下载区，商店、登录与社区仍走代理连接。
+DOMAIN-SUFFIX,steamcontent.com
+DOMAIN-SUFFIX,steamserver.net
+DOMAIN,api.steampowered.com
+DOMAIN,clientconfig.akamai.steamstatic.com
+DOMAIN,steampipe.akamaized.net
+DOMAIN,steamcdn-a.akamaihd.net
 # 卡巴斯基更新及安全网络服务；后缀规则包含全部子域名。
 # https://support.kaspersky.com/ksc/15.1/settings/server/6105
 DOMAIN-SUFFIX,kaspersky.com

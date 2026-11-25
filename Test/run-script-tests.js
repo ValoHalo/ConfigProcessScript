@@ -54,50 +54,48 @@ async function main() {
   });
   test('Personal additions preserve generic group behavior and connection settings', () => {
     const behavior = group => Object.fromEntries(Object.entries(group).filter(([key]) => !['icon', 'hidden'].includes(key)));
-    for (const name of ['直接连接', '代理QUIC', '最低延迟', '故障转移']) assert.deepEqual(behavior(current['proxy-groups'].find(g => g.name === name)), behavior(base['proxy-groups'].find(g => g.name === name)));
+    for (const name of ['直接连接', '最低延迟', '故障转移']) assert.deepEqual(behavior(current['proxy-groups'].find(g => g.name === name)), behavior(base['proxy-groups'].find(g => g.name === name)));
     for (const key of ['proxies', 'sniffer', 'profile', 'experimental', 'ipv6', 'tcp-concurrent', 'unified-delay', 'keep-alive-interval']) assert.deepEqual(current[key], base[key]);
-    for (const [name, rules] of Object.entries(base['sub-rules'])) assert.deepEqual(current['sub-rules'][name], rules);
+    assert.equal(current['sub-rules'], undefined);
     assert.deepEqual(current['proxy-providers'], base['proxy-providers']);
   });
   test('Application routing preserves personal priorities and aggregate fallbacks', () => {
-    const replaced = new Set(['DST-PORT,5228-5230,直接连接', 'SUB-RULE,(RULE-SET,safe_ip),sub-safe']);
+    const replaced = new Set(['DST-PORT,5228-5230,直接连接']);
     assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules.filter(rule => !replaced.has(rule)));
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
-    const fcm = current.rules.indexOf('SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm');
+    const fcm = current.rules.indexOf('RULE-SET,googlefcm,FCM');
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < fcm);
     assert(fcm < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
     const portFallback = current.rules.indexOf('DST-PORT,5228-5230,FCM');
     assert(portFallback > current.rules.indexOf('RULE-SET,direct-lite,直接连接'));
-    assert(portFallback < current.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,telegram_ip,')));
+    assert(portFallback < current.rules.indexOf('RULE-SET,telegram_ip,TELEGRAM,no-resolve'));
     const guard = current.rules.indexOf('AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
-    for (const id of ['googlefcm', 'youtube', 'telegram', 'steam', 'twitter', 'pikpak', 'ehentai']) {
-      const index = current.rules.indexOf('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id);
+    for (const [id, group] of [['googlefcm', 'FCM'], ['youtube', 'Media'], ['telegram', 'TELEGRAM'], ['discord', 'Discord'], ['twitter', 'Twitter'], ['pikpak', 'PikPak'], ['pikpak-extra', 'PikPak'], ['ehentai', 'EHentai']]) {
+      const index = current.rules.indexOf('RULE-SET,' + id + ',' + group);
       assert(index > guard, id + ': service routing must follow the AI UDP guard');
-      assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google'), id + ': service routing must precede Google parent domains');
+      assert(index < current.rules.indexOf('RULE-SET,google,GOOGLE'), id + ': service routing must precede Google parent domains');
       assert(index < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'), id + ': service routing must precede general direct exceptions');
     }
+    assert(current.rules.includes('RULE-SET,safe_ip,Twitter'));
   });
-  test('Steam and Google outrank broader infrastructure and download categories', () => {
-    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,steam),sub-app-steam') < current.rules.indexOf('SUB-RULE,(RULE-SET,proxy-lite),sub-proxy'));
-    assert(current.rules.indexOf('RULE-SET,proxy@direct,直接连接') < current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google'));
-    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google') < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'));
+  test('Steam CM and download CDN stay direct while store and community fall back to proxy', () => {
+    assert(!current['proxy-groups'].some(group => group.name === 'Steam'));
+    assert.equal(current['rule-providers'].steam, undefined);
+    for (const rule of ['DOMAIN-SUFFIX,steamcontent.com,直接连接', 'DOMAIN-SUFFIX,steamserver.net,直接连接', 'DOMAIN,api.steampowered.com,直接连接', 'DOMAIN,clientconfig.akamai.steamstatic.com,直接连接']) {
+      assert(current.rules.includes(rule), rule + ': missing Steam direct rule');
+    }
+    assert(current.rules.indexOf('RULE-SET,proxy@direct,直接连接') < current.rules.indexOf('RULE-SET,google,GOOGLE'));
   });
-  test('Apple, Meta and Line are opt-in while Netflix stays under overseas media', () => {
-    const enabled = evaluate(code, input, { Apple: true, Meta: true, Line: true });
-    for (const [name, id] of [['Apple', 'apple'], ['Meta', 'meta'], ['Line', 'line']]) {
-      assert(!current['proxy-groups'].some(group => group.name === name), name + ': disabled by default');
-      assert.equal(current['rule-providers'][id], undefined);
-      assert(enabled['proxy-groups'].some(group => group.name === name));
-      assert(enabled.rules.includes('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id));
-      assert(enabled.dns['nameserver-policy']['rule-set:' + id].every(address => address.includes('#' + name)));
+  test('Retired groups are absent while YouTube and Netflix stay under Media', () => {
+    for (const name of ['Steam', 'Apple', 'Meta', 'Line', '下载相关', '风控安全', '代理QUIC', 'Netflix', 'YouTube', 'Microsoft', 'OneDrive']) {
+      assert(!current['proxy-groups'].some(group => group.name === name), name + ': retired group must not exist');
     }
-    for (const cfg of [current, enabled]) {
-      assert(!cfg['proxy-groups'].some(group => group.name === 'Netflix'));
-      assert.equal(cfg['rule-providers'].netflix, undefined);
-      assert(cfg.rules.includes('SUB-RULE,(RULE-SET,media),sub-media'));
-      assert(cfg.rules.includes('SUB-RULE,(RULE-SET,media_ip),sub-media'));
-      assert(cfg['sub-rules']['sub-media'].includes('MATCH,海外媒体'));
+    for (const id of ['steam', 'apple', 'meta', 'line', 'download', 'safe', 'facebook_ip', 'microsoft', 'netflix']) {
+      assert.equal(current['rule-providers'][id], undefined, id + ': retired provider must not be registered');
     }
+    assert(current.rules.includes('RULE-SET,youtube,Media'));
+    assert(current.rules.includes('RULE-SET,media,Media'));
+    assert(current.rules.includes('RULE-SET,media_ip,Media'));
   });
   test('Microsoft rules remain exact and academic rules remain suffixes', () => {
     assert(current.rules.includes('DOMAIN,login.microsoftonline.com,直接连接'));
@@ -105,13 +103,13 @@ async function main() {
     assert(current.rules.includes('DOMAIN-SUFFIX,arxiv.org,直接连接'));
   });
   test('AI starts in the preferred region and allows individual nodes', () => {
-    const group = current['proxy-groups'].find(g => g.name === '国外AI');
+    const group = current['proxy-groups'].find(g => g.name === 'AI');
     assert.deepEqual(group.proxies, ['美国', '日本']);
     assert.deepEqual(group.use, ['节点']);
     const allowed = new RegExp(group.filter);
     assert(allowed.test('US 01') && allowed.test('JP 01') && !allowed.test('HK 01') && !allowed.test('xUS 01'));
     assert.equal(group['include-all-providers'], undefined);
-    assert.equal(current.rules[current.rules.indexOf('SUB-RULE,(RULE-SET,ai),sub-ai') + 1], 'AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
+    assert.equal(current.rules[current.rules.indexOf('RULE-SET,ai,AI') + 1], 'AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
   });
   test('DLsite is a normal selector defaulting to Japan', () => {
     const group = current['proxy-groups'].find(g => g.name === 'DLsite');
@@ -134,7 +132,6 @@ async function main() {
     assert.equal(current['rule-providers'].microsoft, undefined);
     assert.equal(current.dns['nameserver-policy']['rule-set:microsoft'], undefined);
     assert(!current.rules.some(rule => /PROCESS-NAME,OneDrive|sub-app-microsoft|sub-onedrive/i.test(rule)));
-    assert(!Object.keys(current['sub-rules']).some(k => /microsoft|onedrive/.test(k)));
     assert(!current.rules.some(rule => /^DOMAIN(?:-SUFFIX)?,(?:login[.a-z]+|onedrive[.a-z]+),代理连接$/.test(rule)));
     assert.equal(current.rules.at(-1), 'MATCH,代理连接');
   });
@@ -143,7 +140,7 @@ async function main() {
     assert(!off['proxy-groups'].some(g => g.name === 'DLsite'));
     assert.equal(off['rule-providers'].dlsite, undefined);
     assert(!Object.keys(off.dns['nameserver-policy']).some(k => k.includes('dlsite')));
-    const normal = off['proxy-groups'].find(g => g.name === '国外AI');
+    const normal = off['proxy-groups'].find(g => g.name === 'AI');
     assert.equal(normal['include-all-providers'], true);
     assert(normal.proxies.includes('日本') && normal.proxies.includes('美国'));
     assert(!normal.proxies.includes('REJECT'));
@@ -153,7 +150,7 @@ async function main() {
     assert.deepEqual(current.dns.nameserver, [...base.dns.nameserver, 'https://v.recipes/dns-cn#代理DNS']);
     assert(base.dns.nameserver.some(address => address.startsWith('https://cloudflare-dns.com/dns-query#代理DNS')));
     assert.deepEqual(current.hosts['cloudflare-dns.com'], ['1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001']);
-    assert(current.dns['nameserver-policy']['rule-set:ai'].every(s => s.includes('#国外AI')));
+    assert(current.dns['nameserver-policy']['rule-set:ai'].every(s => s.includes('#AI')));
     assert(current.dns['nameserver-policy']['rule-set:dlsite'].every(s => s.includes('#DLsite')));
     assert(!Object.keys(current.dns['nameserver-policy']).some(k => k.includes('ai,') || k.includes(',ai')));
     assert(!current.dns['nameserver-policy']['rule-set:ai'].some(s => s.includes('ecs=')));
@@ -183,6 +180,8 @@ async function main() {
     assert(direct.includes('login.microsoftonline.com'));
     assert(!direct.includes('+.login.microsoftonline.com'));
     assert(direct.includes('+.arxiv.org'));
+    assert(direct.includes('+.steamcontent.com'));
+    assert(direct.includes('+.steamserver.net'));
     const filters = current.dns['fake-ip-filter'];
     assert(filters.indexOf('RULE-SET,ads,fake-ip') < filters.indexOf('RULE-SET,personal-direct,real-ip'));
     assert(direct.includes('officecdn.microsoft.com') && !direct.includes('+.officecdn.microsoft.com'));
@@ -222,12 +221,13 @@ async function main() {
   });
   const dir = fs.mkdtempSync(path.join(root, '.test-runtime/build-'));
   for (const file of ['src', 'config', 'Rules/personal']) fs.cpSync(path.join(root, file), path.join(dir, file), { recursive: true });
-  test('Publication derives every provider from this repository manifest', () => {
+  test('Publication derives every active provider from this repository manifest', () => {
     fs.writeFileSync(path.join(dir, 'config/project.json'), JSON.stringify({ repository: 'example/config', branch: 'main' }));
-    const published = evaluate(generate(dir), input, { Apple: true, Meta: true, Line: true });
+    const published = evaluate(generate(dir), input);
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'config/rule-sources.json'), 'utf8'));
+    const retired = new Set(['download', 'safe', 'steam', 'apple', 'meta', 'line', 'facebook_ip']);
     const httpProviders = Object.entries(published['rule-providers']).filter(([, provider]) => provider.type === 'http');
-    assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).filter(id => !manifest.rulesets[id].publishOnly).sort());
+    assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).filter(id => !manifest.rulesets[id].publishOnly && !retired.has(id)).sort());
     for (const [id, provider] of httpProviders) {
       assert.equal(provider.url, 'https://raw.githubusercontent.com/example/config/main/Rules/generated/' + manifest.rulesets[id].behavior + '/' + id + '.mrs');
       assert.equal(provider.path, './rules/personal-' + id + '.mrs');

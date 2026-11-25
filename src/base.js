@@ -3,12 +3,14 @@
 
 function buildBaseConfig(config) {
   const subscriptionProxies = config.proxies || [];
-  const optionalProviders = new Set(['dlsite', ...applicationGroups.flatMap(app => [app.domain, app.ip].filter(Boolean))]);
+  const optionalProviders = new Set([
+    'dlsite', 'download', 'safe', 'steam', 'apple', 'meta', 'line', 'facebook_ip',
+    ...applicationGroups.flatMap(app => [app.domain, app.ip, app.baseIp].filter(Boolean)),
+  ]);
   const directDns = publicDnsResolvers(personalSettings.dns.direct, '直接连接', personalSettings.dns.ecsMode);
   const proxyDns = publicDnsResolvers(personalSettings.dns.proxy, '代理DNS', personalSettings.dns.ecsMode);
-  const balAnchor = { "type": "load-balance", "strategy": "round-robin", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
   const fallAnchor = { "type": "fallback", "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true };
-  const dlAnchor = { "type": "select", "proxies": ["代理连接", "直接连接", "最低延迟", "故障转移", "香港|故障转移", "台湾|故障转移", "新加坡|故障转移", "日本|故障转移", "美国|故障转移", "德国|故障转移", "英国|故障转移", "荷兰|故障转移", "香港|轮询下载", "新加坡|轮询下载", "日本|轮询下载", "美国|轮询下载"], "include-all-providers": true, "empty-fallback": "REJECT" };
+  const dlAnchor = { "type": "select", "proxies": ["代理连接", "直接连接", "最低延迟", "故障转移"], "include-all-providers": true, "empty-fallback": "REJECT" };
   const originDns = config.dns || {};
   const appendDirectTag = (val) => { if (typeof val === 'string') { return val.split('#')[0] + '#直接连接'; } return val; };
   const formatDnsValues = (dnsValue) => { if (Array.isArray(dnsValue)) return dnsValue.map(appendDirectTag); return appendDirectTag(dnsValue); };
@@ -30,8 +32,7 @@ function buildBaseConfig(config) {
     "cn.bing.com": "global.bing.com"
   };
   const finalHosts = { ...originHosts, ...defaultHosts };
-  const quic = "AND,((NETWORK,udp),(DST-PORT,443)),代理QUIC";
-  return { 
+  return {
     // 节点IP优先级：ip-version: ipv6-prefer
     "proxy-providers": { "节点": { "type": "inline", "health-check": { "enable": true, "url": "https://dns.google/generate_204", "expected-status": 204, "interval": 600, "timeout": 3000, "max-failed-times": 2, "lazy": false }, "override": { "ip-version": "dual" }, "exclude-filter": "(?i)套餐|剩余|流量|到期|重置|频道|订阅|官网|禁止|客户端|有效|联系|测试|节点|日期|群组|加入|通知|维护|网址|地址|下载|更新|APP|登录|严禁|恢复|处理|谢谢", "payload": subscriptionProxies } },
     "ipv6": true,
@@ -46,14 +47,6 @@ function buildBaseConfig(config) {
     "keep-alive-interval": 15,
     "keep-alive-idle": 600,
     "etag-support": true,
-    // "global-ua": "Mozilla/5.0 (Linux; Android 16; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.217 Mobile Safari/537.36",
-    // "global-ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.257 Safari/537.36",
-    // "external-controller": "[::]:9090",
-    // "secret": "密码",
-    // "external-doh-server": "/dns-query",
-    // "external-ui": "./zashboard",
-    // 霞鹜文楷：https://github.com/echs-top/proxy/releases/download/zashboard/dist.zip
-    // "external-ui-url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip",
     "profile": { "store-selected": true, "store-fake-ip": true },
     "experimental": { "quic-go-disable-gso": false, "quic-go-disable-ecn": true, "dialer-ip4p-convert": false },
     "port": 0,
@@ -63,15 +56,12 @@ function buildBaseConfig(config) {
     "tproxy-port": 0,
     "tun": {
       "enable": true,
-      // Android dummy9 / Windows "以太网 9" / MacOS utun9
-      // "device": "dummy9",
       "stack": "mixed",
       "auto-route": true,
       "auto-redirect": true,
       "auto-detect-interface": true,
       "strict-route": true,
       "disable-icmp-forwarding": true,
-      // "endpoint-independent-nat": true,
       "dns-hijack": ["any:53", "tcp://any:53"],
       "udp-timeout": 600
     },
@@ -85,7 +75,6 @@ function buildBaseConfig(config) {
       "use-system-hosts": false,
       "prefer-h3": true,
       "respect-rules": false,
-      // "listen": "[::]:1053",
       "enhanced-mode": "fake-ip",
       "fake-ip-range": "198.18.0.0/15",
       "fake-ip-range6": "fd00:a4c5:9b12:d3f8:e760:00df::/96",
@@ -96,8 +85,6 @@ function buildBaseConfig(config) {
         "RULE-SET,ai,fake-ip",
         "RULE-SET,proxy@direct,real-ip",
         "RULE-SET,google,fake-ip",
-        "RULE-SET,download,fake-ip",
-        "RULE-SET,safe,fake-ip",
         "RULE-SET,media,fake-ip",
         "RULE-SET,proxy-lite,fake-ip",
         "RULE-SET,direct-lite,real-ip",
@@ -112,7 +99,6 @@ function buildBaseConfig(config) {
         "rule-set:ai": proxyDns,
         "rule-set:proxy@direct": directDns,
         "rule-set:google": proxyDns,
-        "rule-set:download,safe": proxyDns,
         "rule-set:media": proxyDns,
         "rule-set:proxy-lite": proxyDns,
         "rule-set:direct-lite,dnsmasq-china-lite": directDns
@@ -126,67 +112,39 @@ function buildBaseConfig(config) {
       "parse-pure-ip": true,
       "override-destination": false,
       "sniff": { "HTTP": { "ports": [80, "8080-8880"], "override-destination": true }, "TLS": { "ports": [443, 8443] }, "QUIC": { "ports": [443, 8443] } },
-      "skip-domain": ["rule-set:ads,proxy@direct,ai,download,safe,google,media,proxy-lite,direct-lite,dnsmasq-china-lite"],
-      "skip-src-address": ["rule-set:telegram_ip,safe_ip,google_ip,media_ip,direct_ip"]
+      "skip-domain": ["rule-set:ads,proxy@direct,ai,google,media,proxy-lite,direct-lite,dnsmasq-china-lite"],
+      "skip-src-address": ["rule-set:telegram_ip,google_ip,media_ip,direct_ip"]
     },
     "rule-providers": Object.fromEntries(Object.entries(ruleProviderDefinitions)
       .filter(([name]) => !optionalProviders.has(name))
       .map(([name, provider]) => [name, JSON.parse(JSON.stringify(provider))])),
     "rules": [
       "RULE-SET,ads,REJECT",
-      "SUB-RULE,(RULE-SET,ai),sub-ai",
+      "RULE-SET,ai,AI",
       "RULE-SET,proxy@direct,直接连接",
-      "SUB-RULE,(RULE-SET,google),sub-google",
-      "SUB-RULE,(RULE-SET,download),sub-download",
-      "SUB-RULE,(RULE-SET,safe),sub-safe",
-      "SUB-RULE,(RULE-SET,media),sub-media",
-      "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+      "RULE-SET,google,GOOGLE",
+      "RULE-SET,media,Media",
+      "RULE-SET,proxy-lite,代理连接",
       "RULE-SET,direct-lite,直接连接",
       "DST-PORT,5228-5230,直接连接",
-      "SUB-RULE,(RULE-SET,telegram_ip,no-resolve),sub-telegram",
-      "SUB-RULE,(RULE-SET,safe_ip),sub-safe",
-      "SUB-RULE,(RULE-SET,media_ip),sub-media",
+      "RULE-SET,telegram_ip,TELEGRAM,no-resolve",
+      "RULE-SET,media_ip,Media",
       "RULE-SET,direct_ip,直接连接",
-      "SUB-RULE,(RULE-SET,google_ip),sub-google",
-      quic,
+      "RULE-SET,google_ip,GOOGLE",
       "MATCH,代理连接"
     ],
-    "sub-rules": {
-      "sub-telegram": [quic, "MATCH,TELEGRAM"],
-      "sub-ai": [quic, "MATCH,国外AI"],
-      "sub-download": [quic, "MATCH,下载相关"],
-      "sub-safe": [quic, "MATCH,风控安全"],
-      "sub-google": [quic, "MATCH,GOOGLE"],
-      "sub-media": [quic, "MATCH,海外媒体"],
-      "sub-proxy": [quic, "MATCH,代理连接"]
-    },
-    "proxies": [{ "name": "IPV4优先", "type": "direct", "udp": true, "ip-version": "ipv4-prefer" },{ "name": "IPV6优先", "type": "direct", "udp": true, "ip-version": "ipv6-prefer" },{ "name": "仅IPV4", "type": "direct", "udp": true, "ip-version": "ipv4" },{ "name": "仅IPV6", "type": "direct", "udp": true, "ip-version": "ipv6" }],
+    "proxies": [{ "name": "IPV4优先", "type": "direct", "udp": true, "ip-version": "ipv4-prefer" }, { "name": "IPV6优先", "type": "direct", "udp": true, "ip-version": "ipv6-prefer" }, { "name": "仅IPV4", "type": "direct", "udp": true, "ip-version": "ipv4" }, { "name": "仅IPV6", "type": "direct", "udp": true, "ip-version": "ipv6" }],
     "proxy-groups": [
-      { "name": "代理连接", "type": "select", "proxies": ["最低延迟", "故障转移", "香港|故障转移", "台湾|故障转移", "新加坡|故障转移", "日本|故障转移", "美国|故障转移", "德国|故障转移", "英国|故障转移", "荷兰|故障转移", "香港|轮询下载", "新加坡|轮询下载", "日本|轮询下载", "美国|轮询下载"], "include-all-providers": true, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Universal/StreamingSE.png" },
-      { "name": "直接连接", "type": "select", "proxies": ["DIRECT", "IPV4优先", "IPV6优先", "仅IPV4", "仅IPV6"], "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Accommodation/Online_Booking.png" },
-      { "name": "代理DNS", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Universal/Streaming.png" },
-      { "name": "代理QUIC", "type": "select", "proxies": ["PASS-RULE", "REJECT"], "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Google_Suite/Admin.png" },
-      { "name": "TELEGRAM", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Social_Media/Telegram.png" },
-      { "name": "国外AI", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Fitness/Chat.png" },
-      { "name": "下载相关", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Google_Suite/Drive.png" },
-      { "name": "风控安全", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Google_Suite/Account.png" },
-      { "name": "GOOGLE", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Google_Suite/Google.png" },
-      { "name": "海外媒体", ...dlAnchor, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Universal/Video.png" },
-      { "name": "最低延迟", "type": "url-test", "tolerance": 30, "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Universal/Auto_Speed.png" },
-      { "name": "故障转移", ...fallAnchor, "filter": "(?i)🇭🇰|香港|\\bHK\\b|\\bhongkong\\b|\\bhong\s?kong\\b|🇸🇬|新加坡|狮城|\\bSG\\b|\\bsingapore\\b|🇯🇵|日本|\\bJP\\b|\\bjapan\\b|🇺🇸|美国|\\bUS\\b|\\bunitedstates\\b|\\bunited\s?states\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Universal/Final.png" },
-      { "name": "香港|故障转移", ...fallAnchor, "filter": "(?i)🇭🇰|香港|\\bHK\\b|\\bhongkong\\b|\\bhong\\s?kong\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Hong_Kong.png" },
-      { "name": "台湾|故障转移", ...fallAnchor, "filter": "(?i)🇹🇼|台湾|\\bTW\\b|\\btaiwan\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Taiwan.png" },
-      { "name": "新加坡|故障转移", ...fallAnchor, "filter": "(?i)🇸🇬|新加坡|狮城|\\bSG\\b|\\bsingapore\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Singapore.png" },
-      { "name": "日本|故障转移", ...fallAnchor, "filter": "(?i)🇯🇵|日本|\\bJP\\b|\\bjapan\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Japan.png" },
-      { "name": "美国|故障转移", ...fallAnchor, "filter": "(?i)🇺🇸|美国|\\bUS\\b|\\bunitedstates\\b|\\bunited\\s?states\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/United_States.png" },
-      { "name": "德国|故障转移", ...fallAnchor, "filter": "(?i)🇩🇪|德国|\\bDE\\b|\\bgermany\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Germany.png" },
-      { "name": "英国|故障转移", ...fallAnchor, "filter": "(?i)🇬🇧|英国|\\bUK\\b|\\bGB\\b|\\bunitedkingdom\\b|\\bunited\\s?kingdom\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/United_Kingdom.png" },
-      { "name": "荷兰|故障转移", ...fallAnchor, "filter": "(?i)🇳🇱|荷兰|\\bNL\\b|\\bnetherlands?\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Netherlands.png" },
-      { "name": "香港|轮询下载", ...balAnchor, "filter": "(?i)🇭🇰|香港|\\bHK\\b|\\bhongkong\\b|\\bhong\\s?kong\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Hong_Kong.png" },
-      { "name": "新加坡|轮询下载", ...balAnchor, "filter": "(?i)🇸🇬|新加坡|狮城|\\bSG\\b|\\bsingapore\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Singapore.png" },
-      { "name": "日本|轮询下载", ...balAnchor, "filter": "(?i)🇯🇵|日本|\\bJP\\b|\\bjapan\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/Japan.png" },
-      { "name": "美国|轮询下载", ...balAnchor, "filter": "(?i)🇺🇸|美国|\\bUS\\b|\\bunitedstates\\b|\\bunited\\s?states\\b", "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Rounded_Rectangle/United_States.png" },
-      { "name": "GLOBAL", "type": "select", "proxies": ["最低延迟", "故障转移", "香港|故障转移", "台湾|故障转移", "新加坡|故障转移", "日本|故障转移", "美国|故障转移", "德国|故障转移", "英国|故障转移", "荷兰|故障转移", "香港|轮询下载", "新加坡|轮询下载", "日本|轮询下载", "美国|轮询下载", "代理连接", "直接连接", "代理DNS", "代理QUIC", "TELEGRAM", "国外AI", "下载相关", "风控安全", "GOOGLE", "海外媒体"], "include-all-providers": true, "hidden": true, "icon": "https://mihomo.echs.top/img/Hand-Painted-icon/Google_Suite/Browser.png" }
+      { "name": "代理连接", "type": "select", "proxies": ["最低延迟", "故障转移"], "include-all-providers": true },
+      { "name": "直接连接", "type": "select", "proxies": ["DIRECT", "IPV4优先", "IPV6优先", "仅IPV4", "仅IPV6"] },
+      { "name": "代理DNS", ...dlAnchor },
+      { "name": "TELEGRAM", ...dlAnchor },
+      { "name": "AI", ...dlAnchor },
+      { "name": "GOOGLE", ...dlAnchor },
+      { "name": "Media", ...dlAnchor },
+      { "name": "最低延迟", "type": "url-test", "tolerance": 30, "include-all-providers": true, "empty-fallback": "REJECT", "hidden": true },
+      { "name": "故障转移", ...fallAnchor, "filter": "(?i)🇭🇰|香港|\\bHK\\b|\\bhongkong\\b|\\bhong\\s?kong\\b|🇸🇬|新加坡|狮城|\\bSG\\b|\\bsingapore\\b|🇯🇵|日本|\\bJP\\b|\\bjapan\\b|🇺🇸|美国|\\bUS\\b|\\bunitedstates\\b|\\bunited\\s?states\\b" },
+      { "name": "GLOBAL", "type": "select", "proxies": ["最低延迟", "故障转移", "代理连接", "直接连接", "代理DNS", "TELEGRAM", "AI", "GOOGLE", "Media"], "include-all-providers": true, "hidden": true }
     ]
   };
 }

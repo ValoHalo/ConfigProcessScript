@@ -166,12 +166,12 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await delay(100);
     }
     check('All generated and inline rule sets decode', () => assert(expectedProviders.every(name => providers[name]?.ruleCount > 0)));
-    for (const [group, name] of Object.entries({ '代理连接': 'HK 01', '代理DNS': '代理连接', '国外AI': 'US 01' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
+    for (const [group, name] of Object.entries({ '代理连接': 'HK 01', '代理DNS': '代理连接', 'AI': 'US 01' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
     const dlsiteGroup = await call('/proxies/' + encodeURIComponent('DLsite'));
     check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
     const ehentaiGroup = await call('/proxies/' + encodeURIComponent('EHentai'));
     check('EHentai retains the US default group', () => assert.equal(ehentaiGroup.now, '美国'));
-    for (const [group, name] of Object.entries({ PikPak: '美国', Steam: '美国', GOOGLE: '日本', 海外媒体: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
+    for (const [group, name] of Object.entries({ PikPak: '美国', GOOGLE: '日本', Media: '美国' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
@@ -186,23 +186,21 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       ['my.kaspersky.com', false, 'My Kaspersky uses a real IP under personal direct rules'],
       ['api.lsposed.org', false, 'Personal suffix direct rule'],
       ['baidu.com', false, 'Upstream domestic real-IP rule'],
-      ['cdn.steamcontent.com', true, 'Unverified Steam CDN follows Steam'],
+      ['cdn.steamcontent.com', false, 'Steam content CDN resolves directly for local download routing'],
+      ['api.steampowered.com', false, 'Steam API resolves directly for local download routing'],
+      ['store.steampowered.com', true, 'Steam store stays on Fake-IP for proxy routing'],
       ['international-gfe.download.nvidia.com', false, 'Existing NVIDIA direct exception gets a real IP'],
       ['chatgpt.com', true, 'AI retains Fake-IP'],
       ['www.dlsite.com', true, 'DLsite retains Fake-IP'],
       ['mypikpak.com', true, 'PikPak retains Fake-IP'],
       ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
-      ['youtube.com', true, 'YouTube retains Fake-IP in the shared media group'],
-      ['exhentai.org', true, 'Restored EHentai keeps Fake-IP'],
-      ['apple.com', true, 'Apple root keeps proxy classification with its selector enabled or disabled'],
-      ['www.apple.com', optionalApps, 'Apple selector overrides general direct exceptions only when enabled'],
-      ['apps.apple.com', optionalApps, 'Apple apps follow the application switch'],
-      ['music.apple.com', optionalApps, 'Apple music follows the application switch'],
+      ['youtube.com', true, 'YouTube retains Fake-IP in the shared Media group'],
+      ['exhentai.org', true, 'EHentai keeps Fake-IP'],
+      ['apple.com', true, 'Apple root keeps proxy classification'],
+      ['www.apple.com', false, 'Apple CN direct exception gets a real IP'],
       ['download.microsoft.com', false, 'Verified Microsoft download gets a real IP'],
       ['globalcdn.nuget.org', true, 'NuGet CDN uses general proxy DNS'],
       ['developer.microsoft.com', false, 'Microsoft developer site uses a direct real IP'],
-      ['steamcloudsweden.blob.core.windows.net', true, 'Steam uses Fake-IP before Microsoft Azure parent'],
-      ['steamugcquincy.blob.core.windows.net', true, 'Steam UGC uses Fake-IP before Microsoft Azure parent'],
       ['drive.usercontent.google.com', true, 'Google Drive remains selectable'],
       ['drive-data-export.usercontent.google.com', true, 'Google Drive export remains selectable'],
       ['drive-data-export-eu.usercontent.google.com', true, 'Google Drive EU export remains selectable'],
@@ -212,9 +210,9 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       ['copilot.microsoft.com', true, 'AI stays ahead of Microsoft'],
       ['grok.x.com', true, 'AI stays ahead of Twitter'],
       ['meta.ai', true, 'AI stays ahead of Meta'],
-      ['facebook.com', true, 'Meta keeps Fake-IP with its application selector enabled or disabled'],
-      ['line.me', true, 'Line keeps Fake-IP with its application selector enabled or disabled'],
-      ['netflix.com', true, 'Netflix keeps Fake-IP under overseas media'],
+      ['facebook.com', true, 'Facebook keeps Fake-IP under general proxy'],
+      ['line.me', true, 'Line keeps Fake-IP under general proxy'],
+      ['netflix.com', true, 'Netflix keeps Fake-IP under Media'],
       [adDomain, true, 'Ads stay before the deliberately overlapping direct entry'],
     ];
     for (const [name, expectedFake, label] of fakeCases) {
@@ -292,24 +290,25 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await realQuery('mypikpak.com', 'US 01', foreign);
       await realQuery('mtalk.google.com', 'DIRECT', domestic);
       await realQuery('exhentai.org', 'US 01', foreign);
-      await realQuery('apple.com', optionalApps ? 'JP 01' : 'HK 01', optionalApps ? foreign : general);
-      await realQuery('facebook.com', optionalApps ? 'US 01' : 'HK 01', optionalApps ? foreign : general);
-      await realQuery('line.me', optionalApps ? 'JP 01' : 'HK 01', optionalApps ? foreign : general);
+      await realQuery('apple.com', 'HK 01', general);
+      await realQuery('facebook.com', 'HK 01', general);
+      await realQuery('line.me', 'HK 01', general);
       await realQuery('netflix.com', 'US 01', foreign);
       await realQuery('nflxvideo.net', 'US 01', foreign);
       await realQuery('nflxso.net', 'US 01', foreign);
-      for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, optionalApps ? 'JP 01' : 'DIRECT', optionalApps ? foreign : domestic);
+      for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, 'DIRECT', domestic);
       await realQuery('download.microsoft.com', 'DIRECT', domestic);
       await realQuery('child.vscode.download.prss.microsoft.com', 'HK 01', general);
       await realQuery('developer.microsoft.com', 'DIRECT', domestic);
-      for (const domain of ['steamcloudsweden.blob.core.windows.net', 'steamugcquincy.blob.core.windows.net']) await realQuery(domain, 'US 01', foreign);
+      for (const domain of ['cdn.steamcontent.com', 'api.steampowered.com', 'test.steamserver.net']) await realQuery(domain, 'DIRECT', domestic);
+      await realQuery('store.steampowered.com', 'HK 01', general);
       for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
       for (const domain of ['youtubei.googleapis.com', 'yt3.googleusercontent.com']) await realQuery(domain, 'US 01', foreign);
       await realQuery('o4504926511693824.ingest.sentry.io', 'US 01', foreign);
       for (const domain of ['copilot.microsoft.com', 'grok.x.com', 'meta.ai']) await realQuery(domain, 'US 01', foreign);
       await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
       await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
-      await call('/proxies/' + encodeURIComponent('海外媒体'), 'PUT', { name: '代理连接' });
+      await call('/proxies/' + encodeURIComponent('Media'), 'PUT', { name: '代理连接' });
       fx.origin.closeConnections();
       await delay(30);
       await realQuery('mtalk.google.com', 'HK 01', domestic);
@@ -369,13 +368,12 @@ async function main() {
   const results = [];
   try {
     for (const mode of ['resolver-default', 'upstream']) results.push(await runCase(binary, mode, directory));
-    results.push(await runCase(binary, 'resolver-default', directory, { Apple: true, Meta: true, Line: true }));
     results.push(await runCase(binary, 'resolver-default', directory, { DNS跟随服务: false }));
     const passed = results.every(result => result.passed);
     const checks = results.reduce((sum, result) => sum + result.checks.length, 0);
     console.log(JSON.stringify({ passed, checks, results }, null, 2));
   } finally {
-    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 4 && results.every(result => result.passed), results }, null, 2));
+    fs.writeFileSync(path.join(directory, 'results.json'), JSON.stringify({ passed: results.length === 3 && results.every(result => result.passed), results }, null, 2));
   }
 }
 main().catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });

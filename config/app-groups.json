@@ -6,7 +6,7 @@
     "enabled": true
   },
   {
-    "name": "海外媒体",
+    "name": "Media",
     "domain": "youtube",
     "existingGroup": true,
     "defaultGroup": "代理连接",
@@ -26,18 +26,6 @@
     "enabled": true
   },
   {
-    "name": "Steam",
-    "domain": "steam",
-    "defaultGroup": "代理连接",
-    "enabled": true
-  },
-  {
-    "name": "Apple",
-    "domain": "apple",
-    "defaultGroup": "代理连接",
-    "enabled": false
-  },
-  {
     "name": "Twitter",
     "domain": "twitter",
     "baseIp": "safe_ip",
@@ -45,21 +33,16 @@
     "enabled": true
   },
   {
-    "name": "Meta",
-    "domain": "meta",
-    "ip": "facebook_ip",
-    "defaultGroup": "代理连接",
-    "enabled": false
-  },
-  {
-    "name": "Line",
-    "domain": "line",
-    "defaultGroup": "代理连接",
-    "enabled": false
-  },
-  {
     "name": "PikPak",
     "domain": "pikpak",
+    "extraDomains": [
+      "+.dlandroid.rcv.sandai.net",
+      "+.hub5idx.v6.shub.sandai.net",
+      "+.hub5pn.wap.sandai.net",
+      "+.hub5pnc.sandai.net",
+      "+.hub5pr.v6.phub.sandai.net",
+      "+.hubciddata.sandai.net"
+    ],
     "defaultGroup": "代理连接",
     "enabled": true
   },
