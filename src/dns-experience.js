@@ -39,7 +39,7 @@ function withoutForcedEcs(address) {
   return address.slice(0, split) + (parameters.length ? '#' + parameters.join('&') : '');
 }
 
-function patchDnsExperience(config, lists, options, downloadEnabled, downloadGroup) {
+function patchDnsExperience(config, lists, options) {
   const settings = options || {};
   const mode = settings.ecsMode || 'resolver-default';
   if (!['resolver-default', 'upstream'].includes(mode)) throw new Error('未知 ECS 模式：' + mode);
@@ -57,29 +57,16 @@ function patchDnsExperience(config, lists, options, downloadEnabled, downloadGro
     throw new Error('DNS 域名清单包含不支持的规则类型：' + type);
   }))];
   const providers = config['rule-providers'];
-  if (providers['personal-direct'] || providers['personal-download']) throw new Error('个人 DNS 规则集与基础配置重名');
-  providers['personal-direct'] = { type: 'inline', behavior: 'domain', payload: payload([...lists['microsoft-direct'], ...lists['extra-direct'], ...lists['academic-direct']]) };
-  if (downloadEnabled) providers['personal-download'] = { type: 'inline', behavior: 'domain', payload: payload(lists.downloads) };
+  if (providers['personal-direct']) throw new Error('个人 DNS 规则集与基础配置重名');
+  providers['personal-direct'] = { type: 'inline', behavior: 'domain', payload: payload([...lists.downloads, ...lists['microsoft-direct'], ...lists['extra-direct'], ...lists['academic-direct']]) };
   const filterIndex = dns['fake-ip-filter'].indexOf('RULE-SET,ads,fake-ip');
   if (dns['fake-ip-filter-mode'] !== 'rule' || filterIndex < 0) throw new Error('基础配置的 Fake-IP 规则不支持个人 DNS 分类');
-  dns['fake-ip-filter'].splice(filterIndex + 1, 0,
-    ...(downloadEnabled ? ['RULE-SET,personal-download,fake-ip'] : []),
-    'RULE-SET,personal-direct,real-ip');
+  dns['fake-ip-filter'].splice(filterIndex + 1, 0, 'RULE-SET,personal-direct,real-ip');
   const policies = {};
   let inserted = false;
   for (const [key, value] of Object.entries(dns['nameserver-policy'])) {
     policies[key] = value;
     if (key !== 'rule-set:ads') continue;
-    if (downloadEnabled) {
-      // A manually switched download keeps its domain and resolves through the
-      // same selected group. The domestic resolver endpoints remain reachable
-      // for its default direct route.
-      policies['rule-set:personal-download'] = dns['direct-nameserver'].map(address => {
-        const [base, ...suffix] = address.split('#');
-        const parameters = suffix.join('&').split('&').filter(part => part.includes('='));
-        return base + '#' + [downloadGroup, ...parameters].join('&');
-      });
-    }
     policies['rule-set:personal-direct'] = [...dns['direct-nameserver']];
     inserted = true;
   }

@@ -12,7 +12,13 @@ https://raw.githubusercontent.com/ValoHalo/ConfigProcessScript/main/Script/mihom
 
 启用“AI固定出口”后，“国外AI”菜单只列出订阅中已有的美国、日本分组及其具体节点。首次使用时默认走美国分组；没有美国节点时走日本，两地都没有节点时跟随“代理连接”。要固定使用某个节点，可以直接在“国外AI”里选它。
 
+“国外AI”排在“代理连接”后面。YouTube 和 Netflix 等视频服务共用“海外媒体”分组；切换这个组即可一起更换出口，普通 Google 服务仍跟随“GOOGLE”。
+
 卡巴斯基官网、My Kaspersky 账户页、登录和官网 API 使用“直接连接”，域名解析也走直连。域名清单在 `Rules/personal/extra-direct.list`。
+
+2026-11-25 从大陆 IPv4 出口实测能取得目标文件的下载主机列在 `Rules/personal/downloads.list`，按完整主机名匹配，连接和 DNS 都走“直接连接”。包括 Office 更新、Defender 病毒库、VS Code 和 Epic 安装包、Windows PowerShell 的 NuGet 提供程序，以及 WSL 使用的 Ubuntu 镜像。微软商店目录、Office 安装跳转和 NuGet 软件包 CDN 继续跟随 Microsoft 分组；Steam 内容下载跟随 Steam 分组。
+
+Windows 联网检测域名 `dns.msftncsi.com` 使用直连 DNS，返回 Windows 检查的真实地址。本机证书缓存用到的 DigiCert 和 Sectigo 状态查询、吊销列表也按完整主机名直连，见 `Rules/personal/extra-direct.list`。
 
 ## 节点域名 DNS
 

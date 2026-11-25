@@ -121,10 +121,12 @@ async function main() {
     assert.equal(group['include-all-providers'], true); assert(group.proxies.includes('代理连接'));
     assert(!group.proxies.includes('REJECT'));
   });
-  test('Download domains use the personal manual direct group', () => {
-    assert(current.rules.includes('DOMAIN-SUFFIX,download.windowsupdate.com,下载更新'));
-    assert(!current.rules.includes('DOMAIN-SUFFIX,docker.com,下载更新'));
-    assert.equal(current['proxy-groups'].find(g => g.name === '下载更新').proxies[0], '直接连接');
+  test('Verified downloads stay direct with a stale disabled download switch', () => {
+    const legacy = evaluate(code, input, { 大流量下载直连: false });
+    assert.deepEqual(legacy, current);
+    assert(!current['proxy-groups'].some(g => g.name === '下载更新'));
+    assert(current.rules.includes('DOMAIN,download.windowsupdate.com,直接连接'));
+    assert(!current.rules.includes('DOMAIN-SUFFIX,windowsupdate.com,直接连接'));
   });
   test('OneDrive option controls process routing and process detection', () => {
     assert.equal(current['find-process-mode'], 'strict');
@@ -133,8 +135,8 @@ async function main() {
     assert(!off.rules.some(rule => rule.startsWith('PROCESS-NAME,')));
   });
   test('Disabling optional services removes their rules, groups and DNS policies', () => {
-    const off = evaluate(code, input, { DLsite: false, 大流量下载直连: false, AI固定出口: false });
-    assert(!off['proxy-groups'].some(g => ['DLsite', '下载更新'].includes(g.name)));
+    const off = evaluate(code, input, { DLsite: false, AI固定出口: false });
+    assert(!off['proxy-groups'].some(g => g.name === 'DLsite'));
     assert.equal(off['rule-providers'].dlsite, undefined);
     assert(!Object.keys(off.dns['nameserver-policy']).some(k => k.includes('dlsite')));
     const normal = off['proxy-groups'].find(g => g.name === '国外AI');
@@ -172,16 +174,16 @@ async function main() {
     vm.runInContext(code + '\noptions = ruleOptionsEnable;', context);
     assert(!Object.keys(context.options).some(name => /兼容|recipes/i.test(name)));
   });
-  test('Personal DNS uses the same exact and suffix rules and keeps download precedence', () => {
+  test('Verified download hosts use exact personal direct DNS rules', () => {
     const direct = current['rule-providers']['personal-direct'].payload;
     assert(direct.includes('login.microsoftonline.com'));
     assert(!direct.includes('+.login.microsoftonline.com'));
     assert(direct.includes('+.arxiv.org'));
     const filters = current.dns['fake-ip-filter'];
-    assert(filters.indexOf('RULE-SET,ads,fake-ip') < filters.indexOf('RULE-SET,personal-download,fake-ip'));
-    assert(filters.indexOf('RULE-SET,personal-download,fake-ip') < filters.indexOf('RULE-SET,personal-direct,real-ip'));
-    assert(current.dns['nameserver-policy']['rule-set:personal-download'].every(s => s.includes('#下载更新')));
-    assert.equal(evaluate(code, input, { 大流量下载直连: false })['rule-providers']['personal-download'], undefined);
+    assert(filters.indexOf('RULE-SET,ads,fake-ip') < filters.indexOf('RULE-SET,personal-direct,real-ip'));
+    assert(direct.includes('officecdn.microsoft.com') && !direct.includes('+.officecdn.microsoft.com'));
+    assert(!direct.includes('globalcdn.nuget.org'));
+    assert.equal(current['rule-providers']['personal-download'], undefined);
   });
   test('Subscription node ECS stays intact and the upstream ECS mode is opt-in', () => {
     const custom = fixture();
@@ -272,7 +274,7 @@ async function main() {
     } finally { fs.writeFileSync(file, originalProject); }
   });
   const QuickJS = await getQuickJS();
-  for (const options of [{}, { OneDrive: false }, { DLsite: false }, { AI固定出口: false }, { 大流量下载直连: false }, { DNS跟随服务: false }]) {
+  for (const options of [{}, { OneDrive: false }, { DLsite: false }, { AI固定出口: false }, { Microsoft: false }, { DNS跟随服务: false }]) {
     const ctx = QuickJS.newContext();
     try {
       const result = ctx.evalCode(code + '\nObject.assign(ruleOptionsEnable,' + JSON.stringify(options) + ');\nJSON.stringify(main(' + JSON.stringify(input) + '));');

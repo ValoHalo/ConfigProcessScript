@@ -477,7 +477,7 @@ function patchPersonalDns(originalSubscription, echConfig, settings = {}, groupN
       // so appending its DNS policy after the upstream sets would never win.
       const policySets = pattern.slice(9).split(',').map((name) => name.trim());
       if (servicePolicies.dlsite && !inserted.has('dlsite') &&
-          policySets.some((name) => !['ads', 'personal-download', 'personal-direct'].includes(name))) {
+          policySets.some((name) => !['ads', 'personal-direct'].includes(name))) {
         policies['rule-set:dlsite'] = servicePolicies.dlsite;
         inserted.add('dlsite');
       }

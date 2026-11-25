@@ -3,6 +3,11 @@ DOMAIN,fsend.cn
 DOMAIN-SUFFIX,lsposed.org
 DOMAIN-SUFFIX,lsposed.zip
 DOMAIN,international-gfe.download.nvidia.com
+# Windows 证书缓存中实际使用的在线状态查询和吊销列表
+DOMAIN,ocsp.digicert.com
+DOMAIN,crl3.digicert.com
+DOMAIN,ocsp.sectigo.com
+DOMAIN,crl.sectigo.com
 # 卡巴斯基更新及安全网络服务；后缀规则包含全部子域名。
 # https://support.kaspersky.com/ksc/15.1/settings/server/6105
 DOMAIN-SUFFIX,kaspersky.com

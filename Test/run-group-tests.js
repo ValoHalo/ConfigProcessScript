@@ -206,16 +206,18 @@ function configurationTests() {
     assert(dlsite.proxies.includes('代理连接'));
     checkReferences(cfg);
   });
-  test('Visible menus place switches and applications before regions and multiplier groups', () => {
+  test('Frequently used selectors lead the menu, with optional social apps in their usual positions', () => {
     const cfg = generate(['HK 0.5x', 'JP 01', 'US 2x', 'Canada 01']);
     const visible = groups(cfg).filter(group => !group.hidden).map(group => group.name);
-    assert.deepEqual(visible.slice(0, 4), ['代理连接', '直接连接', '代理DNS', '代理QUIC']);
-    const applications = ['国外AI', 'OneDrive', 'DLsite', 'FCM', 'YouTube', '海外媒体', 'Microsoft', 'Steam', 'Twitter', 'PikPak', 'EHentai', 'TELEGRAM', '下载更新', '下载相关', '风控安全', 'GOOGLE'];
-    assert.equal(visible[visible.indexOf('YouTube') + 1], '海外媒体');
-    for (const name of ['Apple', 'Meta', 'Line', 'Netflix']) assert(!visible.includes(name));
+    const favorites = ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Twitter', 'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE'];
+    assert.deepEqual(visible.slice(0, favorites.length + 2), [...favorites, '直接连接', '下载相关']);
+    const optional = groups(generate(['HK 01'], { Line: true, Meta: true })).filter(g => !g.hidden).map(g => g.name);
+    assert.deepEqual(optional.slice(0, 7), ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta']);
+    const applications = ['国外AI', 'OneDrive', 'DLsite', 'FCM', '海外媒体', 'Microsoft', 'Steam', 'Twitter', 'PikPak', 'EHentai', 'TELEGRAM', '下载相关', '风控安全', 'GOOGLE'];
+    for (const name of ['Apple', 'Meta', 'Line', 'Netflix', 'YouTube']) assert(!visible.includes(name));
     const regions = ['香港', '日本', '美国', '其他节点'];
     const firstRegion = Math.min(...regions.map(name => visible.indexOf(name)));
-    for (const name of applications) assert(visible.indexOf(name) >= 4 && visible.indexOf(name) < firstRegion, name + ': application must precede regions');
+    for (const name of applications) assert(visible.indexOf(name) > 0 && visible.indexOf(name) < firstRegion, name + ': application must precede regions');
     for (const name of regions) assert(visible.indexOf(name) > 3 && visible.indexOf(name) < visible.indexOf('低倍率节点'), name + ': region must precede multiplier groups');
     assert.deepEqual(visible.slice(-2), ['低倍率节点', '高倍率节点']);
     assert.equal(byName(cfg, '最低延迟').hidden, true);
@@ -225,7 +227,7 @@ function configurationTests() {
   });
   test('Restored applications expose direct and regional choices with their intended defaults', () => {
     const cfg = generate(['HK 01', 'JP 01', 'US 01'], { Apple: true, Meta: true, Line: true });
-    for (const name of ['FCM', 'YouTube', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak', 'EHentai']) {
+    for (const name of ['FCM', '海外媒体', 'Microsoft', 'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak', 'EHentai']) {
       const group = byName(cfg, name);
       assert(group, name + ': missing application selector');
       assert.equal(group.type, 'select');

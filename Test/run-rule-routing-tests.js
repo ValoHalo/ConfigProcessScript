@@ -73,7 +73,7 @@ async function runCase(binary, options, mode) {
       try { await control('/version'); ready = true; break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
     }
     if (!ready) throw new Error('Mihomo did not start: ' + logs.slice(-1500));
-    for (const [group, node] of Object.entries({ 代理连接: 'US 01', GOOGLE: '代理连接', 国外AI: 'US 01' })) {
+    for (const [group, node] of Object.entries({ 代理连接: 'US 01', GOOGLE: '代理连接', 国外AI: 'US 01', 海外媒体: 'JP 01' })) {
       await control('/proxies/' + encodeURIComponent(group), 'PUT', { name: node });
     }
     // Providers initialize asynchronously; require the complete set before requests.

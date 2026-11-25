@@ -10,10 +10,6 @@
     "enabled": true,
     "defaultGroup": "日本"
   },
-  "downloads": {
-    "enabled": true,
-    "name": "下载更新"
-  },
   "oneDrive": true,
   "dnsFollowServices": {
     "ai": true,

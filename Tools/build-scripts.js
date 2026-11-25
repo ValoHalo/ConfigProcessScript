@@ -24,7 +24,6 @@ function bettboxOptions(settings, applications) {
     ['OneDrive', settings.oneDrive, 'OneDrive 进程独立分流，默认直连'],
     ['DLsite', settings.dlsite.enabled, 'DLsite 独立分流，默认日本'],
     ['AI固定出口', settings.ai.enabled, 'AI 默认按' + settings.ai.regions.join('、') + '的顺序选用已有地区分组，也可手选节点；没有对应分组时跟随代理连接'],
-    ['大流量下载直连', settings.downloads.enabled, '游戏与系统下载独立分流，默认直连'],
     ['DNS跟随服务', true, '应用域名解析跟随该应用选择的出口'],
   );
   if (new Set(options.map(([key]) => key)).size !== options.length) throw new Error('Duplicate Bettbox option name');
@@ -34,7 +33,7 @@ function bettboxOptions(settings, applications) {
   });
   return [
     '// Bettbox 自定义开关：true 启用，false 关闭。',
-    'const Compatible_With_Bettbox = { ruleOptionsEnable: true, policyGroupOptions: ' + JSON.stringify(options.filter(([name]) => !['AI固定出口', '大流量下载直连', 'DNS跟随服务'].includes(name)).map(([name]) => name)) + ' };',
+    'const Compatible_With_Bettbox = { ruleOptionsEnable: true, policyGroupOptions: ' + JSON.stringify(options.filter(([name]) => !['AI固定出口', 'DNS跟随服务'].includes(name)).map(([name]) => name)) + ' };',
     'const ruleOptionsEnable = {', ...lines, '};',
   ].join('\n');
 }
@@ -59,7 +58,7 @@ function generate(projectRoot = root) {
   }
   if (!Array.isArray(settings.ai?.regions) || typeof settings.dlsite?.defaultGroup !== 'string') throw new Error('Invalid personal service settings');
   const data = {};
-  for (const [name, types] of Object.entries({ 'microsoft-direct': ['DOMAIN'], 'academic-direct': ['DOMAIN-SUFFIX'], 'extra-direct': ['DOMAIN', 'DOMAIN-SUFFIX'], downloads: ['DOMAIN-SUFFIX'], onedrive: ['PROCESS-NAME'] })) data[name] = personalList(read('Rules/personal/' + name + '.list'), name, types);
+  for (const [name, types] of Object.entries({ 'microsoft-direct': ['DOMAIN'], 'academic-direct': ['DOMAIN-SUFFIX'], 'extra-direct': ['DOMAIN', 'DOMAIN-SUFFIX'], downloads: ['DOMAIN'], onedrive: ['PROCESS-NAME'] })) data[name] = personalList(read('Rules/personal/' + name + '.list'), name, types);
   const project = JSON.parse(read('config/project.json'));
   if (!project || typeof project !== 'object' || Array.isArray(project) || typeof project.repository !== 'string' || !/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\/[A-Za-z0-9_.-]+$/.test(project.repository) || ['.', '..'].includes(project.repository.split('/')[1]) || typeof project.branch !== 'string' || !/^[A-Za-z0-9_./-]+$/.test(project.branch) || project.branch.includes('..') || project.branch.startsWith('/') || project.branch.endsWith('/') || project.branch.includes('//')) throw new Error('Invalid publication repository or branch in config/project.json; configure this repository before building');
   const rulesBaseUrl = `https://raw.githubusercontent.com/${project.repository}/${project.branch}/Rules/generated`;

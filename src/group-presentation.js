@@ -7,7 +7,6 @@ function personalGroupIcons() {
     '代理DNS': qure('Server'),
     '代理QUIC': qure('Static'),
     '国外AI': qure('ChatGPT'),
-    'YouTube': qure('YouTube'),
     'GOOGLE': qure('Google_Search'),
     'TELEGRAM': qure('Telegram'),
     'Discord': qure('Discord'),
@@ -22,7 +21,6 @@ function personalGroupIcons() {
     'EHentai': lige('04ProxySoft/exhentai'),
     'DLsite': 'https://www.dlsite.com/modpub/images/web/common/apple_touch_icon_152x152.png',
     'FCM': 'https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png',
-    '下载更新': qure('App_Store'),
     '下载相关': qure('Download'),
     '风控安全': qure('Lock'),
     '海外媒体': qure('ForeignMedia'),
@@ -34,7 +32,7 @@ function personalGroupIcons() {
 
 // Bettbox reads this metadata when rendering the script's custom switches.
 const serviceConfigs = Object.entries(ruleOptionsEnable).map(([name]) => {
-  const aliases = { AI固定出口: '国外AI', 大流量下载直连: '下载更新', DNS跟随服务: '代理DNS' };
+  const aliases = { AI固定出口: '国外AI', DNS跟随服务: '代理DNS' };
   const icons = personalGroupIcons();
   return { name, icon: icons[aliases[name] || name] };
 });
@@ -55,16 +53,13 @@ function configureGroupPresentation(config, nodeGroups) {
     '荷兰': lige('01Country/Netherlands'),
   });
   const order = [
-    '代理连接', '直接连接', '代理DNS', '代理QUIC',
-    '国外AI', 'YouTube', '海外媒体', 'GOOGLE', 'TELEGRAM', 'Discord', 'Microsoft', 'OneDrive',
-    'Apple', 'Steam', 'Twitter', 'Meta', 'Line', 'PikPak',
-    'EHentai', 'DLsite', 'FCM', '下载更新', '下载相关', '风控安全',
+    // 常用组优先；未启用的社交组不占位置。
+    '代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta',
+    'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE',
+    // 其余先放通用出口和跨服务分流，再放单项服务。
+    '直接连接', '下载相关', '风控安全',
+    '代理DNS', '代理QUIC', 'Apple', 'Steam', 'PikPak', 'FCM',
   ];
-  if (typeof personalSettings !== 'undefined' && personalSettings.downloads?.name) {
-    const customDownload = personalSettings.downloads.name;
-    if (!order.includes(customDownload)) order.splice(order.indexOf('下载相关'), 0, customDownload);
-    icons[customDownload] = qure('App_Store');
-  }
   const groups = config['proxy-groups'];
   const byName = new Map(groups.map(group => [group.name, group]));
   const buckets = nodeGroups.buckets || [];

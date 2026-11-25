@@ -29,4 +29,10 @@ DOMAIN,dot.net
 DOMAIN,builds.dotnet.microsoft.com
 DOMAIN,www.msftconnecttest.com
 DOMAIN,www.msftncsi.com
+# Windows 联网检测会核对 DNS 答案，需要返回真实地址。
+DOMAIN,dns.msftncsi.com
 DOMAIN,www.xbox.com
+
+# 开发者网站
+DOMAIN,developer.microsoft.com
+DOMAIN,visualstudio.microsoft.com

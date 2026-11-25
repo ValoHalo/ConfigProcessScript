@@ -6,23 +6,19 @@ function personalClone(value) {
 function main(subscription) {
   if (!subscription || !Array.isArray(subscription.proxies) || !subscription.proxies.length) throw new Error('需要包含 proxies 的订阅配置');
   let config = buildBaseConfig(personalClone(subscription));
-  const nodeGroups = configurePersonalNodeGroups(config, [personalSettings.downloads.name, ...applicationGroups.map(app => app.name)]);
+  const nodeGroups = configurePersonalNodeGroups(config, applicationGroups.map(app => app.name));
   const groups = config['proxy-groups'];
   const required = ['直接连接', '代理连接', '国外AI'];
   for (const name of required) if (!groups.some(group => group.name === name)) throw new Error('基础策略组已变化，需要检查个人配置：' + name);
   const aiGroup = groups.find(group => group.name === '国外AI');
   const originalService = personalClone(aiGroup);
   const extraGroups = [];
-  const earlyRules = [];
+  const earlyRules = personalLists.downloads.map(rule => rule + ',直接连接');
 
   if (ruleOptionsEnable.OneDrive) {
     extraGroups.push({ name: 'OneDrive', type: 'select', proxies: ['直接连接', '代理连接'] });
     for (const rule of personalLists.onedrive) earlyRules.push(rule + ',OneDrive');
     config['find-process-mode'] = 'strict';
-  }
-  if (ruleOptionsEnable.大流量下载直连) {
-    extraGroups.push({ name: personalSettings.downloads.name, type: 'select', proxies: ['直接连接', '代理连接', '下载相关'] });
-    for (const rule of personalLists.downloads) earlyRules.push(rule + ',' + personalSettings.downloads.name);
   }
   for (const key of ['microsoft-direct', 'extra-direct', 'academic-direct']) for (const rule of personalLists[key]) earlyRules.push(rule + ',直接连接');
 
@@ -70,7 +66,7 @@ function main(subscription) {
   const enabledApps = configureApplicationGroups(config, nodeGroups, originalService, ruleOptionsEnable);
 
   const dnsSettings = { dnsFollowServices: ruleOptionsEnable.DNS跟随服务 ? { ai: personalSettings.dnsFollowServices.ai && ruleOptionsEnable.AI固定出口, dlsite: personalSettings.dnsFollowServices.dlsite && ruleOptionsEnable.DLsite } : false };
-  config = patchDnsExperience(config, personalLists, personalSettings.dns, ruleOptionsEnable.大流量下载直连, personalSettings.downloads.name);
+  config = patchDnsExperience(config, personalLists, personalSettings.dns);
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
   configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
   configureGeneralDns(config, personalSettings.dns.general);

@@ -46,7 +46,7 @@ function configurePersonalNodeGroups(config, reservedGroupNames = []) {
     ...remaining.map(group => group.name),
     ...(config.proxies || []).map(proxy => proxy.name),
     ...Object.values(config['proxy-providers']).flatMap(entry => (entry.payload || []).map(proxy => proxy.name)),
-    'OneDrive', 'DLsite', '下载更新', 'DIRECT', 'REJECT', 'PASS-RULE',
+    'OneDrive', 'DLsite', 'DIRECT', 'REJECT', 'PASS-RULE',
     ...reservedGroupNames,
   ]);
   const allocate = name => {

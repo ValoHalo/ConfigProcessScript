@@ -19,7 +19,7 @@ Windows 额外将 Node 复制为测试目录中的 `OneDrive.exe`，验证同一
 
 AI UDP 测试验证所选节点不支持 UDP 时，个人保护规则会阻止流量改用后续出口，同时使用移除保护规则的配置作负向对照。
 
-DNS 行为测试通过真正的 UDP DNS 监听检查 Fake-IP 与 Real-IP，另外检查 DoH 查询路径和报文中的 ECS。它覆盖个人直连、精确域名反例、下载选择、AI／DLsite 服务出口、广告优先，以及保留订阅私有 DNS 的 ECS。控制器真实解析 API 不用于推断 Fake-IP 是否生效。
+DNS 行为测试通过真正的 UDP DNS 监听检查 Fake-IP 与 Real-IP，另外检查 DoH 查询路径和报文中的 ECS。它覆盖个人直连、精确域名反例、下载主机与商店服务的不同出口、AI／DLsite 服务出口、广告优先，以及保留订阅私有 DNS 的 ECS。控制器真实解析 API 不用于推断 Fake-IP 是否生效。
 
 `test:dns` 额外传入 `--mihomo` 时，检查未提供节点 DNS、国内公共节点 DNS、仅节点域名策略和仅节点规则集策略四种生成配置均能被内核加载。
 

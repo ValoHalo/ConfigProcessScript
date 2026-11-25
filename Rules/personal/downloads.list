@@ -1,11 +1,34 @@
-# 仅下载域名；账号、商店及更新调度继续使用其他分流。
-DOMAIN-SUFFIX,steamcontent.com
-DOMAIN-SUFFIX,download.epicgames.com
-DOMAIN-SUFFIX,download2.epicgames.com
-DOMAIN-SUFFIX,download3.epicgames.com
-DOMAIN-SUFFIX,download4.epicgames.com
-DOMAIN-SUFFIX,fastly-download.epicgames.com
-DOMAIN-SUFFIX,epicgames-download1.akamaized.net
-DOMAIN-SUFFIX,dl.delivery.mp.microsoft.com
-DOMAIN-SUFFIX,download.windowsupdate.com
-DOMAIN-SUFFIX,download.nvidia.com
+# 仅匹配从大陆 IPv4 出口取到实际文件的下载主机；同一 CDN 的其他主机沿用原规则。
+# Windows Update 扫描包和证书更新、Defender、Edge、系统镜像、微软下载中心
+DOMAIN,download.windowsupdate.com
+DOMAIN,ctldl.windowsupdate.com
+DOMAIN,definitionupdates.microsoft.com
+DOMAIN,msedge.sf.dl.delivery.mp.microsoft.com
+DOMAIN,software-static.download.prss.microsoft.com
+DOMAIN,download.microsoft.com
+
+# Office 更新清单、Teams 安装包、WinGet 软件源索引
+DOMAIN,officecdn.microsoft.com
+DOMAIN,officecdn-microsoft-com.akamaized.net
+DOMAIN,statics.teams.cdn.office.net
+DOMAIN,cdn.winget.microsoft.com
+
+# VS Code、Visual Studio 和 Sysinternals
+DOMAIN,vscode.download.prss.microsoft.com
+DOMAIN,download.visualstudio.microsoft.com
+DOMAIN,download.sysinternals.com
+DOMAIN,live.sysinternals.com
+
+# Epic 安装包；NVIDIA CUDA 软件包及其大陆下载地址
+DOMAIN,download.epicgames.com
+DOMAIN,epicgames-download1.akamaized.net
+DOMAIN,developer.download.nvidia.com
+DOMAIN,developer.download.nvidia.cn
+
+# Windows PowerShell 获取 NuGet 提供程序，以及 WSL 安装 Ubuntu 使用的镜像
+# https://learn.microsoft.com/powershell/gallery/how-to/getting-support/troubleshooting-cmdlets
+# https://github.com/microsoft/WSL/blob/master/distributions/DistributionInfo.json
+DOMAIN,cdn.oneget.org
+DOMAIN,releases.ubuntu.com
+DOMAIN,cdimage.ubuntu.com
+DOMAIN,cdimages.ubuntu.com

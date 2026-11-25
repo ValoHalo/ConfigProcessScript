@@ -36,7 +36,14 @@
   },
   {
     "domain": "youtube.com",
-    "expectedPolicy": "YouTube",
+    "expectedPolicy": "海外媒体",
+    "expectedExit": "JP 01",
+    "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
+  },
+  {
+    "domain": "rr1.googlevideo.com",
+    "expectedPolicy": "海外媒体",
+    "expectedExit": "JP 01",
     "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
   },
   {
@@ -111,18 +118,105 @@
   },
   {
     "domain": "steamcontent.com",
-    "expectedPolicy": "下载更新",
-    "expectedRule": "DOMAIN-SUFFIX,steamcontent.com,下载更新"
+    "expectedPolicy": "Steam",
+    "expectedRule": "SUB-RULE,(RULE-SET,steam),sub-app-steam"
   },
   {
     "domain": "download.epicgames.com",
-    "expectedPolicy": "下载更新",
-    "expectedRule": "DOMAIN-SUFFIX,download.epicgames.com,下载更新"
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,download.epicgames.com,直接连接",
+    "expectedExit": "DIRECT"
   },
   {
     "domain": "download.windowsupdate.com",
-    "expectedPolicy": "下载更新",
-    "expectedRule": "DOMAIN-SUFFIX,download.windowsupdate.com,下载更新"
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,download.windowsupdate.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "ctldl.windowsupdate.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,ctldl.windowsupdate.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "fe3.delivery.mp.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "msedge.sf.dl.delivery.mp.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,msedge.sf.dl.delivery.mp.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "slscr.update.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "kv801.prod.do.dsp.mp.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "definitionupdates.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,definitionupdates.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "officecdn-microsoft-com.akamaized.net",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,officecdn-microsoft-com.akamaized.net,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "vscode.download.prss.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,vscode.download.prss.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "dotnetcli.blob.core.windows.net",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "statics.teams.cdn.office.net",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,statics.teams.cdn.office.net,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "software-static.download.prss.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,software-static.download.prss.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "builds.dotnet.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,builds.dotnet.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "cdn.winget.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,cdn.winget.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "officecdn.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,officecdn.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "ms-python.gallerycdn.vsassets.io",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
   },
   {
     "domain": "store.steampowered.com",
@@ -213,6 +307,7 @@
   {
     "domain": "netflix.com",
     "expectedPolicy": "海外媒体",
+    "expectedExit": "JP 01",
     "expectedRule": "SUB-RULE,(RULE-SET,media),sub-media"
   },
   {
@@ -278,11 +373,33 @@
   },
   {
     "domain": "download.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,download.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "developer.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,developer.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "go.microsoft.com",
     "expectedPolicy": "Microsoft",
     "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
   },
   {
-    "domain": "developer.microsoft.com",
+    "domain": "storeedgefd.dsx.mp.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "child.vscode.download.prss.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "other-tenant.blob.core.windows.net",
     "expectedPolicy": "Microsoft",
     "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
   },
@@ -313,12 +430,14 @@
   },
   {
     "domain": "youtubei.googleapis.com",
-    "expectedPolicy": "YouTube",
+    "expectedPolicy": "海外媒体",
+    "expectedExit": "JP 01",
     "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
   },
   {
     "domain": "yt3.googleusercontent.com",
-    "expectedPolicy": "YouTube",
+    "expectedPolicy": "海外媒体",
+    "expectedExit": "JP 01",
     "expectedRule": "SUB-RULE,(RULE-SET,youtube),sub-app-youtube"
   },
   {
@@ -355,5 +474,114 @@
     "domain": "unlisted-fcm-port-7f180e9f.com",
     "expectedPolicy": "FCM",
     "expectedRule": "DST-PORT,5228-5230,FCM"
+  },
+  {
+    "domain": "developer.download.nvidia.cn",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,developer.download.nvidia.cn,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "developer.download.nvidia.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,developer.download.nvidia.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "download.sysinternals.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,download.sysinternals.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "download.visualstudio.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,download.visualstudio.microsoft.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "epicgames-download1.akamaized.net",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,epicgames-download1.akamaized.net,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "live.sysinternals.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,live.sysinternals.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "c2rsetup.officeapps.live.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "globalcdn.nuget.org",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "displaycatalog.mp.microsoft.com",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "aka.ms",
+    "expectedPolicy": "Microsoft",
+    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+  },
+  {
+    "domain": "cdn.oneget.org",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,cdn.oneget.org,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "releases.ubuntu.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,releases.ubuntu.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "cdimage.ubuntu.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,cdimage.ubuntu.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "cdimages.ubuntu.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,cdimages.ubuntu.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "ocsp.digicert.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,ocsp.digicert.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "crl3.digicert.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,crl3.digicert.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "ocsp.sectigo.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,ocsp.sectigo.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "crl.sectigo.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,crl.sectigo.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "download2.epicgames.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   }
 ]
