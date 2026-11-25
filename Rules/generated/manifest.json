@@ -703,7 +703,7 @@
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "count": 10110,
+      "count": 10112,
       "steps": [
         {
           "op": "add",
@@ -745,7 +745,7 @@
               "format": "faas-ip"
             }
           ],
-          "count": 10110
+          "count": 10112
         }
       ],
       "sources": [
@@ -788,19 +788,19 @@
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
           "format": "faas-ip",
-          "sha256": "c7dcd44ac31dbbe043617f0f066bbd60beaffae0b0c0521411e6d85e40561622",
+          "sha256": "80887d10c8174c039dec3d96c0b76460ca58a33e77d56dd010c4622fa0c65d5a",
           "count": 10
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
           "format": "faas-ip",
-          "sha256": "7ebaadf1cc59db38ee94a9f515696093f38ec7b1aa3ab4ff7b31a94ee7a410ef",
+          "sha256": "aedbd770486b6efbb7f5a1f883ced13304865a7133f19c3790f543296f6cd88f",
           "count": 5
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
           "format": "faas-ip",
-          "sha256": "deca45df71adf125e0973e0544d836d1d32236d18101ea6ca1a478451ae7334a",
+          "sha256": "c5b622f6b2d14b893b75606eb3c57653e35c981feacb40b56f3b5a0c4c475377",
           "count": 4
         }
       ],
@@ -820,11 +820,11 @@
       ],
       "output": {
         "path": "ipcidr/direct_ip.list",
-        "sha256": "b77eee166cf8064e828e39cf4c10a7ae3661270d7e60f0382f1435455d52f6cd"
+        "sha256": "a8121b5c520fe3974b3f9611b49dff3880fa7cfc87c695d677f0cf97e332e0f2"
       },
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
-        "sha256": "61fa04fdc6fc812137aed87738f188ed4f95724044c26b3b13ab667f5e713222"
+        "sha256": "db16c4645f1ef11f4adffc05bb72dd81a1a2b4e82ee4de3af0df80db2aef75c3"
       }
     },
     "discord": {
