@@ -209,7 +209,7 @@ function configurationTests() {
   test('Frequently used selectors lead the menu, with optional social apps in their usual positions', () => {
     const cfg = generate(['HK 0.5x', 'JP 01', 'US 2x', 'Canada 01']);
     const visible = groups(cfg).filter(group => !group.hidden).map(group => group.name);
-    const favorites = ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Twitter', 'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE'];
+    const favorites = ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Twitter', 'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE', 'Steam', 'PikPak', 'FCM'];
     assert.deepEqual(visible.slice(0, favorites.length + 2), [...favorites, '直接连接', '下载相关']);
     const optional = groups(generate(['HK 01'], { Line: true, Meta: true })).filter(g => !g.hidden).map(g => g.name);
     assert.deepEqual(optional.slice(0, 7), ['代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta']);

@@ -56,9 +56,10 @@ function configureGroupPresentation(config, nodeGroups) {
     // 常用组优先；未启用的社交组不占位置。
     '代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta',
     'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE',
+    'Steam', 'PikPak', 'FCM',
     // 其余先放通用出口和跨服务分流，再放单项服务。
     '直接连接', '下载相关', '风控安全',
-    '代理DNS', '代理QUIC', 'Apple', 'Steam', 'PikPak', 'FCM',
+    '代理DNS', '代理QUIC', 'Apple',
   ];
   const groups = config['proxy-groups'];
   const byName = new Map(groups.map(group => [group.name, group]));
