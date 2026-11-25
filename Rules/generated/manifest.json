@@ -306,7 +306,7 @@
   "rulesets": {
     "ads": {
       "behavior": "domain",
-      "count": 12223,
+      "count": 12224,
       "steps": [
         {
           "op": "add",
@@ -329,7 +329,7 @@
               "format": "text"
             }
           ],
-          "count": 12225
+          "count": 12226
         },
         {
           "op": "prune-covered",
@@ -339,7 +339,7 @@
               "format": "text"
             }
           ],
-          "count": 12223,
+          "count": 12224,
           "removed": 2,
           "partialOverlap": 0
         }
@@ -361,8 +361,8 @@
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e8eea3e0d34b6f0dc9914a18d24fed6b33e358c8ada81724ff259a37544b7daa",
-          "count": 3557
+          "sha256": "1792017e6213fde05d823ae41b349fb3ee86a813955bc5e5f6445fd0fa257fa1",
+          "count": 3558
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -393,11 +393,11 @@
       ],
       "output": {
         "path": "domain/ads.list",
-        "sha256": "3296eff8e162a8ee57941441eb0491d1bd0b44f5d0dab052197fcfb896dc719e"
+        "sha256": "a51aa7849417d0800241b3b7449368ac284c87fa04cf5a8f1a7a563b96c07511"
       },
       "mrs": {
         "path": "domain/ads.mrs",
-        "sha256": "e4269be019e486d0716a251753b4615c54231142663c0efb2870e2e8b1ccacab"
+        "sha256": "b56adef8ece6da69d34007d2127e0802d3accf8641e1ffe156d34b8527a1836f"
       }
     },
     "ai": {
@@ -614,8 +614,8 @@
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e8eea3e0d34b6f0dc9914a18d24fed6b33e358c8ada81724ff259a37544b7daa",
-          "count": 3557
+          "sha256": "1792017e6213fde05d823ae41b349fb3ee86a813955bc5e5f6445fd0fa257fa1",
+          "count": 3558
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -703,7 +703,7 @@
     },
     "direct_ip": {
       "behavior": "ipcidr",
-      "count": 10112,
+      "count": 10168,
       "steps": [
         {
           "op": "add",
@@ -745,7 +745,7 @@
               "format": "faas-ip"
             }
           ],
-          "count": 10112
+          "count": 10168
         }
       ],
       "sources": [
@@ -758,8 +758,8 @@
         {
           "url": "https://gaoyifan.github.io/china-operator-ip/china46.txt",
           "format": "text",
-          "sha256": "534cf4713ff145cbb0e1f193f52a5ec328a8dbf2974a860cadab9a146c31d543",
-          "count": 9688
+          "sha256": "e42bea67f52869dc3d5331b4f46b67438f3d8a6041cd080a2c31c2bc9c05bf0f",
+          "count": 9735
         },
         {
           "url": "https://ispip.clang.cn/all_cn_ipv46.txt",
@@ -788,19 +788,19 @@
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Cf.json",
           "format": "faas-ip",
-          "sha256": "80887d10c8174c039dec3d96c0b76460ca58a33e77d56dd010c4622fa0c65d5a",
+          "sha256": "8b26a15b120f7fa005696c97abf1b0a7c7866cc03919e2b5f933b7e77d2a9741",
           "count": 10
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Netlify.json",
           "format": "faas-ip",
-          "sha256": "aedbd770486b6efbb7f5a1f883ced13304865a7133f19c3790f543296f6cd88f",
-          "count": 5
+          "sha256": "e725ebc8dffad6a7a54827a67cdcd47252d6ef8184ab666b608841e2bb861343",
+          "count": 3
         },
         {
           "url": "https://raw.githubusercontent.com/xingpingcn/enhanced-FaaS-in-China/main/Vercel.json",
           "format": "faas-ip",
-          "sha256": "c5b622f6b2d14b893b75606eb3c57653e35c981feacb40b56f3b5a0c4c475377",
+          "sha256": "a527d5ca82865d854a16b6c0f33f4e4f4d72432bf66f288c7121f95831aa51ce",
           "count": 4
         }
       ],
@@ -820,11 +820,11 @@
       ],
       "output": {
         "path": "ipcidr/direct_ip.list",
-        "sha256": "a8121b5c520fe3974b3f9611b49dff3880fa7cfc87c695d677f0cf97e332e0f2"
+        "sha256": "30f422f31c261fcec1921a9fc372d6403fecb2c298c31868ff0eb9d3e1671f0d"
       },
       "mrs": {
         "path": "ipcidr/direct_ip.mrs",
-        "sha256": "db16c4645f1ef11f4adffc05bb72dd81a1a2b4e82ee4de3af0df80db2aef75c3"
+        "sha256": "d40161c47d76f07dc309de03116d6e0897e9de7251f82868d1ec1b02ca478480"
       }
     },
     "discord": {
@@ -965,8 +965,8 @@
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e8eea3e0d34b6f0dc9914a18d24fed6b33e358c8ada81724ff259a37544b7daa",
-          "count": 3557
+          "sha256": "1792017e6213fde05d823ae41b349fb3ee86a813955bc5e5f6445fd0fa257fa1",
+          "count": 3558
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
@@ -1791,8 +1791,8 @@
           "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=plain&showintro=0&mimetype=plaintext",
           "format": "text",
           "domainMode": "suffix",
-          "sha256": "e8eea3e0d34b6f0dc9914a18d24fed6b33e358c8ada81724ff259a37544b7daa",
-          "count": 3557
+          "sha256": "1792017e6213fde05d823ae41b349fb3ee86a813955bc5e5f6445fd0fa257fa1",
+          "count": 3558
         },
         {
           "file": "Rules/sources/ad_add_domain.list",
