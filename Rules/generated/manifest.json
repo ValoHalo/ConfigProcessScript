@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "configSha256": "646e1d5dd3ccfc4d03a1f073990c5359e70c3efd75c5abe748747a84d9c6d003",
+  "configSha256": "36b36171e7161895f4b2b7aad5572e62c9a23a11eda67ddf60db358537c27b97",
   "components": {
     "google-cn-exclusions": {
       "behavior": "domain",

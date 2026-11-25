@@ -25,6 +25,31 @@ async function runCase(binary, options, mode) {
   const api = loadScript('Script/mihomoScript.js');
   Object.assign(api.ruleOptionsEnable, options);
   const cfg = api.main(fx.subscription());
+  if (mode === 'ip') {
+    // Observe the direct group on a public IP without sending any packets to it.
+    const relay = { ...fx.subscription().proxies[0], name: 'Direct IP test relay' };
+    cfg.proxies.push(relay);
+    const group = cfg['proxy-groups'].find(g => g.name === '直接连接');
+    group.proxies = [relay.name];
+    group['default-selected'] = relay.name;
+  }
+  if (mode === 'default') {
+    // Check every declared direct host and the base and a child for each suffix.
+    // The public destination is never contacted; all names resolve to the fixture.
+    const seen = new Set(cases.map(item => item.domain));
+    for (const entry of cfg['rule-providers']['personal-direct'].payload) {
+      const suffix = entry.startsWith('+.'), name = suffix ? entry.slice(2) : entry;
+      for (const host of suffix ? [name, 'routing-fixture.' + name] : [name]) {
+        if (seen.has(host)) continue;
+        seen.add(host);
+        const expectedRule = cfg.rules.find(rule => rule.endsWith(',直接连接') &&
+          (rule === 'DOMAIN,' + host + ',直接连接' || (rule.startsWith('DOMAIN-SUFFIX,') &&
+            (host === rule.split(',')[1] || host.endsWith('.' + rule.split(',')[1])))));
+        assert(expectedRule, host + ': missing direct routing rule');
+        cases.push({ domain: host, expectedPolicy: '直接连接', expectedExit: 'DIRECT', expectedRule });
+      }
+    }
+  }
   if (mode !== 'ip') {
     // Exercise domain priority over the real FCM fallback without binding a
     // system service port: every request uses this isolated fixture port.
@@ -111,27 +136,6 @@ async function runCase(binary, options, mode) {
         results.push({ ...item, chains: connection.chains, rule: connection.rule, rulePayload: connection.rulePayload });
         console.log('PASS ' + target + ' -> ' + item.expectedPolicy);
       } finally { request?.destroy(); response?.destroy(); }
-    }
-    if (process.platform === 'win32' && mode === 'default') {
-      const copiedNode = path.join(directory, 'OneDrive.exe');
-      fs.copyFileSync(process.execPath, copiedNode);
-      const clientCode = `const http=require('node:http'); const req=http.get({hostname:'127.0.0.1',port:${port},path:'http://chatgpt.com:${fx.origin.port}/hold',headers:{Host:'chatgpt.com:${fx.origin.port}'},agent:false},res=>{res.once('data',()=>process.stdout.write('ready'));res.resume()});req.on('error',()=>process.exit(1));req.setTimeout(4000,()=>process.exit(1));`;
-      try {
-        for (const [executable, expected] of [[copiedNode, 'OneDrive'], [process.execPath, '国外AI']]) {
-          const client = spawn(executable, ['-e', clientCode], { windowsHide: true, env: cleanProxyEnvironment(), stdio: ['ignore', 'pipe', 'ignore'] });
-          let timer;
-          try {
-            await Promise.race([once(client.stdout, 'data'), once(client, 'exit').then(() => { throw new Error('Process client exited'); }), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Process client timeout')), 5000); })]);
-            const connection = (await control('/connections')).connections.find(c => c.metadata.host === 'chatgpt.com' && c.chains.includes(expected));
-            assert(connection, 'Windows process must route through ' + expected);
-            assert.equal(connection.rule, expected === 'OneDrive' ? 'ProcessName' : 'SubRules');
-            console.log('PASS Windows process ' + path.basename(executable) + ' -> ' + expected);
-          } finally {
-            clearTimeout(timer);
-            if (client.exitCode === null) { const exited = once(client, 'exit'); client.kill(); await exited; }
-          }
-        }
-      } finally { fs.unlinkSync(copiedNode); }
     }
     console.log(`Loaded ${Object.keys(sources).length} MRS sets; ${results.length} real-rule routes passed (${mode}).`);
     completed = true;

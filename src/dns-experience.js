@@ -58,7 +58,7 @@ function patchDnsExperience(config, lists, options) {
   }))];
   const providers = config['rule-providers'];
   if (providers['personal-direct']) throw new Error('个人 DNS 规则集与基础配置重名');
-  providers['personal-direct'] = { type: 'inline', behavior: 'domain', payload: payload([...lists.downloads, ...lists['microsoft-direct'], ...lists['extra-direct'], ...lists['academic-direct']]) };
+  providers['personal-direct'] = { type: 'inline', behavior: 'domain', payload: payload([...lists.downloads, ...lists.onedrive, ...lists['microsoft-direct'], ...lists['extra-direct'], ...lists['academic-direct']]) };
   const filterIndex = dns['fake-ip-filter'].indexOf('RULE-SET,ads,fake-ip');
   if (dns['fake-ip-filter-mode'] !== 'rule' || filterIndex < 0) throw new Error('基础配置的 Fake-IP 规则不支持个人 DNS 分类');
   dns['fake-ip-filter'].splice(filterIndex + 1, 0, 'RULE-SET,personal-direct,real-ip');

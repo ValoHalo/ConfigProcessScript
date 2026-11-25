@@ -10,7 +10,6 @@
     "enabled": true,
     "defaultGroup": "日本"
   },
-  "oneDrive": true,
   "dnsFollowServices": {
     "ai": true,
     "dlsite": true

@@ -792,6 +792,7 @@
     },
     "microsoft": {
       "behavior": "domain",
+      "publishOnly": true,
       "steps": [
         {
           "op": "add",

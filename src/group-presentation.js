@@ -10,8 +10,6 @@ function personalGroupIcons() {
     'GOOGLE': qure('Google_Search'),
     'TELEGRAM': qure('Telegram'),
     'Discord': qure('Discord'),
-    'Microsoft': qure('Microsoft'),
-    'OneDrive': qure('OneDrive'),
     'Apple': qure('Apple'),
     'Steam': qure('Steam'),
     'Twitter': qure('Twitter'),
@@ -55,7 +53,7 @@ function configureGroupPresentation(config, nodeGroups) {
   const order = [
     // 常用组优先；未启用的社交组不占位置。
     '代理连接', '国外AI', 'TELEGRAM', 'Discord', 'Line', 'Twitter', 'Meta',
-    'DLsite', 'EHentai', 'OneDrive', 'Microsoft', '海外媒体', 'GOOGLE',
+    'DLsite', 'EHentai', '海外媒体', 'GOOGLE',
     'Steam', 'PikPak', 'FCM',
     // 其余先放通用出口和跨服务分流，再放单项服务。
     '直接连接', '下载相关', '风控安全',

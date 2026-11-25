@@ -1,5 +1,28 @@
 [
   {
+    "ip": "192.178.108.222",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,direct_ip,直接连接",
+    "expectedExit": "Direct IP test relay"
+  },
+  {
+    "ip": "8.8.4.4",
+    "expectedPolicy": "GOOGLE",
+    "expectedRule": "SUB-RULE,(RULE-SET,google_ip),sub-google"
+  },
+  {
+    "domain": "emerald.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,emerald.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "www.emerald.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,emerald.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
     "domain": "www.kaspersky.com",
     "expectedPolicy": "直接连接",
     "expectedExit": "DIRECT",
@@ -93,13 +116,13 @@
   },
   {
     "domain": "onedrive.live.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "sub.learn.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "arxiv.org",
@@ -141,8 +164,8 @@
   },
   {
     "domain": "fe3.delivery.mp.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "msedge.sf.dl.delivery.mp.microsoft.com",
@@ -152,13 +175,13 @@
   },
   {
     "domain": "slscr.update.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "kv801.prod.do.dsp.mp.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "definitionupdates.microsoft.com",
@@ -180,8 +203,8 @@
   },
   {
     "domain": "dotnetcli.blob.core.windows.net",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "statics.teams.cdn.office.net",
@@ -215,8 +238,8 @@
   },
   {
     "domain": "ms-python.gallerycdn.vsassets.io",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "store.steampowered.com",
@@ -385,23 +408,24 @@
   },
   {
     "domain": "go.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "storeedgefd.dsx.mp.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "expectedExit": "DIRECT"
   },
   {
     "domain": "child.vscode.download.prss.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "other-tenant.blob.core.windows.net",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "steamcloudsweden.blob.core.windows.net",
@@ -513,23 +537,23 @@
   },
   {
     "domain": "c2rsetup.officeapps.live.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "globalcdn.nuget.org",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "displaycatalog.mp.microsoft.com",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "aka.ms",
-    "expectedPolicy": "Microsoft",
-    "expectedRule": "SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft"
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
   },
   {
     "domain": "cdn.oneget.org",
@@ -583,5 +607,70 @@
     "domain": "download2.epicgames.com",
     "expectedPolicy": "代理连接",
     "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy"
+  },
+  {
+    "domain": "storeedge.microsoft.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "test.gr.global.aa-rt.sharepoint.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,gr.global.aa-rt.sharepoint.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "my.microsoftpersonalcontent.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,microsoftpersonalcontent.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "example.files.1drv.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,files.1drv.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "example.up.1drv.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,up.1drv.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "example.storage.live.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN-SUFFIX,storage.live.com,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "d.docs.live.net",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "DOMAIN,d.docs.live.net,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "skyapi.onedrive.live.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedExit": "US 01"
+  },
+  {
+    "domain": "login.microsoft.com",
+    "expectedPolicy": "代理连接",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedExit": "US 01"
+  },
+  {
+    "domain": "other-tenant.sharepoint.com",
+    "expectedPolicy": "直接连接",
+    "expectedRule": "RULE-SET,proxy@direct,直接连接",
+    "expectedExit": "DIRECT"
+  },
+  {
+    "domain": "deep.other-tenant.sharepoint.com",
+    "expectedRule": "SUB-RULE,(RULE-SET,proxy-lite),sub-proxy",
+    "expectedPolicy": "代理连接"
   }
 ]

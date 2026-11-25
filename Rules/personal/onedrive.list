@@ -1,5 +1,10 @@
-# OneDrive 的桌面进程和 Android 包名。
-PROCESS-NAME,OneDrive.exe
-PROCESS-NAME,OneDrive.Sync.Service.exe
-PROCESS-NAME,OneDriveStandaloneUpdater.exe
-PROCESS-NAME,com.microsoft.skydrive
+# 本机个人同步日志出现的存储服务；只覆盖对应的 SharePoint 服务后缀。
+DOMAIN-SUFFIX,gr.global.aa-rt.sharepoint.com
+DOMAIN-SUFFIX,microsoftpersonalcontent.com
+
+# OneDrive 文件传输，不包含网盘首页、账号或整个 sharepoint.com。
+DOMAIN-SUFFIX,files.1drv.com
+DOMAIN-SUFFIX,up.1drv.com
+DOMAIN-SUFFIX,storage.live.com
+DOMAIN-SUFFIX,livefilestore.com
+DOMAIN,d.docs.live.net

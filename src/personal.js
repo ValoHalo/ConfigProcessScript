@@ -15,12 +15,8 @@ function main(subscription) {
   const extraGroups = [];
   const earlyRules = personalLists.downloads.map(rule => rule + ',直接连接');
 
-  if (ruleOptionsEnable.OneDrive) {
-    extraGroups.push({ name: 'OneDrive', type: 'select', proxies: ['直接连接', '代理连接'] });
-    for (const rule of personalLists.onedrive) earlyRules.push(rule + ',OneDrive');
-    config['find-process-mode'] = 'strict';
-  }
-  for (const key of ['microsoft-direct', 'extra-direct', 'academic-direct']) for (const rule of personalLists[key]) earlyRules.push(rule + ',直接连接');
+  config['find-process-mode'] = 'strict';
+  for (const key of ['onedrive', 'microsoft-direct', 'extra-direct', 'academic-direct']) for (const rule of personalLists[key]) earlyRules.push(rule + ',直接连接');
 
   if (ruleOptionsEnable.AI固定出口) {
     const regions = personalSettings.ai.regions;
@@ -67,6 +63,12 @@ function main(subscription) {
 
   const dnsSettings = { dnsFollowServices: ruleOptionsEnable.DNS跟随服务 ? { ai: personalSettings.dnsFollowServices.ai && ruleOptionsEnable.AI固定出口, dlsite: personalSettings.dnsFollowServices.dlsite && ruleOptionsEnable.DLsite } : false };
   config = patchDnsExperience(config, personalLists, personalSettings.dns);
+  if (ruleOptionsEnable.DLsite) {
+    const filters = config.dns['fake-ip-filter'];
+    const ai = filters.indexOf('RULE-SET,ai,fake-ip');
+    if (ai < 0) throw new Error('缺少 AI DNS 规则，无法确定 DLsite 的优先级');
+    filters.splice(ai, 0, 'RULE-SET,dlsite,fake-ip');
+  }
   config = patchPersonalDns(subscription, config, dnsSettings, { direct: '直接连接', proxy: '代理连接', ai: '国外AI', dlsite: 'DLsite' });
   configureApplicationDns(config, enabledApps, ruleOptionsEnable.DNS跟随服务);
   configureGeneralDns(config, personalSettings.dns.general);

@@ -62,8 +62,6 @@ async function main() {
   test('Application routing preserves personal priorities and aggregate fallbacks', () => {
     const replaced = new Set(['DST-PORT,5228-5230,直接连接', 'SUB-RULE,(RULE-SET,safe_ip),sub-safe']);
     assert.deepEqual(current.rules.filter(rule => base.rules.includes(rule)), base.rules.filter(rule => !replaced.has(rule)));
-    assert(current.rules.indexOf('RULE-SET,ads,REJECT') < current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive'));
-    assert(current.rules.indexOf('PROCESS-NAME,OneDrive.exe,OneDrive') < current.rules.indexOf('DOMAIN,api.onedrive.com,直接连接'));
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
     const fcm = current.rules.indexOf('SUB-RULE,(RULE-SET,googlefcm),sub-app-googlefcm');
     assert(current.rules.indexOf('DOMAIN,login.microsoftonline.com,直接连接') < fcm);
@@ -72,7 +70,7 @@ async function main() {
     assert(portFallback > current.rules.indexOf('RULE-SET,direct-lite,直接连接'));
     assert(portFallback < current.rules.findIndex(rule => rule.startsWith('SUB-RULE,(RULE-SET,telegram_ip,')));
     const guard = current.rules.indexOf('AND,((NETWORK,UDP),(RULE-SET,ai)),REJECT');
-    for (const id of ['googlefcm', 'youtube', 'telegram', 'microsoft', 'steam', 'twitter', 'pikpak', 'ehentai']) {
+    for (const id of ['googlefcm', 'youtube', 'telegram', 'steam', 'twitter', 'pikpak', 'ehentai']) {
       const index = current.rules.indexOf('SUB-RULE,(RULE-SET,' + id + '),sub-app-' + id);
       assert(index > guard, id + ': service routing must follow the AI UDP guard');
       assert(index < current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google'), id + ': service routing must precede Google parent domains');
@@ -80,8 +78,8 @@ async function main() {
     }
   });
   test('Steam and Google outrank broader infrastructure and download categories', () => {
-    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,steam),sub-app-steam') < current.rules.indexOf('SUB-RULE,(RULE-SET,microsoft),sub-app-microsoft'));
-    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google') < current.rules.indexOf('RULE-SET,proxy@direct,直接连接'));
+    assert(current.rules.indexOf('SUB-RULE,(RULE-SET,steam),sub-app-steam') < current.rules.indexOf('SUB-RULE,(RULE-SET,proxy-lite),sub-proxy'));
+    assert(current.rules.indexOf('RULE-SET,proxy@direct,直接连接') < current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google'));
     assert(current.rules.indexOf('SUB-RULE,(RULE-SET,google),sub-google') < current.rules.indexOf('SUB-RULE,(RULE-SET,download),sub-download'));
   });
   test('Apple, Meta and Line are opt-in while Netflix stays under overseas media', () => {
@@ -128,11 +126,17 @@ async function main() {
     assert(current.rules.includes('DOMAIN,download.windowsupdate.com,直接连接'));
     assert(!current.rules.includes('DOMAIN-SUFFIX,windowsupdate.com,直接连接'));
   });
-  test('OneDrive option controls process routing and process detection', () => {
-    assert.equal(current['find-process-mode'], 'strict');
-    const off = evaluate(code, input, { OneDrive: false });
-    assert.equal(off['find-process-mode'], base['find-process-mode']);
-    assert(!off.rules.some(rule => rule.startsWith('PROCESS-NAME,')));
+  test('Retired Microsoft and OneDrive groups leave only direct exceptions', () => {
+    for (const name of ['Microsoft', 'OneDrive']) {
+      assert(!current['proxy-groups'].some(g => g.name === name || g.proxies?.includes(name)));
+      assert.deepEqual(evaluate(code, input, { [name]: true }), current);
+    }
+    assert.equal(current['rule-providers'].microsoft, undefined);
+    assert.equal(current.dns['nameserver-policy']['rule-set:microsoft'], undefined);
+    assert(!current.rules.some(rule => /PROCESS-NAME,OneDrive|sub-app-microsoft|sub-onedrive/i.test(rule)));
+    assert(!Object.keys(current['sub-rules']).some(k => /microsoft|onedrive/.test(k)));
+    assert(!current.rules.some(rule => /^DOMAIN(?:-SUFFIX)?,(?:login[.a-z]+|onedrive[.a-z]+),代理连接$/.test(rule)));
+    assert.equal(current.rules.at(-1), 'MATCH,代理连接');
   });
   test('Disabling optional services removes their rules, groups and DNS policies', () => {
     const off = evaluate(code, input, { DLsite: false, AI固定出口: false });
@@ -223,7 +227,7 @@ async function main() {
     const published = evaluate(generate(dir), input, { Apple: true, Meta: true, Line: true });
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'config/rule-sources.json'), 'utf8'));
     const httpProviders = Object.entries(published['rule-providers']).filter(([, provider]) => provider.type === 'http');
-    assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).sort());
+    assert.deepEqual(httpProviders.map(([id]) => id).sort(), Object.keys(manifest.rulesets).filter(id => !manifest.rulesets[id].publishOnly).sort());
     for (const [id, provider] of httpProviders) {
       assert.equal(provider.url, 'https://raw.githubusercontent.com/example/config/main/Rules/generated/' + manifest.rulesets[id].behavior + '/' + id + '.mrs');
       assert.equal(provider.path, './rules/personal-' + id + '.mrs');

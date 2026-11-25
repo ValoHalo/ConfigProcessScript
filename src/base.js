@@ -94,8 +94,8 @@ function buildBaseConfig(config) {
       "fake-ip-filter": [
         "RULE-SET,ads,fake-ip",
         "RULE-SET,ai,fake-ip",
-        "RULE-SET,google,fake-ip",
         "RULE-SET,proxy@direct,real-ip",
+        "RULE-SET,google,fake-ip",
         "RULE-SET,download,fake-ip",
         "RULE-SET,safe,fake-ip",
         "RULE-SET,media,fake-ip",
@@ -110,8 +110,8 @@ function buildBaseConfig(config) {
       "nameserver-policy": {
         "rule-set:ads": ["rcode://name_error"],
         "rule-set:ai": proxyDns,
-        "rule-set:google": proxyDns,
         "rule-set:proxy@direct": directDns,
+        "rule-set:google": proxyDns,
         "rule-set:download,safe": proxyDns,
         "rule-set:media": proxyDns,
         "rule-set:proxy-lite": proxyDns,
@@ -135,8 +135,8 @@ function buildBaseConfig(config) {
     "rules": [
       "RULE-SET,ads,REJECT",
       "SUB-RULE,(RULE-SET,ai),sub-ai",
-      "SUB-RULE,(RULE-SET,google),sub-google",
       "RULE-SET,proxy@direct,直接连接",
+      "SUB-RULE,(RULE-SET,google),sub-google",
       "SUB-RULE,(RULE-SET,download),sub-download",
       "SUB-RULE,(RULE-SET,safe),sub-safe",
       "SUB-RULE,(RULE-SET,media),sub-media",
@@ -145,9 +145,9 @@ function buildBaseConfig(config) {
       "DST-PORT,5228-5230,直接连接",
       "SUB-RULE,(RULE-SET,telegram_ip,no-resolve),sub-telegram",
       "SUB-RULE,(RULE-SET,safe_ip),sub-safe",
-      "SUB-RULE,(RULE-SET,google_ip),sub-google",
       "SUB-RULE,(RULE-SET,media_ip),sub-media",
       "RULE-SET,direct_ip,直接连接",
+      "SUB-RULE,(RULE-SET,google_ip),sub-google",
       quic,
       "MATCH,代理连接"
     ],

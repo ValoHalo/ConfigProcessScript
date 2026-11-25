@@ -32,12 +32,6 @@
     "enabled": true
   },
   {
-    "name": "Microsoft",
-    "domain": "microsoft",
-    "defaultGroup": "代理连接",
-    "enabled": true
-  },
-  {
     "name": "Apple",
     "domain": "apple",
     "defaultGroup": "代理连接",

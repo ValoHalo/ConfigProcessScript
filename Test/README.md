@@ -13,9 +13,9 @@ npm run test:dns-behavior -- --mihomo .test-runtime/tools/mihomo.exe
 npm run test:dns -- --mihomo .test-runtime/tools/mihomo.exe
 ```
 
-路由测试启动独立官方 Mihomo 进程，加载全部 16 个真实生成 MRS；使用回环 HTTP／DNS／代理服务，检查控制器报告的实际策略组。它覆盖 AI、普通 Google、媒体、微软精确例外、学术、下载、DLsite 和上游风控分组。
+路由测试启动独立官方 Mihomo 进程，加载仓库发布的全部 MRS 规则集；使用回环 HTTP／DNS／代理服务，检查控制器报告的实际策略组。它覆盖 AI、普通 Google、媒体、微软精确例外、学术、下载、DLsite 和上游风控分组。
 
-Windows 额外将 Node 复制为测试目录中的 `OneDrive.exe`，验证同一域名按进程进入 OneDrive 组；普通 `node.exe` 是反向对照。测试不运行或改动真实 OneDrive。
+路由和 DNS 用例覆盖商店首页、OneDrive 文件传输及普通微软服务。另用其他 SharePoint 租户的域名检查，避免把整个 SharePoint 强制直连。
 
 AI UDP 测试验证所选节点不支持 UDP 时，个人保护规则会阻止流量改用后续出口，同时使用移除保护规则的配置作负向对照。
 

@@ -21,7 +21,6 @@ function personalList(text, name, types) {
 function bettboxOptions(settings, applications) {
   const options = applications.filter(app => !app.existingGroup).map(app => [app.name, app.enabled, app.name + ' 独立分流']);
   options.push(
-    ['OneDrive', settings.oneDrive, 'OneDrive 进程独立分流，默认直连'],
     ['DLsite', settings.dlsite.enabled, 'DLsite 独立分流，默认日本'],
     ['AI固定出口', settings.ai.enabled, 'AI 默认按' + settings.ai.regions.join('、') + '的顺序选用已有地区分组，也可手选节点；没有对应分组时跟随代理连接'],
     ['DNS跟随服务', true, '应用域名解析跟随该应用选择的出口'],
@@ -58,7 +57,7 @@ function generate(projectRoot = root) {
   }
   if (!Array.isArray(settings.ai?.regions) || typeof settings.dlsite?.defaultGroup !== 'string') throw new Error('Invalid personal service settings');
   const data = {};
-  for (const [name, types] of Object.entries({ 'microsoft-direct': ['DOMAIN'], 'academic-direct': ['DOMAIN-SUFFIX'], 'extra-direct': ['DOMAIN', 'DOMAIN-SUFFIX'], downloads: ['DOMAIN'], onedrive: ['PROCESS-NAME'] })) data[name] = personalList(read('Rules/personal/' + name + '.list'), name, types);
+  for (const [name, types] of Object.entries({ 'microsoft-direct': ['DOMAIN'], 'academic-direct': ['DOMAIN-SUFFIX'], 'extra-direct': ['DOMAIN', 'DOMAIN-SUFFIX'], downloads: ['DOMAIN'], onedrive: ['DOMAIN', 'DOMAIN-SUFFIX'] })) data[name] = personalList(read('Rules/personal/' + name + '.list'), name, types);
   const project = JSON.parse(read('config/project.json'));
   if (!project || typeof project !== 'object' || Array.isArray(project) || typeof project.repository !== 'string' || !/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\/[A-Za-z0-9_.-]+$/.test(project.repository) || ['.', '..'].includes(project.repository.split('/')[1]) || typeof project.branch !== 'string' || !/^[A-Za-z0-9_./-]+$/.test(project.branch) || project.branch.includes('..') || project.branch.startsWith('/') || project.branch.endsWith('/') || project.branch.includes('//')) throw new Error('Invalid publication repository or branch in config/project.json; configure this repository before building');
   const rulesBaseUrl = `https://raw.githubusercontent.com/${project.repository}/${project.branch}/Rules/generated`;
@@ -66,7 +65,8 @@ function generate(projectRoot = root) {
   if (!manifest.rulesets || typeof manifest.rulesets !== 'object' || Array.isArray(manifest.rulesets) || !Object.keys(manifest.rulesets).length) throw new Error('config/rule-sources.json must define published rulesets');
   const ids = Object.keys(manifest.rulesets);
   if (new Set(ids.map(id => id.toLowerCase())).size !== ids.length) throw new Error('Rule provider IDs must be unique ignoring case');
-  const providers = Object.fromEntries(Object.entries(manifest.rulesets).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([id, rule]) => {
+  // Keep old subscription URLs available without registering those sets in new clients.
+  const providers = Object.fromEntries(Object.entries(manifest.rulesets).filter(([, rule]) => !rule?.publishOnly).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([id, rule]) => {
     if (!/^[a-z0-9][a-z0-9._!@-]*$/i.test(id) || id.endsWith('.') || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(id) || !rule || !['domain', 'ipcidr'].includes(rule.behavior)) throw new Error('Invalid published rule provider: ' + id);
     return [id, { type: 'http', interval: 86400, proxy: '代理连接', behavior: rule.behavior, format: 'mrs', path: './rules/personal-' + id + '.mrs', url: rulesBaseUrl + '/' + rule.behavior + '/' + id + '.mrs' }];
   }));

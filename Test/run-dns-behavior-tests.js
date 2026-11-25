@@ -115,6 +115,13 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       config['rule-providers'][name] = { type: 'file', behavior: provider.behavior, format: 'mrs', path: file };
     }
     assert(config['rule-providers']['personal-direct']);
+    // Give a real DLsite host a conflicting general direct rule in the fixture.
+    // Falling through to the general sets would return a real IP instead of a fake IP.
+    const overlapId = 'fixture-general-direct';
+    config['rule-providers'][overlapId] = { type: 'inline', behavior: 'domain', payload: ['www.dlsite.com'] };
+    const generalFilter = config.dns['fake-ip-filter'].indexOf('RULE-SET,proxy@direct,real-ip');
+    assert(generalFilter >= 0);
+    config.dns['fake-ip-filter'].splice(generalFilter, 0, 'RULE-SET,' + overlapId + ',real-ip');
     // Intentional overlap tests that an ad block remains ahead of personal DNS.
     const adDomain = '0001-metrics1-drcn-dt-dbankcloud-cn.geac.dbankedge.cn';
     config['rule-providers']['personal-direct'].payload.push(adDomain);
@@ -164,13 +171,18 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     check('DLsite retains the Japan default group', () => assert.equal(dlsiteGroup.now, '日本'));
     const ehentaiGroup = await call('/proxies/' + encodeURIComponent('EHentai'));
     check('EHentai retains the US default group', () => assert.equal(ehentaiGroup.now, '美国'));
-    for (const [group, name] of Object.entries({ PikPak: '美国', Microsoft: '日本', Steam: '美国', GOOGLE: '日本', 海外媒体: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
+    for (const [group, name] of Object.entries({ PikPak: '美国', Steam: '美国', GOOGLE: '日本', 海外媒体: '美国', ...(optionalApps ? { Apple: '日本', Meta: '美国', Line: '日本' } : {}) })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
       ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
+      ['storeedge.microsoft.com', false, 'Store pages resolve through direct DNS'],
+      ['my.microsoftpersonalcontent.com', false, 'Personal storage receives a real address'],
+      ['test.gr.global.aa-rt.sharepoint.com', false, 'OneDrive storage service receives a real address'],
+      ['other-tenant.sharepoint.com', false, 'Single-label SharePoint tenant keeps the shared direct exception'],
       ['dns.msftncsi.com', false, 'Windows connectivity check receives its expected public IPv4 answer'],
       ['child.learn.microsoft.com', true, 'Microsoft child domain stays outside exact rule'],
       ['www.nature.com', false, 'Academic suffix direct rule'],
+      ['www.emerald.com', false, 'Emerald academic pages override the general proxy list'],
       ['my.kaspersky.com', false, 'My Kaspersky uses a real IP under personal direct rules'],
       ['api.lsposed.org', false, 'Personal suffix direct rule'],
       ['baidu.com', false, 'Upstream domestic real-IP rule'],
@@ -187,7 +199,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       ['apps.apple.com', optionalApps, 'Apple apps follow the application switch'],
       ['music.apple.com', optionalApps, 'Apple music follows the application switch'],
       ['download.microsoft.com', false, 'Verified Microsoft download gets a real IP'],
-      ['globalcdn.nuget.org', true, 'NuGet CDN stays with Microsoft'],
+      ['globalcdn.nuget.org', true, 'NuGet CDN uses general proxy DNS'],
       ['developer.microsoft.com', false, 'Microsoft developer site uses a direct real IP'],
       ['steamcloudsweden.blob.core.windows.net', true, 'Steam uses Fake-IP before Microsoft Azure parent'],
       ['steamugcquincy.blob.core.windows.net', true, 'Steam UGC uses Fake-IP before Microsoft Azure parent'],
@@ -258,19 +270,22 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await realQuery('www.youtube.com', 'US 01', general);
     } else {
       await realQuery('learn.microsoft.com', 'DIRECT', domestic);
+      for (const host of ['storeedge.microsoft.com', 'my.microsoftpersonalcontent.com', 'test.gr.global.aa-rt.sharepoint.com']) await realQuery(host, 'DIRECT', domestic);
+      await realQuery('skyapi.onedrive.live.com', 'HK 01', general);
       for (const domain of ['cdn.oneget.org', 'releases.ubuntu.com', 'ocsp.digicert.com', 'crl.sectigo.com']) await realQuery(domain, 'DIRECT', domestic);
       await realQuery('www.nature.com', 'DIRECT', domestic);
+      await realQuery('www.emerald.com', 'DIRECT', domestic);
       await realQuery('my.kaspersky.com', 'DIRECT', domestic);
       await realQuery('api-router.kaspersky-labs.com', 'DIRECT', domestic);
       await realQuery('cdn.steamcontent.com', 'US 01', foreign);
       await realQuery('officecdn.microsoft.com', 'DIRECT', domestic);
       await realQuery('vscode.download.prss.microsoft.com', 'DIRECT', domestic);
       await realQuery('international-gfe.download.nvidia.com', 'DIRECT', domestic);
-      await realQuery('globalcdn.nuget.org', 'JP 01', foreign);
-      await realQuery('c2rsetup.officeapps.live.com', 'JP 01', foreign);
+      await realQuery('globalcdn.nuget.org', 'HK 01', general);
+      await realQuery('c2rsetup.officeapps.live.com', 'HK 01', general);
       await realQuery('chatgpt.com', 'US 01', foreign);
       await realQuery('www.dlsite.com', 'JP 01', foreign);
-      await realQuery('child.learn.microsoft.com', 'JP 01', foreign);
+      await realQuery('child.learn.microsoft.com', 'HK 01', general);
       await realQuery('hanime1.me', 'US 01', foreign);
       await realQuery('iwara.tv', 'US 01', foreign);
       await realQuery('www.youtube.com', 'US 01', foreign);
@@ -285,7 +300,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await realQuery('nflxso.net', 'US 01', foreign);
       for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, optionalApps ? 'JP 01' : 'DIRECT', optionalApps ? foreign : domestic);
       await realQuery('download.microsoft.com', 'DIRECT', domestic);
-      await realQuery('child.vscode.download.prss.microsoft.com', 'JP 01', foreign);
+      await realQuery('child.vscode.download.prss.microsoft.com', 'HK 01', general);
       await realQuery('developer.microsoft.com', 'DIRECT', domestic);
       for (const domain of ['steamcloudsweden.blob.core.windows.net', 'steamugcquincy.blob.core.windows.net']) await realQuery(domain, 'US 01', foreign);
       for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
