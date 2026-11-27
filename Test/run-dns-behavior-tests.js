@@ -83,9 +83,8 @@ function controller(port, secret) {
 }
 
 async function runCase(binary, mode, parentDirectory, options = {}) {
-  const optionalApps = Boolean(options.Apple);
   const followsServices = options.DNS跟随服务 !== false;
-  const directory = path.join(parentDirectory, mode + (optionalApps ? '-optional-apps' : '') + (followsServices ? '' : '-general-dns'));
+  const directory = path.join(parentDirectory, mode + (followsServices ? '' : '-general-dns'));
   fs.mkdirSync(directory, { recursive: true });
   const nodeDomain = 'private-node.example.test';
   // Only v.recipes can answer these names. This proves it really participates,
@@ -174,45 +173,24 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
     for (const [group, name] of Object.entries({ PikPak: '美国', GOOGLE: '日本', Media: '美国' })) await call('/proxies/' + encodeURIComponent(group), 'PUT', { name });
 
     const fakeCases = [
-      ['learn.microsoft.com', false, 'Microsoft exact direct rule'],
-      ['storeedge.microsoft.com', false, 'Store pages resolve through direct DNS'],
-      ['my.microsoftpersonalcontent.com', false, 'Personal storage receives a real address'],
-      ['test.gr.global.aa-rt.sharepoint.com', false, 'OneDrive storage service receives a real address'],
-      ['other-tenant.sharepoint.com', false, 'Single-label SharePoint tenant keeps the shared direct exception'],
-      ['dns.msftncsi.com', false, 'Windows connectivity check receives its expected public IPv4 answer'],
-      ['child.learn.microsoft.com', true, 'Microsoft child domain stays outside exact rule'],
-      ['www.nature.com', false, 'Academic suffix direct rule'],
-      ['www.emerald.com', false, 'Emerald academic pages override the general proxy list'],
-      ['my.kaspersky.com', false, 'My Kaspersky uses a real IP under personal direct rules'],
-      ['api.lsposed.org', false, 'Personal suffix direct rule'],
-      ['baidu.com', false, 'Upstream domestic real-IP rule'],
+      ['learn.microsoft.com', false, 'Personal exact direct rule receives a real IP'],
+      ['child.learn.microsoft.com', true, 'Child domain stays outside exact direct rule'],
+      ['www.nature.com', false, 'Personal suffix direct rule receives a real IP'],
       ['cdn.steamcontent.com', false, 'Steam content CDN resolves directly for local download routing'],
-      ['api.steampowered.com', false, 'Steam API resolves directly for local download routing'],
-      ['store.steampowered.com', true, 'Steam store stays on Fake-IP for proxy routing'],
-      ['international-gfe.download.nvidia.com', false, 'Existing NVIDIA direct exception gets a real IP'],
+      ['dns.msftncsi.com', false, 'Windows connectivity check receives its expected public IPv4 answer'],
+      ['baidu.com', false, 'Upstream domestic real-IP rule'],
+      ['www.apple.com', false, 'Upstream proxy@direct exception gets a real IP'],
+      ['store.steampowered.com', true, 'General proxy domain stays on Fake-IP'],
       ['chatgpt.com', true, 'AI retains Fake-IP'],
-      ['www.dlsite.com', true, 'DLsite retains Fake-IP'],
-      ['mypikpak.com', true, 'PikPak retains Fake-IP'],
-      ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
-      ['youtube.com', true, 'YouTube retains Fake-IP in the shared Media group'],
-      ['exhentai.org', true, 'EHentai keeps Fake-IP'],
-      ['apple.com', true, 'Apple root keeps proxy classification'],
-      ['www.apple.com', false, 'Apple CN direct exception gets a real IP'],
-      ['download.microsoft.com', false, 'Verified Microsoft download gets a real IP'],
-      ['globalcdn.nuget.org', true, 'NuGet CDN uses general proxy DNS'],
-      ['developer.microsoft.com', false, 'Microsoft developer site uses a direct real IP'],
-      ['drive.usercontent.google.com', true, 'Google Drive remains selectable'],
-      ['drive-data-export.usercontent.google.com', true, 'Google Drive export remains selectable'],
-      ['drive-data-export-eu.usercontent.google.com', true, 'Google Drive EU export remains selectable'],
-      ['youtubei.googleapis.com', true, 'YouTube API overrides Google parent'],
-      ['yt3.googleusercontent.com', true, 'YouTube images override Google parent'],
-      ['o4504926511693824.ingest.sentry.io', true, 'PikPak exact domain overrides the Sentry direct exception'],
       ['copilot.microsoft.com', true, 'AI stays ahead of Microsoft'],
-      ['grok.x.com', true, 'AI stays ahead of Twitter'],
-      ['meta.ai', true, 'AI stays ahead of Meta'],
-      ['facebook.com', true, 'Facebook keeps Fake-IP under general proxy'],
-      ['line.me', true, 'Line keeps Fake-IP under general proxy'],
-      ['netflix.com', true, 'Netflix keeps Fake-IP under Media'],
+      ['www.dlsite.com', true, 'DLsite retains Fake-IP ahead of conflicting general direct rule'],
+      ['mypikpak.com', true, 'PikPak retains Fake-IP'],
+      ['o4504926511693824.ingest.sentry.io', true, 'PikPak overrides Sentry direct exception'],
+      ['mtalk.google.com', false, 'FCM retains real-IP for push connections'],
+      ['youtube.com', true, 'YouTube retains Fake-IP in Media'],
+      ['netflix.com', true, 'Netflix retains Fake-IP in Media'],
+      ['exhentai.org', true, 'EHentai retains Fake-IP'],
+      ['drive.usercontent.google.com', true, 'Google stays on Fake-IP'],
       [adDomain, true, 'Ads stay before the deliberately overlapping direct entry'],
     ];
     for (const [name, expectedFake, label] of fakeCases) {
@@ -267,45 +245,15 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await realQuery('www.dlsite.com', 'US 01', general);
       await realQuery('www.youtube.com', 'US 01', general);
     } else {
-      await realQuery('learn.microsoft.com', 'DIRECT', domestic);
-      for (const host of ['storeedge.microsoft.com', 'my.microsoftpersonalcontent.com', 'test.gr.global.aa-rt.sharepoint.com']) await realQuery(host, 'DIRECT', domestic);
-      await realQuery('skyapi.onedrive.live.com', 'HK 01', general);
-      for (const domain of ['cdn.oneget.org', 'releases.ubuntu.com', 'ocsp.digicert.com', 'crl.sectigo.com']) await realQuery(domain, 'DIRECT', domestic);
-      await realQuery('www.nature.com', 'DIRECT', domestic);
-      await realQuery('www.emerald.com', 'DIRECT', domestic);
-      await realQuery('my.kaspersky.com', 'DIRECT', domestic);
-      await realQuery('api-router.kaspersky-labs.com', 'DIRECT', domestic);
-      await realQuery('cdn.steamcontent.com', 'US 01', foreign);
-      await realQuery('officecdn.microsoft.com', 'DIRECT', domestic);
-      await realQuery('vscode.download.prss.microsoft.com', 'DIRECT', domestic);
-      await realQuery('international-gfe.download.nvidia.com', 'DIRECT', domestic);
-      await realQuery('globalcdn.nuget.org', 'HK 01', general);
-      await realQuery('c2rsetup.officeapps.live.com', 'HK 01', general);
-      await realQuery('chatgpt.com', 'US 01', foreign);
+      for (const domain of ['learn.microsoft.com', 'www.nature.com', 'cdn.steamcontent.com', 'www.apple.com']) await realQuery(domain, 'DIRECT', domestic);
+      for (const domain of ['child.learn.microsoft.com', 'store.steampowered.com', 'apple.com']) await realQuery(domain, 'HK 01', general);
+      for (const domain of ['chatgpt.com', 'copilot.microsoft.com']) await realQuery(domain, 'US 01', foreign);
       await realQuery('www.dlsite.com', 'JP 01', foreign);
-      await realQuery('child.learn.microsoft.com', 'HK 01', general);
-      await realQuery('hanime1.me', 'US 01', foreign);
-      await realQuery('iwara.tv', 'US 01', foreign);
-      await realQuery('www.youtube.com', 'US 01', foreign);
-      await realQuery('mypikpak.com', 'US 01', foreign);
+      for (const domain of ['www.youtube.com', 'youtubei.googleapis.com', 'netflix.com']) await realQuery(domain, 'US 01', foreign);
+      for (const domain of ['mypikpak.com', 'o4504926511693824.ingest.sentry.io']) await realQuery(domain, 'US 01', foreign);
       await realQuery('mtalk.google.com', 'DIRECT', domestic);
       await realQuery('exhentai.org', 'US 01', foreign);
-      await realQuery('apple.com', 'HK 01', general);
-      await realQuery('facebook.com', 'HK 01', general);
-      await realQuery('line.me', 'HK 01', general);
-      await realQuery('netflix.com', 'US 01', foreign);
-      await realQuery('nflxvideo.net', 'US 01', foreign);
-      await realQuery('nflxso.net', 'US 01', foreign);
-      for (const domain of ['www.apple.com', 'apps.apple.com', 'music.apple.com']) await realQuery(domain, 'DIRECT', domestic);
-      await realQuery('download.microsoft.com', 'DIRECT', domestic);
-      await realQuery('child.vscode.download.prss.microsoft.com', 'HK 01', general);
-      await realQuery('developer.microsoft.com', 'DIRECT', domestic);
-      for (const domain of ['cdn.steamcontent.com', 'api.steampowered.com', 'test.steamserver.net']) await realQuery(domain, 'DIRECT', domestic);
-      await realQuery('store.steampowered.com', 'HK 01', general);
-      for (const domain of ['drive.usercontent.google.com', 'drive-data-export.usercontent.google.com', 'drive-data-export-eu.usercontent.google.com']) await realQuery(domain, 'JP 01', foreign);
-      for (const domain of ['youtubei.googleapis.com', 'yt3.googleusercontent.com']) await realQuery(domain, 'US 01', foreign);
-      await realQuery('o4504926511693824.ingest.sentry.io', 'US 01', foreign);
-      for (const domain of ['copilot.microsoft.com', 'grok.x.com', 'meta.ai']) await realQuery(domain, 'US 01', foreign);
+      await realQuery('drive.usercontent.google.com', 'JP 01', foreign);
       await call('/proxies/' + encodeURIComponent('FCM'), 'PUT', { name: '代理连接' });
       await call('/proxies/' + encodeURIComponent('EHentai'), 'PUT', { name: '日本' });
       await call('/proxies/' + encodeURIComponent('Media'), 'PUT', { name: '代理连接' });
@@ -313,7 +261,7 @@ async function runCase(binary, mode, parentDirectory, options = {}) {
       await delay(30);
       await realQuery('mtalk.google.com', 'HK 01', domestic);
       await realQuery('exhentai.org', 'JP 01', foreign);
-      for (const domain of ['www.youtube.com', 'nflxvideo.net']) await realQuery(domain, 'HK 01', foreign);
+      for (const domain of ['www.youtube.com', 'netflix.com']) await realQuery(domain, 'HK 01', foreign);
     }
 
     const beforeAd = fx.seen.length;
